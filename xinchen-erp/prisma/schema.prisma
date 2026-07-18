@@ -1,0 +1,1705 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  DEAD
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum MarriageStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  SIGNED
+  TERMINATED
+  EXPIRED
+}
+
+enum OrderStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentType {
+  CLIENT_FEE
+  SCHOOL_COMMISSION
+  PARTNER_FEE
+  OTHER_INCOME
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  WECHAT
+  ALIPAY
+  CREDIT_CARD
+}
+
+enum Currency {
+  CNY
+  USD
+  GBP
+  AUD
+  CAD
+  SGD
+  MYR
+}
+
+enum CommissionStatus {
+  PENDING
+  RELEASED
+  ADJUSTED
+  CANCELLED
+}
+
+enum ApplicationStatus {
+  PREPARING
+  SUBMITTED
+  REVIEWING
+  OFFER
+  REJECTED
+  DEFERRED
+  ACCEPTED
+}
+
+enum OfferStatus {
+  RECEIVED
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum VisaStatus {
+  NOT_STARTED
+  PREPARING
+  SUBMITTED
+  APPROVED
+  REJECTED
+  APPEALING
+}
+
+enum VisitStage {
+  AFTER_SIGN
+  APPLICATION
+  OFFER_STAGE
+  VISA_STAGE
+  AFTER_ENROLL
+  LONG_TERM
+}
+
+enum TriggerType {
+  SCHEDULED
+  EVENT
+}
+
+enum PlanStatus {
+  PENDING
+  COMPLETED
+  SKIPPED
+}
+
+enum VisitType {
+  PHONE
+  WECHAT
+  FACE_TO_FACE
+  VIDEO
+}
+
+enum Mood {
+  SATISFIED
+  NEUTRAL
+  ANXIOUS
+  DISSATISFIED
+}
+
+enum UpsellType {
+  UPGRADE
+  RENEWAL
+  FAMILY
+  WORK_VISA
+  IMMIGRATION
+  OTHER_SERVICE
+}
+
+enum LifecycleEventType {
+  SIGNED
+  APPLIED
+  OFFER_RECEIVED
+  OFFER_ACCEPTED
+  VISA_SUBMITTED
+  VISA_GRANTED
+  ENROLLED
+  GRADUATED
+  RENEWAL
+  UPSELL
+  REFERRAL
+  COMPLAINT
+  REFUND
+}
+
+enum AppealStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum WorkflowNodeType {
+  START
+  TASK
+  APPROVAL
+  CONDITION
+  END
+}
+
+enum WorkflowInstanceStatus {
+  RUNNING
+  COMPLETED
+  TERMINATED
+  SUSPENDED
+}
+
+enum ReimbursementStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
+}
+
+model Tenant {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  slug      String   @unique @db.VarChar(50)
+  logo      String?  @db.Text
+  status    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users            User[]
+  roles            Role[]
+  dicts            Dict[]
+  configs          SystemConfig[]
+  depts            Department[]
+  positions        Position[]
+  employees        Employee[]
+  students         Student[]
+  contracts        Contract[]
+  orders           Order[]
+  applications     Application[]
+  payments         Payment[]
+  costs            Cost[]
+  commissions      Commission[]
+  salaries         Salary[]
+  reimbursements   Reimbursement[]
+  profitReports    ProfitReport[]
+  workflows        Workflow[]
+  files            File[]
+  rentalOrders     RentalOrder[]
+  overseasServices OverseasService[]
+  partners         Partner[]
+  sites            Site[]
+  mediaAccounts    MediaAccount[]
+  auditLogs        AuditLog[]
+  businessLines    BusinessLine[]
+  commissionRules  CommissionRule[]
+  countries        Country[]
+  institutions     Institution[]
+  majors           Major[]
+  products         Product[]
+  productPackages  ProductPackage[]
+  securityPolicies SecurityPolicy[]
+  approvalFlows    ApprovalFlow[]
+  approvalRecords  ApprovalRecord[]
+  satisfactionSurveys SatisfactionSurvey[]
+  serviceVisits    ServiceVisit[]
+  complaints        Complaint[]
+  referrals         Referral[]
+  riskRules        RiskRule[]
+  riskRecords      RiskRecord[]
+  riskNotifications RiskNotification[]
+
+  @@map("tenants")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  tenantId       Int       @map("tenant_id")
+  username       String    @unique @db.VarChar(50)
+  passwordHash   String    @map("password_hash") @db.VarChar(255)
+  realName       String?   @map("real_name") @db.VarChar(50)
+  email          String?   @db.VarChar(100)
+  phone          String?   @db.VarChar(20)
+  avatar         String?   @db.Text
+  dingtalkUserId String?   @map("dingtalk_user_id") @db.VarChar(100)
+  isActive       Boolean   @default(true) @map("is_active")
+  lastLoginAt    DateTime? @map("last_login_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  tenant           Tenant          @relation(fields: [tenantId], references: [id])
+  employee         Employee?
+  userRoles        UserRole[]
+  userDepts        UserDepartment[]
+  notifications    Notification[]
+  createdAudit     AuditLog[]      @relation("audit_creator")
+  visitPlans       VisitPlan[]     @relation("plan_assignee")
+  visitRecords     VisitRecord[]   @relation("visit_visitor")
+  assignedStudents Student[]       @relation("student_assignee")
+  assignedLeads    Lead[]          @relation("lead_assignee")
+  followUps        FollowUp[]
+  assignedOrders   Order[]         @relation("order_assignee")
+  reimbursements   Reimbursement[]
+  uploadedFiles    File[]
+
+  @@index([tenantId])
+  @@map("users")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  name        String   @db.VarChar(50)
+  code        String   @unique @db.VarChar(50)
+  description String?  @db.Text
+  isSystem    Boolean  @default(false) @map("is_system")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant          Tenant                    @relation(fields: [tenantId], references: [id])
+  userRoles       UserRole[]
+  roleMenus       RoleMenu[]
+  rolePermissions RolePermission[]
+  roleFieldGroups RoleFieldGroupPermission[]
+
+  @@index([tenantId])
+  @@map("roles")
+}
+
+model Menu {
+  id        Int      @id @default(autoincrement())
+  parentId  Int?     @map("parent_id")
+  name      String   @db.VarChar(50)
+  code      String   @unique @db.VarChar(100)
+  path      String?  @db.VarChar(200)
+  icon      String?  @db.VarChar(50)
+  sort      Int      @default(0)
+  type      String   @default("menu") @db.VarChar(20)
+  visible   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  parent    Menu?      @relation("menu_children", fields: [parentId], references: [id])
+  children  Menu[]     @relation("menu_children")
+  roleMenus RoleMenu[]
+
+  @@map("menus")
+}
+
+model Permission {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(50)
+  code      String   @unique @db.VarChar(100)
+  groupName String?  @map("group_name") @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RoleMenu {
+  id     Int @id @default(autoincrement())
+  roleId Int @map("role_id")
+  menuId Int @map("menu_id")
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  menu Menu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, menuId])
+  @@map("role_menus")
+}
+
+model RolePermission {
+  id           Int @id @default(autoincrement())
+  roleId       Int @map("role_id")
+  permissionId Int @map("permission_id")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model RoleFieldGroupPermission {
+  id         Int    @id @default(autoincrement())
+  roleId     Int    @map("role_id")
+  tableName  String @map("table_name") @db.VarChar(50)
+  fieldGroup String @map("field_group") @db.VarChar(50)
+  access     String @default("visible") @db.VarChar(20)
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, tableName, fieldGroup])
+  @@map("role_field_group_permissions")
+}
+
+model UserRole {
+  id     Int @id @default(autoincrement())
+  userId Int @map("user_id")
+  roleId Int @map("role_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model Dict {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  groupName String   @map("group_name") @db.VarChar(50)
+  dictKey   String   @map("dict_key") @db.VarChar(50)
+  dictValue String   @map("dict_value") @db.VarChar(200)
+  sort      Int      @default(0)
+  isEnabled Boolean  @default(true) @map("is_enabled")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, groupName, dictKey])
+  @@index([tenantId, groupName])
+  @@map("dicts")
+}
+
+model SystemConfig {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  configKey   String   @map("config_key") @db.VarChar(100)
+  configValue Json     @map("config_value")
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, configKey])
+  @@map("system_configs")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  tenantId   Int      @map("tenant_id")
+  userId     Int      @map("user_id")
+  action     String   @db.VarChar(50)
+  tableName  String?  @map("table_name") @db.VarChar(50)
+  recordId   Int?     @map("record_id")
+  beforeData Json?    @map("before_data")
+  afterData  Json?    @map("after_data")
+  ipAddress  String?  @map("ip_address") @db.VarChar(50)
+  userAgent  String?  @map("user_agent") @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation("audit_creator", fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([tableName, recordId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  title     String    @db.VarChar(200)
+  content   String?   @db.Text
+  type      String    @default("info") @db.VarChar(20)
+  isRead    Boolean   @default(false) @map("is_read")
+  link      String?   @db.VarChar(500)
+  createdAt DateTime  @default(now()) @map("created_at")
+  readAt    DateTime? @map("read_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+model Department {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  parentId  Int?     @map("parent_id")
+  name      String   @db.VarChar(100)
+  code      String   @db.VarChar(50)
+  sort      Int      @default(0)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tenant    Tenant         @relation(fields: [tenantId], references: [id])
+  parent    Department?    @relation("dept_children", fields: [parentId], references: [id])
+  children  Department[]   @relation("dept_children")
+  positions Position[]
+  userDepts UserDepartment[]
+
+  @@index([tenantId])
+  @@map("departments")
+}
+
+model Position {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  deptId    Int      @map("dept_id")
+  name      String   @db.VarChar(100)
+  code      String   @db.VarChar(50)
+  sort      Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
+  department Department @relation(fields: [deptId], references: [id])
+  employees  Employee[]
+
+  @@index([tenantId, deptId])
+  @@map("positions")
+}
+
+model Employee {
+  id         Int       @id @default(autoincrement())
+  tenantId   Int       @map("tenant_id")
+  userId     Int?      @map("user_id") @unique
+  positionId Int?      @map("position_id")
+  name       String    @db.VarChar(50)
+  employeeNo String?   @map("employee_no") @db.VarChar(50)
+  gender     Gender?
+  phone      String?   @db.VarChar(20)
+  email      String?   @db.VarChar(100)
+  dingtalkId String?   @map("dingtalk_id") @db.VarChar(100)
+  entryDate  DateTime? @map("entry_date")
+  leaveDate  DateTime? @map("leave_date")
+  status     String    @default("active") @db.VarChar(20)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  user     User?     @relation(fields: [userId], references: [id])
+  position Position? @relation(fields: [positionId], references: [id])
+  salaries Salary[]
+
+  @@index([tenantId])
+  @@map("employees")
+}
+
+model UserDepartment {
+  id     Int @id @default(autoincrement())
+  userId Int @map("user_id")
+  deptId Int @map("dept_id")
+
+  user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dept Department @relation(fields: [deptId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deptId])
+  @@map("user_departments")
+}
+
+model BusinessLine {
+  id         Int      @id @default(autoincrement())
+  tenantId   Int      @map("tenant_id")
+  name       String   @db.VarChar(100)
+  code       String   @unique @db.VarChar(50)
+  formSchema Json?    @map("form_schema")
+  status     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  contracts Contract[]
+  products  Product[]
+
+  @@index([tenantId])
+  @@map("business_lines")
+}
+
+model ServiceProcess {
+  id             Int      @id @default(autoincrement())
+  tenantId       Int      @map("tenant_id")
+  name           String   @db.VarChar(100)
+  stage          String   @db.VarChar(50)
+  sort           Int      @default(0)
+  requiredFields Json?    @map("required_fields")
+  description    String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@map("service_processes")
+}
+
+model CommissionRule {
+  id            Int       @id @default(autoincrement())
+  tenantId      Int       @map("tenant_id")
+  name          String    @db.VarChar(100)
+  version       Int       @default(1)
+  ruleType      String    @map("rule_type") @db.VarChar(30)
+  config        Json
+  effectiveFrom DateTime  @map("effective_from")
+  effectiveTo   DateTime? @map("effective_to")
+  status        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  commissions Commission[]
+
+  @@index([tenantId, status])
+  @@map("commission_rules")
+}
+
+model Student {
+  id               Int        @id @default(autoincrement())
+  tenantId         Int        @map("tenant_id")
+  name             String     @db.VarChar(50)
+  gender           Gender?
+  birthDate        DateTime?  @map("birth_date")
+  phone            String?    @db.VarChar(20)
+  wechat           String?    @db.VarChar(50)
+  email            String?    @db.VarChar(100)
+  idNumber         String?    @map("id_number") @db.VarChar(30)
+  passportNo       String?    @map("passport_no") @db.VarChar(30)
+  nationality      String?    @db.VarChar(50)
+  currentSchool    String?    @map("current_school") @db.VarChar(200)
+  currentMajor     String?    @map("current_major") @db.VarChar(200)
+  education        String?    @db.VarChar(50)
+  gpa              Decimal?   @db.Decimal(4, 2)
+  languageScore    Json?      @map("language_score")
+  targetCountry    String?    @map("target_country") @db.VarChar(50)
+  targetDegree     String?    @map("target_degree") @db.VarChar(50)
+  targetMajor      String?    @map("target_major") @db.VarChar(200)
+  budget           Decimal?   @db.Decimal(12, 2)
+  emergencyContact String?    @map("emergency_contact") @db.VarChar(100)
+  emergencyPhone   String?    @map("emergency_phone") @db.VarChar(20)
+  remark           String?    @db.Text
+  source           String?
+  referrerId       Int?       @map("referrer_id")
+  assignedToId     Int?       @map("assigned_to_id")
+  currentStatus    String?    @map("current_status") @db.VarChar(50)
+  extData          Json?      @map("ext_data")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  tenant           Tenant                   @relation(fields: [tenantId], references: [id])
+  assignedTo       User?                    @relation("student_assignee", fields: [assignedToId], references: [id])
+  leads            Lead[]
+  followUps        FollowUp[]
+  contracts        Contract[]
+  orders           Order[]
+  applications     Application[]
+  visitPlans       VisitPlan[]
+  visitRecords     VisitRecord[]
+  lifecycleEvents  StudentLifecycleEvent[]
+  payments         Payment[]
+  commissions      Commission[]
+  rentalOrders     RentalOrder[]
+  overseasServices OverseasService[]
+  costs            Cost[]
+  satisfactionSurveys SatisfactionSurvey[]
+  serviceVisits    ServiceVisit[]
+  complaints        Complaint[]
+  referralsMade    Referral[] @relation("ReferralsByStudent")
+  referralNew      Referral[] @relation("ReferralNewStudent")
+  riskRecords      RiskRecord[]
+
+  @@index([tenantId])
+  @@index([assignedToId])
+  @@index([phone])
+  @@index([wechat])
+  @@map("students")
+}
+
+model Lead {
+  id             Int        @id @default(autoincrement())
+  tenantId       Int        @map("tenant_id")
+  studentId      Int?       @map("student_id")
+  name           String     @db.VarChar(50)
+  phone          String     @db.VarChar(20)
+  wechat         String?    @db.VarChar(50)
+  source         String
+  sourceDetail   String?    @map("source_detail") @db.VarChar(500)
+  status         LeadStatus @default(NEW)
+  assignedToId   Int        @map("assigned_to_id")
+  intentionLevel String?    @map("intention_level") @db.VarChar(20)
+  targetCountry  String?    @map("target_country") @db.VarChar(50)
+  targetDegree   String?    @map("target_degree") @db.VarChar(50)
+  budget         Decimal?   @db.Decimal(12, 2)
+  remark         String?    @db.Text
+  extData        Json?      @map("ext_data")
+  lastFollowUpAt DateTime?  @map("last_follow_up_at")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  student      Student?          @relation(fields: [studentId], references: [id])
+  assignedTo   User              @relation("lead_assignee", fields: [assignedToId], references: [id])
+  followUps    FollowUp[]
+  transferLogs LeadTransferLog[]
+  appeals      LeadAppeal[]
+
+  @@index([tenantId, assignedToId])
+  @@index([status])
+  @@map("leads")
+}
+
+model LeadTransferLog {
+  id         Int      @id @default(autoincrement())
+  leadId     Int      @map("lead_id")
+  fromUserId Int      @map("from_user_id")
+  toUserId   Int      @map("to_user_id")
+  reason     String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@map("lead_transfer_logs")
+}
+
+model LeadAppeal {
+  id          Int          @id @default(autoincrement())
+  leadId      Int          @map("lead_id")
+  appellantId Int          @map("appellant_id")
+  reason      String       @db.Text
+  evidence    String?      @db.Text
+  status      AppealStatus @default(PENDING)
+  reviewedBy  Int?         @map("reviewed_by")
+  reviewNote  String?      @map("review_note") @db.Text
+  reviewedAt  DateTime?    @map("reviewed_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@map("lead_appeals")
+}
+
+model FollowUp {
+  id             Int       @id @default(autoincrement())
+  studentId      Int       @map("student_id")
+  leadId         Int?      @map("lead_id")
+  userId         Int       @map("user_id")
+  type           String    @default("phone") @db.VarChar(20)
+  content        String    @db.Text
+  nextPlan       String?   @map("next_plan") @db.Text
+  nextFollowUpAt DateTime? @map("next_follow_up_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  student Student @relation(fields: [studentId], references: [id])
+  lead    Lead?   @relation(fields: [leadId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([studentId])
+  @@index([leadId])
+  @@map("follow_ups")
+}
+
+model Contract {
+  id              Int            @id @default(autoincrement())
+  tenantId        Int            @map("tenant_id")
+  studentId       Int            @map("student_id")
+  contractNo      String         @unique @map("contract_no") @db.VarChar(50)
+  businessLineId  Int?           @map("business_line_id")
+  signDate        DateTime       @map("sign_date")
+  totalAmount     Decimal        @map("total_amount") @db.Decimal(12, 2)
+  currency        Currency       @default(CNY)
+  status          ContractStatus @default(DRAFT)
+  signedByStudent Int?           @map("signed_by_student")
+  signedByCompany Int?           @map("signed_by_company")
+  content         String?        @db.Text
+  attachmentUrl   String?        @map("attachment_url") @db.Text
+  remark          String?        @db.Text
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id])
+  student      Student      @relation(fields: [studentId], references: [id])
+  businessLine BusinessLine? @relation(fields: [businessLineId], references: [id])
+  orders       Order[]
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@map("contracts")
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  tenantId     Int         @map("tenant_id")
+  studentId    Int         @map("student_id")
+  contractId   Int         @map("contract_id")
+  orderNo      String      @unique @map("order_no") @db.VarChar(50)
+  productName  String      @map("product_name") @db.VarChar(200)
+  amount       Decimal     @db.Decimal(12, 2)
+  currency     Currency    @default(CNY)
+  status       OrderStatus @default(PENDING)
+  startDate    DateTime?   @map("start_date")
+  endDate      DateTime?   @map("end_date")
+  assignedToId Int?        @map("assigned_to_id")
+  remark       String?     @db.Text
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  student      Student       @relation(fields: [studentId], references: [id])
+  contract     Contract      @relation(fields: [contractId], references: [id])
+  assignedTo   User?         @relation("order_assignee", fields: [assignedToId], references: [id])
+  applications Application[]
+  payments     Payment[]
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([contractId])
+  @@map("orders")
+}
+
+model StudentLifecycleEvent {
+  id          Int                @id @default(autoincrement())
+  studentId   Int                @map("student_id")
+  eventType   LifecycleEventType @map("event_type")
+  eventDate   DateTime           @map("event_date")
+  description String?            @db.Text
+  metadata    Json?
+  createdAt   DateTime           @default(now()) @map("created_at")
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
+  @@map("student_lifecycle_events")
+}
+
+model Application {
+  id              Int               @id @default(autoincrement())
+  tenantId        Int               @map("tenant_id")
+  studentId       Int               @map("student_id")
+  orderId         Int               @map("order_id")
+  institutionName String            @map("institution_name") @db.VarChar(200)
+  majorName       String            @map("major_name") @db.VarChar(200)
+  degree          String            @db.VarChar(50)
+  intakeYear      Int               @map("intake_year")
+  intakeMonth     Int               @map("intake_month")
+  status          ApplicationStatus @default(PREPARING)
+  submittedAt     DateTime?         @map("submitted_at")
+  resultAt        DateTime?         @map("result_at")
+  remark          String?           @db.Text
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  tenant          Tenant                 @relation(fields: [tenantId], references: [id])
+  student         Student                @relation(fields: [studentId], references: [id])
+  order           Order                  @relation(fields: [orderId], references: [id])
+  materials       ApplicationMaterial[]
+  offers          Offer[]
+  visas           Visa[]
+  copywriterTasks CopywriterTask[]
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@map("applications")
+}
+
+model ApplicationMaterial {
+  id            Int       @id @default(autoincrement())
+  applicationId Int       @map("application_id")
+  name          String    @db.VarChar(200)
+  type          String    @db.VarChar(50)
+  status        String    @default("pending") @db.VarChar(20)
+  fileUrl       String?   @map("file_url") @db.Text
+  verifiedBy    Int?
+  verifiedAt    DateTime? @map("verified_at")
+  dueDate       DateTime? @map("due_date")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@map("application_materials")
+}
+
+model CopywriterTask {
+  id            Int       @id @default(autoincrement())
+  applicationId Int       @map("application_id")
+  taskType      String    @map("task_type") @db.VarChar(50)
+  assignedToId  Int       @map("assigned_to_id")
+  status        String    @default("pending") @db.VarChar(20)
+  content       String?   @db.Text
+  reviewNote    String?   @map("review_note") @db.Text
+  dueDate       DateTime? @map("due_date")
+  completedAt   DateTime? @map("completed_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([assignedToId])
+  @@map("copywriter_tasks")
+}
+
+model Offer {
+  id              Int        @id @default(autoincrement())
+  applicationId   Int        @map("application_id")
+  institutionName String     @map("institution_name") @db.VarChar(200)
+  majorName       String     @map("major_name") @db.VarChar(200)
+  offerType       String     @map("offer_type") @db.VarChar(30)
+  conditions      String?    @db.Text
+  deadline        DateTime?
+  status          OfferStatus @default(RECEIVED)
+  offerDate       DateTime   @map("offer_date")
+  responseDate    DateTime?  @map("response_date")
+  attachmentUrl   String?    @map("attachment_url") @db.Text
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@map("offers")
+}
+
+model Visa {
+  id            Int        @id @default(autoincrement())
+  applicationId Int        @map("application_id")
+  visaType      String     @map("visa_type") @db.VarChar(50)
+  submittedAt   DateTime?  @map("submitted_at")
+  status        VisaStatus @default(NOT_STARTED)
+  resultAt      DateTime?  @map("result_at")
+  visaNumber    String?    @map("visa_number") @db.VarChar(50)
+  expiryDate    DateTime?  @map("expiry_date")
+  attachmentUrl String?    @map("attachment_url") @db.Text
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@map("visas")
+}
+
+model VisitPlan {
+  id          Int        @id @default(autoincrement())
+  studentId   Int        @map("student_id")
+  stage       VisitStage
+  triggerType TriggerType @map("trigger_type")
+  scheduledAt DateTime   @map("scheduled_at")
+  daysOffset  Int?       @map("days_offset")
+  purpose     String     @db.Text
+  assigneeId  Int        @map("assignee_id")
+  status      PlanStatus @default(PENDING)
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  student  Student       @relation(fields: [studentId], references: [id])
+  assignee User          @relation("plan_assignee", fields: [assigneeId], references: [id])
+  records  VisitRecord[]
+
+  @@index([studentId])
+  @@index([assigneeId])
+  @@index([scheduledAt])
+  @@map("visit_plans")
+}
+
+model VisitRecord {
+  id              Int        @id @default(autoincrement())
+  planId          Int?       @map("plan_id")
+  studentId       Int        @map("student_id")
+  visitType       VisitType  @map("visit_type")
+  visitDate       DateTime   @map("visit_date")
+  duration        Int?
+  satisfaction    Int?
+  mood            Mood?
+  summary         String?    @db.Text
+  studentFeedback String?    @map("student_feedback") @db.Text
+  hasUpsellNeed   Boolean    @default(false) @map("has_upsell_need")
+  upsellType      UpsellType? @map("upsell_type")
+  upsellDetail    String?    @map("upsell_detail") @db.Text
+  hasReferral     Boolean    @default(false) @map("has_referral")
+  referralContact String?    @map("referral_contact") @db.VarChar(200)
+  needFollowUp    Boolean    @default(false) @map("need_follow_up")
+  nextFollowUpAt  DateTime?  @map("next_follow_up_at")
+  actionItems     Json?      @map("action_items")
+  visitorId       Int        @map("visitor_id")
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  student Student    @relation(fields: [studentId], references: [id])
+  plan    VisitPlan? @relation(fields: [planId], references: [id])
+  visitor User       @relation("visit_visitor", fields: [visitorId], references: [id])
+
+  @@index([studentId])
+  @@index([planId])
+  @@index([visitorId])
+  @@index([visitDate])
+  @@map("visit_records")
+}
+
+model RentalOrder {
+  id          Int       @id @default(autoincrement())
+  tenantId    Int       @map("tenant_id")
+  studentId   Int       @map("student_id")
+  city        String    @db.VarChar(100)
+  address     String?   @db.Text
+  moveInDate  DateTime  @map("move_in_date")
+  moveOutDate DateTime? @map("move_out_date")
+  monthlyRent Decimal   @map("monthly_rent") @db.Decimal(10, 2)
+  currency    Currency  @default(CNY)
+  status      String    @default("active") @db.VarChar(20)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@index([tenantId])
+  @@map("rental_orders")
+}
+
+model OverseasService {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  studentId   Int      @map("student_id")
+  serviceType String   @map("service_type") @db.VarChar(50)
+  status      String   @default("pending") @db.VarChar(20)
+  detail      Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@index([tenantId])
+  @@map("overseas_services")
+}
+
+model Partner {
+  id             Int       @id @default(autoincrement())
+  tenantId       Int       @map("tenant_id")
+  name           String    @db.VarChar(200)
+  type           String    @db.VarChar(50)
+  country        String?   @db.VarChar(50)
+  contactName    String?   @map("contact_name") @db.VarChar(50)
+  contactPhone   String?   @map("contact_phone") @db.VarChar(20)
+  contactEmail   String?   @map("contact_email") @db.VarChar(100)
+  commissionRate Decimal?  @map("commission_rate") @db.Decimal(5, 2)
+  status         Boolean   @default(true)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("partners")
+}
+
+model Site {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  name      String   @db.VarChar(200)
+  domain    String   @db.VarChar(200)
+  status    String   @default("active") @db.VarChar(20)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("sites")
+}
+
+model MediaAccount {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  platform    String   @db.VarChar(50)
+  accountName String   @map("account_name") @db.VarChar(100)
+  accountId   String?  @map("account_id") @db.VarChar(100)
+  followers   Int      @default(0)
+  status      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  tenant       Tenant             @relation(fields: [tenantId], references: [id])
+  performances MediaPerformance[]
+
+  @@index([tenantId])
+  @@map("media_accounts")
+}
+
+model MediaPerformance {
+  id             Int      @id @default(autoincrement())
+  accountId      Int      @map("account_id")
+  statDate       DateTime @map("stat_date")
+  impressions    Int      @default(0)
+  clicks         Int      @default(0)
+  leads          Int      @default(0)
+  followersDelta Int      @default(0) @map("followers_delta")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  account MediaAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, statDate])
+  @@map("media_performance")
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  tenantId      Int           @map("tenant_id")
+  studentId     Int           @map("student_id")
+  orderId       Int?          @map("order_id")
+  paymentNo     String        @unique @map("payment_no") @db.VarChar(50)
+  paymentType   PaymentType   @map("payment_type")
+  amount        Decimal       @db.Decimal(12, 2)
+  currency      Currency      @default(CNY)
+  exchangeRate  Decimal?      @default(1) @map("exchange_rate") @db.Decimal(10, 6)
+  baseAmount    Decimal?      @map("base_amount") @db.Decimal(12, 2)
+  method        PaymentMethod
+  paidAt        DateTime      @map("paid_at")
+  fiscalYear    Int           @map("fiscal_year")
+  fiscalMonth   Int           @map("fiscal_month")
+  payerName     String?       @map("payer_name") @db.VarChar(50)
+  remark        String?       @db.Text
+  attachmentUrl String?       @map("attachment_url") @db.Text
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  order   Order?  @relation(fields: [orderId], references: [id])
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([fiscalYear, fiscalMonth])
+  @@map("payments")
+}
+
+model Cost {
+  id            Int       @id @default(autoincrement())
+  tenantId      Int       @map("tenant_id")
+  studentId     Int?      @map("student_id")
+  costType      String    @map("cost_type") @db.VarChar(50)
+  amount        Decimal   @db.Decimal(12, 2)
+  currency      Currency  @default(CNY)
+  fiscalYear    Int       @map("fiscal_year")
+  fiscalMonth   Int       @map("fiscal_month")
+  description   String?   @db.Text
+  attachmentUrl String?   @map("attachment_url") @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student? @relation(fields: [studentId], references: [id])
+
+  @@index([tenantId])
+  @@index([fiscalYear, fiscalMonth])
+  @@map("costs")
+}
+
+model Commission {
+  id           Int              @id @default(autoincrement())
+  tenantId     Int              @map("tenant_id")
+  studentId    Int              @map("student_id")
+  ruleId       Int              @map("rule_id")
+  orderId      Int?             @map("order_id")
+  employeeId   Int              @map("employee_id")
+  amount       Decimal          @db.Decimal(10, 2)
+  status       CommissionStatus @default(PENDING)
+  milestoneKey String?          @map("milestone_key") @db.VarChar(50)
+  releaseRatio Decimal?         @map("release_ratio") @db.Decimal(4, 2)
+  releasedAt   DateTime?        @map("released_at")
+  fiscalYear   Int              @map("fiscal_year")
+  fiscalMonth  Int              @map("fiscal_month")
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  tenant  Tenant         @relation(fields: [tenantId], references: [id])
+  student Student        @relation(fields: [studentId], references: [id])
+  rule    CommissionRule @relation(fields: [ruleId], references: [id])
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([employeeId, fiscalYear, fiscalMonth])
+  @@map("commissions")
+}
+
+model Salary {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  employeeId  Int      @map("employee_id")
+  fiscalYear  Int      @map("fiscal_year")
+  fiscalMonth Int      @map("fiscal_month")
+  baseSalary  Decimal  @map("base_salary") @db.Decimal(10, 2)
+  bonus       Decimal  @default(0) @db.Decimal(10, 2)
+  commission  Decimal  @default(0) @db.Decimal(10, 2)
+  deduction   Decimal  @default(0) @db.Decimal(10, 2)
+  netSalary   Decimal  @map("net_salary") @db.Decimal(10, 2)
+  status      String   @default("draft") @db.VarChar(20)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([tenantId, employeeId, fiscalYear, fiscalMonth])
+  @@map("salaries")
+}
+
+model Reimbursement {
+  id          Int                 @id @default(autoincrement())
+  tenantId    Int                 @map("tenant_id")
+  applicantId Int                 @map("applicant_id")
+  amount      Decimal             @db.Decimal(10, 2)
+  category    String              @db.VarChar(50)
+  description String?             @db.Text
+  status      ReimbursementStatus @default(DRAFT)
+  reviewedBy  Int?                @map("reviewed_by")
+  reviewNote  String?             @map("review_note") @db.Text
+  paidAt      DateTime?           @map("paid_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+
+  tenant    Tenant @relation(fields: [tenantId], references: [id])
+  applicant User   @relation(fields: [applicantId], references: [id])
+
+  @@index([tenantId])
+  @@map("reimbursements")
+}
+
+model ProfitReport {
+  id              Int      @id @default(autoincrement())
+  tenantId        Int      @map("tenant_id")
+  fiscalYear      Int      @map("fiscal_year")
+  fiscalMonth     Int      @map("fiscal_month")
+  totalIncome     Decimal  @default(0) @map("total_income") @db.Decimal(14, 2)
+  totalCost       Decimal  @default(0) @map("total_cost") @db.Decimal(14, 2)
+  totalCommission Decimal  @default(0) @map("total_commission") @db.Decimal(14, 2)
+  netProfit       Decimal  @default(0) @map("net_profit") @db.Decimal(14, 2)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, fiscalYear, fiscalMonth])
+  @@map("profit_reports")
+}
+
+model Workflow {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  name        String   @db.VarChar(100)
+  code        String   @unique @db.VarChar(50)
+  description String?  @db.Text
+  nodes       Json
+  status      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant    Tenant             @relation(fields: [tenantId], references: [id])
+  instances WorkflowInstance[]
+
+  @@index([tenantId])
+  @@map("workflows")
+}
+
+model WorkflowInstance {
+  id            Int                    @id @default(autoincrement())
+  workflowId    Int                    @map("workflow_id")
+  businessType  String                 @map("business_type") @db.VarChar(50)
+  businessId    Int                    @map("business_id")
+  currentNodeId String?                @map("current_node_id") @db.VarChar(50)
+  status        WorkflowInstanceStatus @default(RUNNING)
+  variables     Json?
+  startedAt     DateTime               @default(now()) @map("started_at")
+  completedAt   DateTime?              @map("completed_at")
+
+  workflow Workflow      @relation(fields: [workflowId], references: [id])
+  logs     WorkflowLog[]
+
+  @@index([businessType, businessId])
+  @@map("workflow_instances")
+}
+
+model WorkflowLog {
+  id         Int              @id @default(autoincrement())
+  instanceId Int              @map("instance_id")
+  nodeId     String           @map("node_id") @db.VarChar(50)
+  nodeType   WorkflowNodeType @map("node_type")
+  operatorId Int?             @map("operator_id")
+  action     String           @db.VarChar(50)
+  comment    String?          @db.Text
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  instance WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([instanceId])
+  @@map("workflow_logs")
+}
+
+model File {
+  id           Int      @id @default(autoincrement())
+  tenantId     Int      @map("tenant_id")
+  uploaderId   Int      @map("uploader_id")
+  originalName String   @map("original_name") @db.VarChar(500)
+  storagePath  String   @map("storage_path") @db.Text
+  mimeType     String   @map("mime_type") @db.VarChar(100)
+  size         Int
+  businessType String?  @map("business_type") @db.VarChar(50)
+  businessId   Int?     @map("business_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  uploader User   @relation(fields: [uploaderId], references: [id])
+
+  @@index([tenantId, businessType, businessId])
+  @@map("files")
+}
+
+// ============================================================
+// 产品资源中心（P0.5 新增）
+// 国家 → 院校 → 专业 → 产品 → 产品组合
+// ============================================================
+
+enum InstitutionType {
+  UNIVERSITY
+  COLLEGE
+  SCHOOL
+  LANGUAGE_CENTER
+}
+
+enum DegreeLevel {
+  BACHELOR
+  MASTER
+  PHD
+  DIPLOMA
+  FOUNDATION
+  LANGUAGE
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Country {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  name        String   @db.VarChar(100)
+  code        String   @db.VarChar(10)
+  region      String?  @db.VarChar(50)
+  visaPolicy  Json?    @map("visa_policy")
+  remark      String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  institutions Institution[]
+  products     Product[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@map("countries")
+}
+
+model Institution {
+  id            Int            @id @default(autoincrement())
+  tenantId      Int            @map("tenant_id")
+  countryId     Int            @map("country_id")
+  name          String         @db.VarChar(200)
+  type          InstitutionType @default(UNIVERSITY)
+  ranking       Int?
+  tuitionRange  String?        @map("tuition_range") @db.VarChar(100)
+  requirements  Json?
+  remark        String?        @db.Text
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  country     Country     @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  majors      Major[]
+  products    Product[]
+
+  @@index([tenantId])
+  @@index([countryId])
+  @@map("institutions")
+}
+
+model Major {
+  id                Int         @id @default(autoincrement())
+  tenantId          Int         @map("tenant_id")
+  institutionId     Int         @map("institution_id")
+  name              String      @db.VarChar(200)
+  category          String?     @db.VarChar(100)
+  degreeLevel       DegreeLevel @default(MASTER)
+  duration          String?     @db.VarChar(50)
+  language          String?     @db.VarChar(50)
+  tuition           Decimal?    @db.Decimal(12, 2)
+  entryRequirements Json?
+  remark            String?     @db.Text
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([institutionId])
+  @@map("majors")
+}
+
+model Product {
+  id              Int          @id @default(autoincrement())
+  tenantId        Int          @map("tenant_id")
+  businessLineId  Int?         @map("business_line_id")
+  countryId       Int?         @map("country_id")
+  institutionId   Int?         @map("institution_id")
+  name            String       @db.VarChar(200)
+  description     Json?
+  price           Decimal      @db.Decimal(12, 2)
+  commissionRate  Decimal?     @map("commission_rate") @db.Decimal(5, 2)
+  status          ProductStatus @default(ACTIVE)
+  remark          String?      @db.Text
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  businessLine  BusinessLine?  @relation(fields: [businessLineId], references: [id])
+  country       Country?       @relation(fields: [countryId], references: [id])
+  institution   Institution?   @relation(fields: [institutionId], references: [id])
+  childPackages ProductPackage[] @relation("ProductChildren")
+  parentPackages ProductPackage[] @relation("ProductParents")
+
+  @@index([tenantId])
+  @@map("products")
+}
+
+model ProductPackage {
+  id              Int    @id @default(autoincrement())
+  tenantId        Int    @map("tenant_id")
+  parentProductId Int    @map("parent_product_id")
+  childProductId  Int    @map("child_product_id")
+  discount        Decimal? @db.Decimal(5, 2)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  tenant        Tenant  @relation(fields: [tenantId], references: [id])
+  parentProduct Product? @relation("ProductParents", fields: [parentProductId], references: [id], map: "pkg_parent_fkey")
+  childProduct  Product? @relation("ProductChildren", fields: [childProductId], references: [id], map: "pkg_child_fkey")
+
+  @@index([tenantId])
+  @@map("product_packages")
+}
+
+// ============================================================
+// 安全策略（行为熔断规则，谷歌2.0 新增）
+// ============================================================
+
+model SecurityPolicy {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  name        String   @db.VarChar(100)
+  // export_limit: 1小时内最大导出条数； view_limit: 1天内最大查看条数
+  metric      String   @db.VarChar(50) // EXPORT_COUNT / VIEW_CONTACT_COUNT
+  threshold   Int
+  windowMinutes Int    @map("window_minutes")
+  action      String   @default("WARN") @db.VarChar(20) // WARN / LOCK
+  notifyRole  String?  @map("notify_role") @db.VarChar(50)
+  enabled     Boolean  @default(true)
+  remark      String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("security_policies")
+}
+
+// ============================================================
+// 审批流引擎（P4.5 新增，独立于工作流）
+// ============================================================
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  TRANSFERRED
+  CANCELLED
+}
+
+enum ApprovalNodeType {
+  APPROVE
+  CC
+  TRANSFER
+}
+
+enum ApprovalSignMode {
+  AND // 会签：全部通过
+  OR  // 或签：任一通过
+}
+
+model ApprovalFlow {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  name        String   @db.VarChar(100)
+  // 业务类型：CONTRACT_DISCOUNT / REFUND / REIMBURSEMENT / LEAD_TRANSFER
+  businessType String  @map("business_type") @db.VarChar(50)
+  description String?  @db.Text
+  signMode    ApprovalSignMode @default(AND) @map("sign_mode")
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant  Tenant          @relation(fields: [tenantId], references: [id])
+  nodes   ApprovalNode[]
+  records ApprovalRecord[]
+
+  @@unique([tenantId, businessType])
+  @@index([tenantId])
+  @@map("approval_flows")
+}
+
+model ApprovalNode {
+  id             Int             @id @default(autoincrement())
+  flowId         Int             @map("flow_id")
+  nodeType       ApprovalNodeType @default(APPROVE)
+  orderNo        Int             @map("order_no")
+  name           String          @db.VarChar(100)
+  approverRole   String?         @map("approver_role") @db.VarChar(50)
+  approverId     Int?            @map("approver_id")
+  conditionExpr  String?         @map("condition_expr") @db.Text
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  flow    ApprovalFlow    @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  records ApprovalRecord[]
+
+  @@index([flowId])
+  @@map("approval_nodes")
+}
+
+model ApprovalRecord {
+  id           Int            @id @default(autoincrement())
+  tenantId     Int            @map("tenant_id")
+  flowId       Int            @map("flow_id")
+  nodeId       Int            @map("node_id")
+  businessType String         @map("business_type") @db.VarChar(50)
+  businessId   Int            @map("business_id")
+  applicantId  Int            @map("applicant_id")
+  approverId   Int?           @map("approver_id")
+  status       ApprovalStatus @default(PENDING)
+  comment      String?        @db.Text
+  attachments  Json?
+  currentNodeOrder Int        @map("current_node_order") @default(1)
+  submittedAt  DateTime       @default(now()) @map("submitted_at")
+  decidedAt    DateTime?      @map("decided_at")
+
+  tenant    Tenant      @relation(fields: [tenantId], references: [id])
+  flow      ApprovalFlow @relation(fields: [flowId], references: [id])
+  node      ApprovalNode @relation(fields: [nodeId], references: [id])
+
+  @@index([tenantId])
+  @@index([businessType, businessId])
+  @@index([approverId, status])
+  @@map("approval_records")
+}
+
+// ============================================================
+// 客户成功中心（P6 新增）
+// ============================================================
+
+enum SurveyStatus {
+  SENT
+  RESPONDED
+  EXPIRED
+}
+
+enum VisitResult {
+  NORMAL
+  RISK
+  COMPLAINT
+  REFERRAL_INTENT
+}
+
+enum ComplaintStatus {
+  OPEN
+  PROCESSING
+  RESOLVED
+  CLOSED
+}
+
+enum ReferralStatus {
+  PENDING
+  CONVERTED
+  REWARDED
+  INVALID
+}
+
+model SatisfactionSurvey {
+  id        Int          @id @default(autoincrement())
+  tenantId  Int          @map("tenant_id")
+  studentId Int          @map("student_id")
+  nps       Int?         // 0-10 净推荐值
+  score     Int?         // 总体评分 0-5
+  dimensionScores Json?  @map("dimension_scores")
+  feedback  String?      @db.Text
+  status    SurveyStatus @default(SENT)
+  sentAt    DateTime     @default(now()) @map("sent_at")
+  respondedAt DateTime?  @map("responded_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("satisfaction_surveys")
+}
+
+model ServiceVisit {
+  id        Int          @id @default(autoincrement())
+  tenantId  Int          @map("tenant_id")
+  studentId Int          @map("student_id")
+  visitorId Int          @map("visitor_id")
+  visitDate DateTime     @map("visit_date")
+  channel   String?      @db.VarChar(50) // PHONE / WECHAT / VISIT / VIDEO
+  result    VisitResult  @default(NORMAL)
+  summary   String?      @db.Text
+  nextPlan  String?      @db.Text @map("next_plan")
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("service_visits")
+}
+
+model Complaint {
+  id          Int             @id @default(autoincrement())
+  tenantId    Int             @map("tenant_id")
+  studentId   Int             @map("student_id")
+  title       String          @db.VarChar(200)
+  content     String?         @db.Text
+  level       Int             @default(2) // 1 高 / 2 中 / 3 低
+  status      ComplaintStatus @default(OPEN)
+  handlerId   Int?            @map("handler_id")
+  resolvedAt  DateTime?       @map("resolved_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("complaints")
+}
+
+model Referral {
+  id           Int           @id @default(autoincrement())
+  tenantId     Int           @map("tenant_id")
+  referrerId   Int           @map("referrer_id") // 推荐人（学生）
+  refereeName  String        @db.VarChar(100) @map("referee_name")
+  refereePhone String?       @db.VarChar(50) @map("referee_phone")
+  newStudentId Int?          @map("new_student_id")
+  rewardType   String?       @map("reward_type") @db.VarChar(50) // CASH / COUPON / UPGRADE
+  rewardAmount Decimal?      @map("reward_amount") @db.Decimal(10, 2)
+  status       ReferralStatus @default(PENDING)
+  remark       String?       @db.Text
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  tenant    Tenant  @relation(fields: [tenantId], references: [id])
+  referrer  Student @relation("ReferralsByStudent", fields: [referrerId], references: [id], onDelete: Cascade)
+  newStudent Student? @relation("ReferralNewStudent", fields: [newStudentId], references: [id])
+
+  @@index([tenantId])
+  @@map("referrals")
+}
+
+// ============================================================
+// 风险管理中心（P7 新增）
+// ============================================================
+
+enum RiskLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum RiskRecordStatus {
+  OPEN
+  RESOLVED
+  IGNORED
+}
+
+model RiskRule {
+  id          Int       @id @default(autoincrement())
+  tenantId    Int       @map("tenant_id")
+  name        String    @db.VarChar(100)
+  description String?   @db.Text
+  // 规则表达式，由风险扫描引擎解析，例如：
+  // daysToDeadline < 7 AND materialCompletion < 0.8
+  conditionExpr String  @map("condition_expr") @db.Text
+  riskLevel   RiskLevel @map("risk_level") @default(MEDIUM)
+  notifyRoles String?   @map("notify_roles") @db.VarChar(200)
+  enabled     Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  tenant  Tenant        @relation(fields: [tenantId], references: [id])
+  records RiskRecord[]
+
+  @@index([tenantId])
+  @@map("risk_rules")
+}
+
+model RiskRecord {
+  id          Int             @id @default(autoincrement())
+  tenantId    Int             @map("tenant_id")
+  ruleId      Int             @map("rule_id")
+  studentId   Int?            @map("student_id")
+  riskLevel   RiskLevel       @map("risk_level") @default(MEDIUM)
+  status      RiskRecordStatus @default(OPEN)
+  detail      String?         @db.Text
+  detectedAt  DateTime        @default(now()) @map("detected_at")
+  resolvedAt  DateTime?       @map("resolved_at")
+  resolvedBy  Int?            @map("resolved_by")
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  rule    RiskRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  student Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  notifications RiskNotification[]
+
+  @@index([tenantId, status])
+  @@map("risk_records")
+}
+
+model RiskNotification {
+  id         Int      @id @default(autoincrement())
+  tenantId   Int      @map("tenant_id")
+  riskRecordId Int    @map("risk_record_id")
+  studentId  Int?     @map("student_id")
+  channel    String   @db.VarChar(20) // DINGTALK / EMAIL / SYSTEM
+  content    String   @db.Text
+  sentAt     DateTime @default(now()) @map("sent_at")
+  read       Boolean  @default(false)
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
+  riskRecord RiskRecord @relation(fields: [riskRecordId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("risk_notifications")
+}
