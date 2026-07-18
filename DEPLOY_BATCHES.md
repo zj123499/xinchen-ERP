@@ -5,6 +5,18 @@
 
 ## 已部署批次
 
+### 批次 1（2026-07-18）— P8 AI Agent 三件套增强
+- 文件：`prisma/schema.prisma`（新增 `ai_conversations` 表）、`src/app/api/ai/{school-select,writing,customer-service}/route.ts`、`src/app/(main)/ai/{school-select,writing,customer-service}/page.tsx`
+- 改动：
+  - 新增 `ai_conversations` 表（SCHOOL_SELECT/WRITING/CUSTOMER_SERVICE，关联 studentId/relatedId），固化 AI 产出到业务流
+  - 选校顾问：支持 studentId 预填背景 + 保存方案 + 历史查看
+  - 文书助手：支持 studentId 预填 + 关联 copywriter_tasks 文书任务 + 回写草稿 + 保存 + 历史
+  - 客服助手：多轮上下文 + FAQ 质量匹配（关键词打分）+ 会话保存
+- 部署方式：`deploy_batch.js` 打包上传 → `docker compose build --no-cache` → `up`；entrypoint 自动 `prisma db push` 建表
+- 验证：服务器 health=200；school-select/writing/customer-service 三个 API 实测可用，`ai_conversations` 表读写正常
+- 已知项：容器启动时 `prisma db seed` 报 `Cannot find module 'bcryptjs'`（因 /app/node_modules 无 bcryptjs）。当前数据已播种故不影响线上，但新环境首次部署播种会失败，需后续在 prisma-builder 阶段补装 bcryptjs
+- 状态：✅ 已部署，服务器 health=200，功能验证通过
+
 ### 批次 0（2026-07-18）— AI 配置界面入口
 - 文件：`src/lib/ai-gateway.ts`、`src/app/(main)/settings/configs/page.tsx`
 - 改动：AI 网关支持从数据库配置读取 API Key；系统配置页新增「AI 智能配置」分组
