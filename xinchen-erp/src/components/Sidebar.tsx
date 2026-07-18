@@ -120,6 +120,8 @@ const MENUS: MenuItem[] = [
       { name: "退费管理", code: "refunds", path: "/refunds", icon: "refunds" },
       { name: "成本管理", code: "costs", path: "/costs", icon: "costs" },
       { name: "提成管理", code: "commissions", path: "/commissions", icon: "commissions" },
+      { name: "提成规则", code: "commission_rules", path: "/commission-rules", icon: "commissions" },
+      { name: "配置版本", code: "config_versions", path: "/config-versions", icon: "settings" },
       { name: "薪资管理", code: "salaries", path: "/salaries", icon: "salaries" },
       { name: "报销管理", code: "reimbursements", path: "/reimbursements", icon: "reimbursements" },
       { name: "利润报表", code: "profit_reports", path: "/profit-reports", icon: "profit" },

@@ -232,6 +232,7 @@ model Tenant {
   auditLogs           AuditLog[]
   businessLines       BusinessLine[]
   commissionRules     CommissionRule[]
+  configVersions      ConfigVersion[]
   countries           Country[]
   institutions        Institution[]
   majors              Major[]
@@ -611,22 +612,62 @@ model ServiceProcess {
 }
 
 model CommissionRule {
-  id            Int       @id @default(autoincrement())
-  tenantId      Int       @map("tenant_id")
-  name          String    @db.VarChar(100)
-  version       Int       @default(1)
-  ruleType      String    @map("rule_type") @db.VarChar(30)
-  config        Json
-  effectiveFrom DateTime  @map("effective_from")
-  effectiveTo   DateTime? @map("effective_to")
-  status        Boolean   @default(true)
-  createdAt     DateTime  @default(now()) @map("created_at")
+  id              Int       @id @default(autoincrement())
+  tenantId        Int       @map("tenant_id")
+  name            String    @db.VarChar(100)
+  version         Int       @default(1)
+  ruleType        String    @map("rule_type") @db.VarChar(30)
+  config          Json
+  effectiveFrom   DateTime  @map("effective_from")
+  effectiveTo     DateTime? @map("effective_to")
+  status          Boolean   @default(true)
+  configVersionId Int?      @map("config_version_id") // 关联当前生效的配置版本快照
+  createdAt       DateTime  @default(now()) @map("created_at")
 
-  tenant      Tenant       @relation(fields: [tenantId], references: [id])
-  commissions Commission[]
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  commissions   Commission[]
+  configVersion ConfigVersion? @relation("CommissionRuleVersion", fields: [configVersionId], references: [id])
 
   @@index([tenantId, status])
+  @@index([configVersionId])
   @@map("commission_rules")
+}
+
+// ============================================================
+// 配置版本管理（P5 新增）
+// 通用配置版本快照：提成规则 / 工作流 / 表单 等历史版本
+// ============================================================
+
+enum ConfigVersionType {
+  COMMISSION_RULE // 提成规则
+  WORKFLOW        // 审批/工作流
+  FORM_SCHEMA     // 表单结构
+  SYSTEM_CONFIG   // 系统参数
+}
+
+model ConfigVersion {
+  id            Int              @id @default(autoincrement())
+  tenantId      Int              @map("tenant_id")
+  configType    ConfigVersionType @map("config_type")
+  // 业务标识，例如 commission_rule_12 / approval_flow_3 / business_line_5
+  configKey     String           @map("config_key") @db.VarChar(100)
+  version       Int              @map("version") // 同 configKey 下的版本号
+  // 完整配置快照（JSON），回滚/对比时使用
+  snapshot      Json
+  // 变更说明（如"调整首款比例20%→25%"）
+  remark        String?          @db.Text
+  operatorId    Int?             @map("operator_id")
+  // 是否为当前生效版本
+  isActive      Boolean          @default(false) @map("is_active")
+  createdAt     DateTime         @default(now()) @map("created_at")
+
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  commissionRules CommissionRule[] @relation("CommissionRuleVersion")
+
+  @@unique([tenantId, configKey, version])
+  @@index([tenantId, configType])
+  @@index([configKey])
+  @@map("config_versions")
 }
 
 model Student {

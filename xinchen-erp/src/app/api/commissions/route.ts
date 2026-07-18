@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
       include: {
         student: { select: { id: true, name: true, phone: true } },
-        rule: { select: { id: true, name: true, ruleType: true } },
+        rule: { select: { id: true, name: true, ruleType: true, version: true } },
       },
     }),
   ]);
