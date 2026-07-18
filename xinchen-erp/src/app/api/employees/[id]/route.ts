@@ -51,7 +51,7 @@ export async function PUT(
       name: name || existing.name,
       userId: userId !== undefined ? (userId ? parseInt(userId) : null) : existing.userId,
       positionId: positionId !== undefined ? (positionId ? parseInt(positionId) : null) : existing.positionId,
-      gender: gender !== undefined ? gender : existing.gender,
+      gender: gender !== undefined ? (gender || null) : existing.gender,
       phone: phone !== undefined ? phone : existing.phone,
       email: email !== undefined ? email : existing.email,
       dingtalkId: dingtalkId !== undefined ? dingtalkId : existing.dingtalkId,
