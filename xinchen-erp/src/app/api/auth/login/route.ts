@@ -2,10 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth";
 import { signToken } from "@/lib/jwt";
+import { recordLogin } from "@/lib/operation-log";
 
 export async function POST(request: NextRequest) {
   try {
     const { username, password } = await request.json();
+
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+      request.headers.get("x-real-ip") ||
+      request.headers.get("x-client-ip") ||
+      null;
+    const ua = request.headers.get("user-agent") || null;
+    // 登录失败且用户不存在时，无租户上下文，回退到默认租户
+    const FALLBACK_TENANT = 1;
 
     const user = await prisma.user.findUnique({
       where: { username },
@@ -19,11 +29,28 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user || !user.isActive) {
+      await recordLogin({
+        tenantId: FALLBACK_TENANT,
+        username,
+        status: "FAILED",
+        reason: "用户不存在或已禁用",
+        ipAddress: ip,
+        userAgent: ua,
+      });
       return NextResponse.json({ error: "用户名或密码错误" }, { status: 401 });
     }
 
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
+      await recordLogin({
+        tenantId: user.tenantId,
+        userId: user.id,
+        username,
+        status: "FAILED",
+        reason: "密码错误",
+        ipAddress: ip,
+        userAgent: ua,
+      });
       return NextResponse.json({ error: "用户名或密码错误" }, { status: 401 });
     }
 
@@ -40,6 +67,15 @@ export async function POST(request: NextRequest) {
     await prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
+    });
+
+    await recordLogin({
+      tenantId: user.tenantId,
+      userId: user.id,
+      username: user.username,
+      status: "SUCCESS",
+      ipAddress: ip,
+      userAgent: ua,
     });
 
     const response = NextResponse.json({

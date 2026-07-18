@@ -198,48 +198,50 @@ model Tenant {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  users            User[]
-  roles            Role[]
-  dicts            Dict[]
-  configs          SystemConfig[]
-  depts            Department[]
-  positions        Position[]
-  employees        Employee[]
-  students         Student[]
-  contracts        Contract[]
-  orders           Order[]
-  applications     Application[]
-  payments         Payment[]
-  costs            Cost[]
-  commissions      Commission[]
-  salaries         Salary[]
-  reimbursements   Reimbursement[]
-  profitReports    ProfitReport[]
-  workflows        Workflow[]
-  files            File[]
-  rentalOrders     RentalOrder[]
-  overseasServices OverseasService[]
-  partners         Partner[]
-  sites            Site[]
-  mediaAccounts    MediaAccount[]
-  auditLogs        AuditLog[]
-  businessLines    BusinessLine[]
-  commissionRules  CommissionRule[]
-  countries        Country[]
-  institutions     Institution[]
-  majors           Major[]
-  products         Product[]
-  productPackages  ProductPackage[]
-  securityPolicies SecurityPolicy[]
-  approvalFlows    ApprovalFlow[]
-  approvalRecords  ApprovalRecord[]
+  users               User[]
+  roles               Role[]
+  dicts               Dict[]
+  configs             SystemConfig[]
+  depts               Department[]
+  positions           Position[]
+  employees           Employee[]
+  students            Student[]
+  contracts           Contract[]
+  orders              Order[]
+  applications        Application[]
+  payments            Payment[]
+  costs               Cost[]
+  commissions         Commission[]
+  salaries            Salary[]
+  reimbursements      Reimbursement[]
+  profitReports       ProfitReport[]
+  workflows           Workflow[]
+  files               File[]
+  rentalOrders        RentalOrder[]
+  overseasServices    OverseasService[]
+  partners            Partner[]
+  sites               Site[]
+  mediaAccounts       MediaAccount[]
+  auditLogs           AuditLog[]
+  businessLines       BusinessLine[]
+  commissionRules     CommissionRule[]
+  countries           Country[]
+  institutions        Institution[]
+  majors              Major[]
+  products            Product[]
+  productPackages     ProductPackage[]
+  securityPolicies    SecurityPolicy[]
+  approvalFlows       ApprovalFlow[]
+  approvalRecords     ApprovalRecord[]
   satisfactionSurveys SatisfactionSurvey[]
-  serviceVisits    ServiceVisit[]
-  complaints        Complaint[]
-  referrals         Referral[]
-  riskRules        RiskRule[]
-  riskRecords      RiskRecord[]
-  riskNotifications RiskNotification[]
+  serviceVisits       ServiceVisit[]
+  complaints          Complaint[]
+  referrals           Referral[]
+  riskRules           RiskRule[]
+  riskRecords         RiskRecord[]
+  riskNotifications   RiskNotification[]
+  operationLogs       OperationLog[]
+  loginLogs           LoginLog[]
 
   @@map("tenants")
 }
@@ -259,18 +261,20 @@ model User {
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
 
-  tenant           Tenant          @relation(fields: [tenantId], references: [id])
+  tenant           Tenant           @relation(fields: [tenantId], references: [id])
   employee         Employee?
   userRoles        UserRole[]
   userDepts        UserDepartment[]
   notifications    Notification[]
-  createdAudit     AuditLog[]      @relation("audit_creator")
-  visitPlans       VisitPlan[]     @relation("plan_assignee")
-  visitRecords     VisitRecord[]   @relation("visit_visitor")
-  assignedStudents Student[]       @relation("student_assignee")
-  assignedLeads    Lead[]          @relation("lead_assignee")
+  createdAudit     AuditLog[]       @relation("audit_creator")
+  createdOperation OperationLog[]   @relation("operation_creator")
+  createdLogin     LoginLog[]       @relation("login_creator")
+  visitPlans       VisitPlan[]      @relation("plan_assignee")
+  visitRecords     VisitRecord[]    @relation("visit_visitor")
+  assignedStudents Student[]        @relation("student_assignee")
+  assignedLeads    Lead[]           @relation("lead_assignee")
   followUps        FollowUp[]
-  assignedOrders   Order[]         @relation("order_assignee")
+  assignedOrders   Order[]          @relation("order_assignee")
   reimbursements   Reimbursement[]
   uploadedFiles    File[]
 
@@ -288,7 +292,7 @@ model Role {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  tenant          Tenant                    @relation(fields: [tenantId], references: [id])
+  tenant          Tenant                     @relation(fields: [tenantId], references: [id])
   userRoles       UserRole[]
   roleMenus       RoleMenu[]
   rolePermissions RolePermission[]
@@ -432,6 +436,48 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+model OperationLog {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  userId    Int      @map("user_id")
+  module    String   @db.VarChar(50) // 业务模块，如 students/contracts/products
+  action    String   @db.VarChar(50) // CREATE/UPDATE/DELETE/EXPORT/IMPORT/LOGIN...
+  target    String?  @db.VarChar(200) // 操作对象描述，如 "学生:张三(id=12)"
+  detail    Json? // 操作补充说明
+  ipAddress String?  @map("ip_address") @db.VarChar(50)
+  userAgent String?  @map("user_agent") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation("operation_creator", fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([module])
+  @@index([action])
+  @@index([createdAt])
+  @@map("operation_logs")
+}
+
+model LoginLog {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  userId    Int?     @map("user_id") // 登录失败可能无对应用户
+  username  String?  @db.VarChar(100)
+  status    String   @db.VarChar(20) // SUCCESS / FAILED
+  reason    String?  @db.VarChar(200) // 失败原因
+  ipAddress String?  @map("ip_address") @db.VarChar(50)
+  userAgent String?  @map("user_agent") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User?  @relation("login_creator", fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("login_logs")
+}
+
 model Notification {
   id        Int       @id @default(autoincrement())
   userId    Int       @map("user_id")
@@ -460,9 +506,9 @@ model Department {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  tenant    Tenant         @relation(fields: [tenantId], references: [id])
-  parent    Department?    @relation("dept_children", fields: [parentId], references: [id])
-  children  Department[]   @relation("dept_children")
+  tenant    Tenant           @relation(fields: [tenantId], references: [id])
+  parent    Department?      @relation("dept_children", fields: [parentId], references: [id])
+  children  Department[]     @relation("dept_children")
   positions Position[]
   userDepts UserDepartment[]
 
@@ -490,7 +536,7 @@ model Position {
 model Employee {
   id         Int       @id @default(autoincrement())
   tenantId   Int       @map("tenant_id")
-  userId     Int?      @map("user_id") @unique
+  userId     Int?      @unique @map("user_id")
   positionId Int?      @map("position_id")
   name       String    @db.VarChar(50)
   employeeNo String?   @map("employee_no") @db.VarChar(50)
@@ -577,58 +623,58 @@ model CommissionRule {
 }
 
 model Student {
-  id               Int        @id @default(autoincrement())
-  tenantId         Int        @map("tenant_id")
-  name             String     @db.VarChar(50)
+  id               Int       @id @default(autoincrement())
+  tenantId         Int       @map("tenant_id")
+  name             String    @db.VarChar(50)
   gender           Gender?
-  birthDate        DateTime?  @map("birth_date")
-  phone            String?    @db.VarChar(20)
-  wechat           String?    @db.VarChar(50)
-  email            String?    @db.VarChar(100)
-  idNumber         String?    @map("id_number") @db.VarChar(30)
-  passportNo       String?    @map("passport_no") @db.VarChar(30)
-  nationality      String?    @db.VarChar(50)
-  currentSchool    String?    @map("current_school") @db.VarChar(200)
-  currentMajor     String?    @map("current_major") @db.VarChar(200)
-  education        String?    @db.VarChar(50)
-  gpa              Decimal?   @db.Decimal(4, 2)
-  languageScore    Json?      @map("language_score")
-  targetCountry    String?    @map("target_country") @db.VarChar(50)
-  targetDegree     String?    @map("target_degree") @db.VarChar(50)
-  targetMajor      String?    @map("target_major") @db.VarChar(200)
-  budget           Decimal?   @db.Decimal(12, 2)
-  emergencyContact String?    @map("emergency_contact") @db.VarChar(100)
-  emergencyPhone   String?    @map("emergency_phone") @db.VarChar(20)
-  remark           String?    @db.Text
+  birthDate        DateTime? @map("birth_date")
+  phone            String?   @db.VarChar(20)
+  wechat           String?   @db.VarChar(50)
+  email            String?   @db.VarChar(100)
+  idNumber         String?   @map("id_number") @db.VarChar(30)
+  passportNo       String?   @map("passport_no") @db.VarChar(30)
+  nationality      String?   @db.VarChar(50)
+  currentSchool    String?   @map("current_school") @db.VarChar(200)
+  currentMajor     String?   @map("current_major") @db.VarChar(200)
+  education        String?   @db.VarChar(50)
+  gpa              Decimal?  @db.Decimal(4, 2)
+  languageScore    Json?     @map("language_score")
+  targetCountry    String?   @map("target_country") @db.VarChar(50)
+  targetDegree     String?   @map("target_degree") @db.VarChar(50)
+  targetMajor      String?   @map("target_major") @db.VarChar(200)
+  budget           Decimal?  @db.Decimal(12, 2)
+  emergencyContact String?   @map("emergency_contact") @db.VarChar(100)
+  emergencyPhone   String?   @map("emergency_phone") @db.VarChar(20)
+  remark           String?   @db.Text
   source           String?
-  referrerId       Int?       @map("referrer_id")
-  assignedToId     Int?       @map("assigned_to_id")
-  currentStatus    String?    @map("current_status") @db.VarChar(50)
-  extData          Json?      @map("ext_data")
-  createdAt        DateTime   @default(now()) @map("created_at")
-  updatedAt        DateTime   @updatedAt @map("updated_at")
+  referrerId       Int?      @map("referrer_id")
+  assignedToId     Int?      @map("assigned_to_id")
+  currentStatus    String?   @map("current_status") @db.VarChar(50)
+  extData          Json?     @map("ext_data")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
-  tenant           Tenant                   @relation(fields: [tenantId], references: [id])
-  assignedTo       User?                    @relation("student_assignee", fields: [assignedToId], references: [id])
-  leads            Lead[]
-  followUps        FollowUp[]
-  contracts        Contract[]
-  orders           Order[]
-  applications     Application[]
-  visitPlans       VisitPlan[]
-  visitRecords     VisitRecord[]
-  lifecycleEvents  StudentLifecycleEvent[]
-  payments         Payment[]
-  commissions      Commission[]
-  rentalOrders     RentalOrder[]
-  overseasServices OverseasService[]
-  costs            Cost[]
+  tenant              Tenant                  @relation(fields: [tenantId], references: [id])
+  assignedTo          User?                   @relation("student_assignee", fields: [assignedToId], references: [id])
+  leads               Lead[]
+  followUps           FollowUp[]
+  contracts           Contract[]
+  orders              Order[]
+  applications        Application[]
+  visitPlans          VisitPlan[]
+  visitRecords        VisitRecord[]
+  lifecycleEvents     StudentLifecycleEvent[]
+  payments            Payment[]
+  commissions         Commission[]
+  rentalOrders        RentalOrder[]
+  overseasServices    OverseasService[]
+  costs               Cost[]
   satisfactionSurveys SatisfactionSurvey[]
-  serviceVisits    ServiceVisit[]
-  complaints        Complaint[]
-  referralsMade    Referral[] @relation("ReferralsByStudent")
-  referralNew      Referral[] @relation("ReferralNewStudent")
-  riskRecords      RiskRecord[]
+  serviceVisits       ServiceVisit[]
+  complaints          Complaint[]
+  referralsMade       Referral[]              @relation("ReferralsByStudent")
+  referralNew         Referral[]              @relation("ReferralNewStudent")
+  riskRecords         RiskRecord[]
 
   @@index([tenantId])
   @@index([assignedToId])
@@ -739,8 +785,8 @@ model Contract {
   createdAt       DateTime       @default(now()) @map("created_at")
   updatedAt       DateTime       @updatedAt @map("updated_at")
 
-  tenant       Tenant       @relation(fields: [tenantId], references: [id])
-  student      Student      @relation(fields: [studentId], references: [id])
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  student      Student       @relation(fields: [studentId], references: [id])
   businessLine BusinessLine? @relation(fields: [businessLineId], references: [id])
   orders       Order[]
 
@@ -811,9 +857,9 @@ model Application {
   createdAt       DateTime          @default(now()) @map("created_at")
   updatedAt       DateTime          @updatedAt @map("updated_at")
 
-  tenant          Tenant                 @relation(fields: [tenantId], references: [id])
-  student         Student                @relation(fields: [studentId], references: [id])
-  order           Order                  @relation(fields: [orderId], references: [id])
+  tenant          Tenant                @relation(fields: [tenantId], references: [id])
+  student         Student               @relation(fields: [studentId], references: [id])
+  order           Order                 @relation(fields: [orderId], references: [id])
   materials       ApplicationMaterial[]
   offers          Offer[]
   visas           Visa[]
@@ -864,18 +910,18 @@ model CopywriterTask {
 }
 
 model Offer {
-  id              Int        @id @default(autoincrement())
-  applicationId   Int        @map("application_id")
-  institutionName String     @map("institution_name") @db.VarChar(200)
-  majorName       String     @map("major_name") @db.VarChar(200)
-  offerType       String     @map("offer_type") @db.VarChar(30)
-  conditions      String?    @db.Text
+  id              Int         @id @default(autoincrement())
+  applicationId   Int         @map("application_id")
+  institutionName String      @map("institution_name") @db.VarChar(200)
+  majorName       String      @map("major_name") @db.VarChar(200)
+  offerType       String      @map("offer_type") @db.VarChar(30)
+  conditions      String?     @db.Text
   deadline        DateTime?
   status          OfferStatus @default(RECEIVED)
-  offerDate       DateTime   @map("offer_date")
-  responseDate    DateTime?  @map("response_date")
-  attachmentUrl   String?    @map("attachment_url") @db.Text
-  createdAt       DateTime   @default(now()) @map("created_at")
+  offerDate       DateTime    @map("offer_date")
+  responseDate    DateTime?   @map("response_date")
+  attachmentUrl   String?     @map("attachment_url") @db.Text
+  createdAt       DateTime    @default(now()) @map("created_at")
 
   application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
@@ -903,16 +949,16 @@ model Visa {
 }
 
 model VisitPlan {
-  id          Int        @id @default(autoincrement())
-  studentId   Int        @map("student_id")
+  id          Int         @id @default(autoincrement())
+  studentId   Int         @map("student_id")
   stage       VisitStage
   triggerType TriggerType @map("trigger_type")
-  scheduledAt DateTime   @map("scheduled_at")
-  daysOffset  Int?       @map("days_offset")
-  purpose     String     @db.Text
-  assigneeId  Int        @map("assignee_id")
-  status      PlanStatus @default(PENDING)
-  createdAt   DateTime   @default(now()) @map("created_at")
+  scheduledAt DateTime    @map("scheduled_at")
+  daysOffset  Int?        @map("days_offset")
+  purpose     String      @db.Text
+  assigneeId  Int         @map("assignee_id")
+  status      PlanStatus  @default(PENDING)
+  createdAt   DateTime    @default(now()) @map("created_at")
 
   student  Student       @relation(fields: [studentId], references: [id])
   assignee User          @relation("plan_assignee", fields: [assigneeId], references: [id])
@@ -925,26 +971,26 @@ model VisitPlan {
 }
 
 model VisitRecord {
-  id              Int        @id @default(autoincrement())
-  planId          Int?       @map("plan_id")
-  studentId       Int        @map("student_id")
-  visitType       VisitType  @map("visit_type")
-  visitDate       DateTime   @map("visit_date")
+  id              Int         @id @default(autoincrement())
+  planId          Int?        @map("plan_id")
+  studentId       Int         @map("student_id")
+  visitType       VisitType   @map("visit_type")
+  visitDate       DateTime    @map("visit_date")
   duration        Int?
   satisfaction    Int?
   mood            Mood?
-  summary         String?    @db.Text
-  studentFeedback String?    @map("student_feedback") @db.Text
-  hasUpsellNeed   Boolean    @default(false) @map("has_upsell_need")
+  summary         String?     @db.Text
+  studentFeedback String?     @map("student_feedback") @db.Text
+  hasUpsellNeed   Boolean     @default(false) @map("has_upsell_need")
   upsellType      UpsellType? @map("upsell_type")
-  upsellDetail    String?    @map("upsell_detail") @db.Text
-  hasReferral     Boolean    @default(false) @map("has_referral")
-  referralContact String?    @map("referral_contact") @db.VarChar(200)
-  needFollowUp    Boolean    @default(false) @map("need_follow_up")
-  nextFollowUpAt  DateTime?  @map("next_follow_up_at")
-  actionItems     Json?      @map("action_items")
-  visitorId       Int        @map("visitor_id")
-  createdAt       DateTime   @default(now()) @map("created_at")
+  upsellDetail    String?     @map("upsell_detail") @db.Text
+  hasReferral     Boolean     @default(false) @map("has_referral")
+  referralContact String?     @map("referral_contact") @db.VarChar(200)
+  needFollowUp    Boolean     @default(false) @map("need_follow_up")
+  nextFollowUpAt  DateTime?   @map("next_follow_up_at")
+  actionItems     Json?       @map("action_items")
+  visitorId       Int         @map("visitor_id")
+  createdAt       DateTime    @default(now()) @map("created_at")
 
   student Student    @relation(fields: [studentId], references: [id])
   plan    VisitPlan? @relation(fields: [planId], references: [id])
@@ -996,18 +1042,18 @@ model OverseasService {
 }
 
 model Partner {
-  id             Int       @id @default(autoincrement())
-  tenantId       Int       @map("tenant_id")
-  name           String    @db.VarChar(200)
-  type           String    @db.VarChar(50)
-  country        String?   @db.VarChar(50)
-  contactName    String?   @map("contact_name") @db.VarChar(50)
-  contactPhone   String?   @map("contact_phone") @db.VarChar(20)
-  contactEmail   String?   @map("contact_email") @db.VarChar(100)
-  commissionRate Decimal?  @map("commission_rate") @db.Decimal(5, 2)
-  status         Boolean   @default(true)
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  id             Int      @id @default(autoincrement())
+  tenantId       Int      @map("tenant_id")
+  name           String   @db.VarChar(200)
+  type           String   @db.VarChar(50)
+  country        String?  @db.VarChar(50)
+  contactName    String?  @map("contact_name") @db.VarChar(50)
+  contactPhone   String?  @map("contact_phone") @db.VarChar(20)
+  contactEmail   String?  @map("contact_email") @db.VarChar(100)
+  commissionRate Decimal? @map("commission_rate") @db.Decimal(5, 2)
+  status         Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
 
@@ -1093,19 +1139,19 @@ model Payment {
 }
 
 model Cost {
-  id            Int       @id @default(autoincrement())
-  tenantId      Int       @map("tenant_id")
-  studentId     Int?      @map("student_id")
-  costType      String    @map("cost_type") @db.VarChar(50)
-  amount        Decimal   @db.Decimal(12, 2)
-  currency      Currency  @default(CNY)
-  fiscalYear    Int       @map("fiscal_year")
-  fiscalMonth   Int       @map("fiscal_month")
-  description   String?   @db.Text
-  attachmentUrl String?   @map("attachment_url") @db.Text
-  createdAt     DateTime  @default(now()) @map("created_at")
+  id            Int      @id @default(autoincrement())
+  tenantId      Int      @map("tenant_id")
+  studentId     Int?     @map("student_id")
+  costType      String   @map("cost_type") @db.VarChar(50)
+  amount        Decimal  @db.Decimal(12, 2)
+  currency      Currency @default(CNY)
+  fiscalYear    Int      @map("fiscal_year")
+  fiscalMonth   Int      @map("fiscal_month")
+  description   String?  @db.Text
+  attachmentUrl String?  @map("attachment_url") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
 
-  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
   student Student? @relation(fields: [studentId], references: [id])
 
   @@index([tenantId])
@@ -1297,17 +1343,17 @@ enum ProductStatus {
 }
 
 model Country {
-  id          Int      @id @default(autoincrement())
-  tenantId    Int      @map("tenant_id")
-  name        String   @db.VarChar(100)
-  code        String   @db.VarChar(10)
-  region      String?  @db.VarChar(50)
-  visaPolicy  Json?    @map("visa_policy")
-  remark      String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id         Int      @id @default(autoincrement())
+  tenantId   Int      @map("tenant_id")
+  name       String   @db.VarChar(100)
+  code       String   @db.VarChar(10)
+  region     String?  @db.VarChar(50)
+  visaPolicy Json?    @map("visa_policy")
+  remark     String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
-  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
   institutions Institution[]
   products     Product[]
 
@@ -1317,22 +1363,22 @@ model Country {
 }
 
 model Institution {
-  id            Int            @id @default(autoincrement())
-  tenantId      Int            @map("tenant_id")
-  countryId     Int            @map("country_id")
-  name          String         @db.VarChar(200)
-  type          InstitutionType @default(UNIVERSITY)
-  ranking       Int?
-  tuitionRange  String?        @map("tuition_range") @db.VarChar(100)
-  requirements  Json?
-  remark        String?        @db.Text
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
+  id           Int             @id @default(autoincrement())
+  tenantId     Int             @map("tenant_id")
+  countryId    Int             @map("country_id")
+  name         String          @db.VarChar(200)
+  type         InstitutionType @default(UNIVERSITY)
+  ranking      Int?
+  tuitionRange String?         @map("tuition_range") @db.VarChar(100)
+  requirements Json?
+  remark       String?         @db.Text
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
 
-  tenant      Tenant      @relation(fields: [tenantId], references: [id])
-  country     Country     @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  majors      Major[]
-  products    Product[]
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  country  Country   @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  majors   Major[]
+  products Product[]
 
   @@index([tenantId])
   @@index([countryId])
@@ -1363,25 +1409,25 @@ model Major {
 }
 
 model Product {
-  id              Int          @id @default(autoincrement())
-  tenantId        Int          @map("tenant_id")
-  businessLineId  Int?         @map("business_line_id")
-  countryId       Int?         @map("country_id")
-  institutionId   Int?         @map("institution_id")
-  name            String       @db.VarChar(200)
-  description     Json?
-  price           Decimal      @db.Decimal(12, 2)
-  commissionRate  Decimal?     @map("commission_rate") @db.Decimal(5, 2)
-  status          ProductStatus @default(ACTIVE)
-  remark          String?      @db.Text
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
+  id             Int           @id @default(autoincrement())
+  tenantId       Int           @map("tenant_id")
+  businessLineId Int?          @map("business_line_id")
+  countryId      Int?          @map("country_id")
+  institutionId  Int?          @map("institution_id")
+  name           String        @db.VarChar(200)
+  description    Json?
+  price          Decimal       @db.Decimal(12, 2)
+  commissionRate Decimal?      @map("commission_rate") @db.Decimal(5, 2)
+  status         ProductStatus @default(ACTIVE)
+  remark         String?       @db.Text
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
 
-  tenant        Tenant         @relation(fields: [tenantId], references: [id])
-  businessLine  BusinessLine?  @relation(fields: [businessLineId], references: [id])
-  country       Country?       @relation(fields: [countryId], references: [id])
-  institution   Institution?   @relation(fields: [institutionId], references: [id])
-  childPackages ProductPackage[] @relation("ProductChildren")
+  tenant         Tenant           @relation(fields: [tenantId], references: [id])
+  businessLine   BusinessLine?    @relation(fields: [businessLineId], references: [id])
+  country        Country?         @relation(fields: [countryId], references: [id])
+  institution    Institution?     @relation(fields: [institutionId], references: [id])
+  childPackages  ProductPackage[] @relation("ProductChildren")
   parentPackages ProductPackage[] @relation("ProductParents")
 
   @@index([tenantId])
@@ -1389,14 +1435,14 @@ model Product {
 }
 
 model ProductPackage {
-  id              Int    @id @default(autoincrement())
-  tenantId        Int    @map("tenant_id")
-  parentProductId Int    @map("parent_product_id")
-  childProductId  Int    @map("child_product_id")
+  id              Int      @id @default(autoincrement())
+  tenantId        Int      @map("tenant_id")
+  parentProductId Int      @map("parent_product_id")
+  childProductId  Int      @map("child_product_id")
   discount        Decimal? @db.Decimal(5, 2)
   createdAt       DateTime @default(now()) @map("created_at")
 
-  tenant        Tenant  @relation(fields: [tenantId], references: [id])
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
   parentProduct Product? @relation("ProductParents", fields: [parentProductId], references: [id], map: "pkg_parent_fkey")
   childProduct  Product? @relation("ProductChildren", fields: [childProductId], references: [id], map: "pkg_child_fkey")
 
@@ -1409,19 +1455,19 @@ model ProductPackage {
 // ============================================================
 
 model SecurityPolicy {
-  id          Int      @id @default(autoincrement())
-  tenantId    Int      @map("tenant_id")
-  name        String   @db.VarChar(100)
+  id            Int      @id @default(autoincrement())
+  tenantId      Int      @map("tenant_id")
+  name          String   @db.VarChar(100)
   // export_limit: 1小时内最大导出条数； view_limit: 1天内最大查看条数
-  metric      String   @db.VarChar(50) // EXPORT_COUNT / VIEW_CONTACT_COUNT
-  threshold   Int
-  windowMinutes Int    @map("window_minutes")
-  action      String   @default("WARN") @db.VarChar(20) // WARN / LOCK
-  notifyRole  String?  @map("notify_role") @db.VarChar(50)
-  enabled     Boolean  @default(true)
-  remark      String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  metric        String   @db.VarChar(50) // EXPORT_COUNT / VIEW_CONTACT_COUNT
+  threshold     Int
+  windowMinutes Int      @map("window_minutes")
+  action        String   @default("WARN") @db.VarChar(20) // WARN / LOCK
+  notifyRole    String?  @map("notify_role") @db.VarChar(50)
+  enabled       Boolean  @default(true)
+  remark        String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
 
@@ -1449,22 +1495,22 @@ enum ApprovalNodeType {
 
 enum ApprovalSignMode {
   AND // 会签：全部通过
-  OR  // 或签：任一通过
+  OR // 或签：任一通过
 }
 
 model ApprovalFlow {
-  id          Int      @id @default(autoincrement())
-  tenantId    Int      @map("tenant_id")
-  name        String   @db.VarChar(100)
+  id           Int              @id @default(autoincrement())
+  tenantId     Int              @map("tenant_id")
+  name         String           @db.VarChar(100)
   // 业务类型：CONTRACT_DISCOUNT / REFUND / REIMBURSEMENT / LEAD_TRANSFER
-  businessType String  @map("business_type") @db.VarChar(50)
-  description String?  @db.Text
-  signMode    ApprovalSignMode @default(AND) @map("sign_mode")
-  enabled     Boolean  @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  businessType String           @map("business_type") @db.VarChar(50)
+  description  String?          @db.Text
+  signMode     ApprovalSignMode @default(AND) @map("sign_mode")
+  enabled      Boolean          @default(true)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
 
-  tenant  Tenant          @relation(fields: [tenantId], references: [id])
+  tenant  Tenant           @relation(fields: [tenantId], references: [id])
   nodes   ApprovalNode[]
   records ApprovalRecord[]
 
@@ -1474,17 +1520,17 @@ model ApprovalFlow {
 }
 
 model ApprovalNode {
-  id             Int             @id @default(autoincrement())
-  flowId         Int             @map("flow_id")
-  nodeType       ApprovalNodeType @default(APPROVE)
-  orderNo        Int             @map("order_no")
-  name           String          @db.VarChar(100)
-  approverRole   String?         @map("approver_role") @db.VarChar(50)
-  approverId     Int?            @map("approver_id")
-  conditionExpr  String?         @map("condition_expr") @db.Text
-  createdAt      DateTime        @default(now()) @map("created_at")
+  id            Int              @id @default(autoincrement())
+  flowId        Int              @map("flow_id")
+  nodeType      ApprovalNodeType @default(APPROVE)
+  orderNo       Int              @map("order_no")
+  name          String           @db.VarChar(100)
+  approverRole  String?          @map("approver_role") @db.VarChar(50)
+  approverId    Int?             @map("approver_id")
+  conditionExpr String?          @map("condition_expr") @db.Text
+  createdAt     DateTime         @default(now()) @map("created_at")
 
-  flow    ApprovalFlow    @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  flow    ApprovalFlow     @relation(fields: [flowId], references: [id], onDelete: Cascade)
   records ApprovalRecord[]
 
   @@index([flowId])
@@ -1492,24 +1538,24 @@ model ApprovalNode {
 }
 
 model ApprovalRecord {
-  id           Int            @id @default(autoincrement())
-  tenantId     Int            @map("tenant_id")
-  flowId       Int            @map("flow_id")
-  nodeId       Int            @map("node_id")
-  businessType String         @map("business_type") @db.VarChar(50)
-  businessId   Int            @map("business_id")
-  applicantId  Int            @map("applicant_id")
-  approverId   Int?           @map("approver_id")
-  status       ApprovalStatus @default(PENDING)
-  comment      String?        @db.Text
-  attachments  Json?
-  currentNodeOrder Int        @map("current_node_order") @default(1)
-  submittedAt  DateTime       @default(now()) @map("submitted_at")
-  decidedAt    DateTime?      @map("decided_at")
+  id               Int            @id @default(autoincrement())
+  tenantId         Int            @map("tenant_id")
+  flowId           Int            @map("flow_id")
+  nodeId           Int            @map("node_id")
+  businessType     String         @map("business_type") @db.VarChar(50)
+  businessId       Int            @map("business_id")
+  applicantId      Int            @map("applicant_id")
+  approverId       Int?           @map("approver_id")
+  status           ApprovalStatus @default(PENDING)
+  comment          String?        @db.Text
+  attachments      Json?
+  currentNodeOrder Int            @default(1) @map("current_node_order")
+  submittedAt      DateTime       @default(now()) @map("submitted_at")
+  decidedAt        DateTime?      @map("decided_at")
 
-  tenant    Tenant      @relation(fields: [tenantId], references: [id])
-  flow      ApprovalFlow @relation(fields: [flowId], references: [id])
-  node      ApprovalNode @relation(fields: [nodeId], references: [id])
+  tenant Tenant       @relation(fields: [tenantId], references: [id])
+  flow   ApprovalFlow @relation(fields: [flowId], references: [id])
+  node   ApprovalNode @relation(fields: [nodeId], references: [id])
 
   @@index([tenantId])
   @@index([businessType, businessId])
@@ -1549,16 +1595,16 @@ enum ReferralStatus {
 }
 
 model SatisfactionSurvey {
-  id        Int          @id @default(autoincrement())
-  tenantId  Int          @map("tenant_id")
-  studentId Int          @map("student_id")
-  nps       Int?         // 0-10 净推荐值
-  score     Int?         // 总体评分 0-5
-  dimensionScores Json?  @map("dimension_scores")
-  feedback  String?      @db.Text
-  status    SurveyStatus @default(SENT)
-  sentAt    DateTime     @default(now()) @map("sent_at")
-  respondedAt DateTime?  @map("responded_at")
+  id              Int          @id @default(autoincrement())
+  tenantId        Int          @map("tenant_id")
+  studentId       Int          @map("student_id")
+  nps             Int? // 0-10 净推荐值
+  score           Int? // 总体评分 0-5
+  dimensionScores Json?        @map("dimension_scores")
+  feedback        String?      @db.Text
+  status          SurveyStatus @default(SENT)
+  sentAt          DateTime     @default(now()) @map("sent_at")
+  respondedAt     DateTime?    @map("responded_at")
 
   tenant  Tenant  @relation(fields: [tenantId], references: [id])
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -1568,16 +1614,16 @@ model SatisfactionSurvey {
 }
 
 model ServiceVisit {
-  id        Int          @id @default(autoincrement())
-  tenantId  Int          @map("tenant_id")
-  studentId Int          @map("student_id")
-  visitorId Int          @map("visitor_id")
-  visitDate DateTime     @map("visit_date")
-  channel   String?      @db.VarChar(50) // PHONE / WECHAT / VISIT / VIDEO
-  result    VisitResult  @default(NORMAL)
-  summary   String?      @db.Text
-  nextPlan  String?      @db.Text @map("next_plan")
-  createdAt DateTime     @default(now()) @map("created_at")
+  id        Int         @id @default(autoincrement())
+  tenantId  Int         @map("tenant_id")
+  studentId Int         @map("student_id")
+  visitorId Int         @map("visitor_id")
+  visitDate DateTime    @map("visit_date")
+  channel   String?     @db.VarChar(50) // PHONE / WECHAT / VISIT / VIDEO
+  result    VisitResult @default(NORMAL)
+  summary   String?     @db.Text
+  nextPlan  String?     @map("next_plan") @db.Text
+  createdAt DateTime    @default(now()) @map("created_at")
 
   tenant  Tenant  @relation(fields: [tenantId], references: [id])
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -1587,17 +1633,17 @@ model ServiceVisit {
 }
 
 model Complaint {
-  id          Int             @id @default(autoincrement())
-  tenantId    Int             @map("tenant_id")
-  studentId   Int             @map("student_id")
-  title       String          @db.VarChar(200)
-  content     String?         @db.Text
-  level       Int             @default(2) // 1 高 / 2 中 / 3 低
-  status      ComplaintStatus @default(OPEN)
-  handlerId   Int?            @map("handler_id")
-  resolvedAt  DateTime?       @map("resolved_at")
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
+  id         Int             @id @default(autoincrement())
+  tenantId   Int             @map("tenant_id")
+  studentId  Int             @map("student_id")
+  title      String          @db.VarChar(200)
+  content    String?         @db.Text
+  level      Int             @default(2) // 1 高 / 2 中 / 3 低
+  status     ComplaintStatus @default(OPEN)
+  handlerId  Int?            @map("handler_id")
+  resolvedAt DateTime?       @map("resolved_at")
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
 
   tenant  Tenant  @relation(fields: [tenantId], references: [id])
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -1607,21 +1653,21 @@ model Complaint {
 }
 
 model Referral {
-  id           Int           @id @default(autoincrement())
-  tenantId     Int           @map("tenant_id")
-  referrerId   Int           @map("referrer_id") // 推荐人（学生）
-  refereeName  String        @db.VarChar(100) @map("referee_name")
-  refereePhone String?       @db.VarChar(50) @map("referee_phone")
-  newStudentId Int?          @map("new_student_id")
-  rewardType   String?       @map("reward_type") @db.VarChar(50) // CASH / COUPON / UPGRADE
-  rewardAmount Decimal?      @map("reward_amount") @db.Decimal(10, 2)
+  id           Int            @id @default(autoincrement())
+  tenantId     Int            @map("tenant_id")
+  referrerId   Int            @map("referrer_id") // 推荐人（学生）
+  refereeName  String         @map("referee_name") @db.VarChar(100)
+  refereePhone String?        @map("referee_phone") @db.VarChar(50)
+  newStudentId Int?           @map("new_student_id")
+  rewardType   String?        @map("reward_type") @db.VarChar(50) // CASH / COUPON / UPGRADE
+  rewardAmount Decimal?       @map("reward_amount") @db.Decimal(10, 2)
   status       ReferralStatus @default(PENDING)
-  remark       String?       @db.Text
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  remark       String?        @db.Text
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
 
-  tenant    Tenant  @relation(fields: [tenantId], references: [id])
-  referrer  Student @relation("ReferralsByStudent", fields: [referrerId], references: [id], onDelete: Cascade)
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  referrer   Student  @relation("ReferralsByStudent", fields: [referrerId], references: [id], onDelete: Cascade)
   newStudent Student? @relation("ReferralNewStudent", fields: [newStudentId], references: [id])
 
   @@index([tenantId])
@@ -1645,20 +1691,20 @@ enum RiskRecordStatus {
 }
 
 model RiskRule {
-  id          Int       @id @default(autoincrement())
-  tenantId    Int       @map("tenant_id")
-  name        String    @db.VarChar(100)
-  description String?   @db.Text
+  id            Int       @id @default(autoincrement())
+  tenantId      Int       @map("tenant_id")
+  name          String    @db.VarChar(100)
+  description   String?   @db.Text
   // 规则表达式，由风险扫描引擎解析，例如：
   // daysToDeadline < 7 AND materialCompletion < 0.8
-  conditionExpr String  @map("condition_expr") @db.Text
-  riskLevel   RiskLevel @map("risk_level") @default(MEDIUM)
-  notifyRoles String?   @map("notify_roles") @db.VarChar(200)
-  enabled     Boolean   @default(true)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  conditionExpr String    @map("condition_expr") @db.Text
+  riskLevel     RiskLevel @default(MEDIUM) @map("risk_level")
+  notifyRoles   String?   @map("notify_roles") @db.VarChar(200)
+  enabled       Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  tenant  Tenant        @relation(fields: [tenantId], references: [id])
+  tenant  Tenant       @relation(fields: [tenantId], references: [id])
   records RiskRecord[]
 
   @@index([tenantId])
@@ -1666,21 +1712,21 @@ model RiskRule {
 }
 
 model RiskRecord {
-  id          Int             @id @default(autoincrement())
-  tenantId    Int             @map("tenant_id")
-  ruleId      Int             @map("rule_id")
-  studentId   Int?            @map("student_id")
-  riskLevel   RiskLevel       @map("risk_level") @default(MEDIUM)
-  status      RiskRecordStatus @default(OPEN)
-  detail      String?         @db.Text
-  detectedAt  DateTime        @default(now()) @map("detected_at")
-  resolvedAt  DateTime?       @map("resolved_at")
-  resolvedBy  Int?            @map("resolved_by")
-  createdAt   DateTime        @default(now()) @map("created_at")
+  id         Int              @id @default(autoincrement())
+  tenantId   Int              @map("tenant_id")
+  ruleId     Int              @map("rule_id")
+  studentId  Int?             @map("student_id")
+  riskLevel  RiskLevel        @default(MEDIUM) @map("risk_level")
+  status     RiskRecordStatus @default(OPEN)
+  detail     String?          @db.Text
+  detectedAt DateTime         @default(now()) @map("detected_at")
+  resolvedAt DateTime?        @map("resolved_at")
+  resolvedBy Int?             @map("resolved_by")
+  createdAt  DateTime         @default(now()) @map("created_at")
 
-  tenant  Tenant  @relation(fields: [tenantId], references: [id])
-  rule    RiskRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
-  student Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  tenant        Tenant             @relation(fields: [tenantId], references: [id])
+  rule          RiskRule           @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  student       Student?           @relation(fields: [studentId], references: [id], onDelete: SetNull)
   notifications RiskNotification[]
 
   @@index([tenantId, status])
@@ -1688,14 +1734,14 @@ model RiskRecord {
 }
 
 model RiskNotification {
-  id         Int      @id @default(autoincrement())
-  tenantId   Int      @map("tenant_id")
-  riskRecordId Int    @map("risk_record_id")
-  studentId  Int?     @map("student_id")
-  channel    String   @db.VarChar(20) // DINGTALK / EMAIL / SYSTEM
-  content    String   @db.Text
-  sentAt     DateTime @default(now()) @map("sent_at")
-  read       Boolean  @default(false)
+  id           Int      @id @default(autoincrement())
+  tenantId     Int      @map("tenant_id")
+  riskRecordId Int      @map("risk_record_id")
+  studentId    Int?     @map("student_id")
+  channel      String   @db.VarChar(20) // DINGTALK / EMAIL / SYSTEM
+  content      String   @db.Text
+  sentAt       DateTime @default(now()) @map("sent_at")
+  read         Boolean  @default(false)
 
   tenant     Tenant     @relation(fields: [tenantId], references: [id])
   riskRecord RiskRecord @relation(fields: [riskRecordId], references: [id], onDelete: Cascade)

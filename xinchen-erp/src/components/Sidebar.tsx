@@ -181,6 +181,8 @@ const MENUS: MenuItem[] = [
       { name: "数据字典", code: "dicts", path: "/settings/dicts", icon: "dicts" },
       { name: "系统配置", code: "configs", path: "/settings/configs", icon: "configs" },
       { name: "审计日志", code: "audit", path: "/audit-logs", icon: "audit" },
+      { name: "操作日志", code: "operation-logs", path: "/settings/operation-logs", icon: "audit" },
+      { name: "登录日志", code: "login-logs", path: "/settings/login-logs", icon: "audit" },
     ],
   },
 ];

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { recordOperation } from "@/lib/operation-log";
 
 function getContext(request: NextRequest) {
   return { tenantId: parseInt(request.headers.get("x-tenant-id") || "0") };
@@ -121,6 +122,11 @@ export async function DELETE(
     if (!existing) return NextResponse.json({ error: "学生不存在" }, { status: 404 });
 
     await prisma.student.delete({ where: { id: parseInt(id) } });
+    await recordOperation(request, {
+      module: "students",
+      action: "DELETE",
+      target: `学生:${existing.name}(id=${id})`,
+    });
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("DELETE /api/students/[id] error:", error);
