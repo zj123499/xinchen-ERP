@@ -53,7 +53,21 @@ export async function PUT(
     updateData.status = status;
     if (status === "RELEASED") {
       updateData.releasedAt = new Date();
-      updateData.releaseRatio = releaseRatio ? parseFloat(releaseRatio) : 1;
+      // 若未显式传比例，按里程碑在规则配置中的比例自动计算（分段提成释放引擎）
+      let ratio = releaseRatio ? parseFloat(releaseRatio) : 1;
+      if (!releaseRatio && milestoneKey) {
+        const rule = await prisma.commissionRule.findFirst({
+          where: { id: existing.ruleId },
+          select: { config: true },
+        });
+        const cfg = (rule?.config as Record<string, unknown>) || {};
+        const milestones = (cfg.milestones as Array<{ key: string; ratio: number }>) || [];
+        const m = milestones.find((x) => x.key === milestoneKey);
+        if (m) ratio = m.ratio;
+      }
+      updateData.releaseRatio = ratio;
+      // 记录实际释放金额 = 应发金额 * 释放比例
+      updateData.amount = Number(existing.amount) * ratio;
     }
   }
   if (milestoneKey !== undefined) updateData.milestoneKey = milestoneKey;

@@ -211,6 +211,11 @@ model Tenant {
   applications        Application[]
   payments            Payment[]
   costs               Cost[]
+  incomes             Income[]
+  receivables         Receivable[]
+  payables            Payable[]
+  invoices            Invoice[]
+  refunds             Refund[]
   commissions         Commission[]
   salaries            Salary[]
   reimbursements      Reimbursement[]
@@ -665,6 +670,10 @@ model Student {
   visitRecords        VisitRecord[]
   lifecycleEvents     StudentLifecycleEvent[]
   payments            Payment[]
+  incomes             Income[]
+  receivables         Receivable[]
+  invoices            Invoice[]
+  refunds             Refund[]
   commissions         Commission[]
   rentalOrders        RentalOrder[]
   overseasServices    OverseasService[]
@@ -789,6 +798,7 @@ model Contract {
   student      Student       @relation(fields: [studentId], references: [id])
   businessLine BusinessLine? @relation(fields: [businessLineId], references: [id])
   orders       Order[]
+  refunds      Refund[]
 
   @@index([tenantId])
   @@index([studentId])
@@ -818,6 +828,10 @@ model Order {
   assignedTo   User?         @relation("order_assignee", fields: [assignedToId], references: [id])
   applications Application[]
   payments     Payment[]
+  incomes      Income[]
+  receivables  Receivable[]
+  invoices     Invoice[]
+  refunds      Refund[]
 
   @@index([tenantId])
   @@index([studentId])
@@ -1056,6 +1070,7 @@ model Partner {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
+  payables Payable[]
 
   @@index([tenantId])
   @@map("partners")
@@ -1136,6 +1151,203 @@ model Payment {
   @@index([studentId])
   @@index([fiscalYear, fiscalMonth])
   @@map("payments")
+}
+
+// ============================================================
+// 财务闭环补充（P5 权责发生制扩展）
+// 收入确认 / 应收 / 应付 / 发票 / 退费
+// ============================================================
+
+enum IncomeType {
+  CLIENT_FEE // 客户服务费收入
+  SCHOOL_COMMISSION // 学校返佣收入
+  PARTNER_COMMISSION // 合作方返佣收入
+  OTHER_INCOME // 其他收入
+}
+
+enum ReconcileStatus {
+  UNRECONCILED // 未对账
+  PARTIAL // 部分对账
+  RECONCILED // 已对账
+}
+
+enum InvoiceStatus {
+  DRAFT // 草稿
+  ISSUED // 已开具
+  PARTIAL_PAID // 部分支付
+  PAID // 已付清
+  CANCELLED // 已作废
+}
+
+enum RefundStatus {
+  PENDING // 待审批
+  APPROVED // 审批通过
+  REJECTED // 审批驳回
+  PROCESSING // 退款中
+  REFUNDED // 已退款
+  CANCELLED // 已取消
+}
+
+model Income {
+  id            Int          @id @default(autoincrement())
+  tenantId      Int          @map("tenant_id")
+  studentId     Int?         @map("student_id")
+  orderId       Int?         @map("order_id")
+  incomeType    IncomeType   @map("income_type")
+  amount        Decimal      @db.Decimal(12, 2)
+  currency      Currency     @default(CNY)
+  exchangeRate  Decimal?     @default(1) @map("exchange_rate") @db.Decimal(10, 6)
+  baseAmount    Decimal?     @map("base_amount") @db.Decimal(12, 2)
+  fiscalYear    Int          @map("fiscal_year")
+  fiscalMonth   Int          @map("fiscal_month")
+  recognizedAt  DateTime     @map("recognized_at") // 权责发生制确认时点
+  invoiceNo     String?      @map("invoice_no") @db.VarChar(50)
+  remark        String?      @db.Text
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  student Student? @relation(fields: [studentId], references: [id])
+  order   Order?   @relation(fields: [orderId], references: [id])
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([fiscalYear, fiscalMonth])
+  @@index([incomeType])
+  @@map("incomes")
+}
+
+model Receivable {
+  id            Int             @id @default(autoincrement())
+  tenantId      Int             @map("tenant_id")
+  studentId     Int             @map("student_id")
+  orderId       Int?            @map("order_id")
+  contractNo    String?         @map("contract_no") @db.VarChar(50)
+  invoiceNo     String?         @map("invoice_no") @db.VarChar(50)
+  amount        Decimal         @db.Decimal(12, 2)
+  currency      Currency        @default(CNY)
+  exchangeRate  Decimal?        @default(1) @map("exchange_rate") @db.Decimal(10, 6)
+  baseAmount    Decimal?        @map("base_amount") @db.Decimal(12, 2)
+  paidAmount    Decimal         @default(0) @map("paid_amount") @db.Decimal(12, 2)
+  fiscalYear    Int             @map("fiscal_year")
+  fiscalMonth   Int             @map("fiscal_month")
+  dueDate       DateTime?       @map("due_date") // 应收到期日
+  status        ReconcileStatus @default(UNRECONCILED)
+  remark        String?         @db.Text
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  order   Order?  @relation(fields: [orderId], references: [id])
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("receivables")
+}
+
+model Payable {
+  id            Int             @id @default(autoincrement())
+  tenantId      Int             @map("tenant_id")
+  partnerId     Int?            @map("partner_id") // 合作方/供应商
+  category      String          @map("category") @db.VarChar(50) // SCHOOL / PARTNER / VENDOR / OTHER
+  title         String          @db.VarChar(200)
+  amount        Decimal         @db.Decimal(12, 2)
+  currency      Currency        @default(CNY)
+  exchangeRate  Decimal?        @default(1) @map("exchange_rate") @db.Decimal(10, 6)
+  baseAmount    Decimal?        @map("base_amount") @db.Decimal(12, 2)
+  paidAmount    Decimal         @default(0) @map("paid_amount") @db.Decimal(12, 2)
+  fiscalYear    Int             @map("fiscal_year")
+  fiscalMonth   Int             @map("fiscal_month")
+  dueDate       DateTime?       @map("due_date")
+  status        ReconcileStatus @default(UNRECONCILED)
+  remark        String?         @db.Text
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  partner Partner? @relation(fields: [partnerId], references: [id])
+
+  @@index([tenantId])
+  @@index([partnerId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("payables")
+}
+
+model Invoice {
+  id           Int           @id @default(autoincrement())
+  tenantId     Int           @map("tenant_id")
+  invoiceNo    String        @unique @map("invoice_no") @db.VarChar(50)
+  studentId    Int?          @map("student_id")
+  orderId      Int?          @map("order_id")
+  type         String        @map("type") @db.VarChar(20) // SALES 销售发票 / PURCHASE 采购发票
+  amount       Decimal       @db.Decimal(12, 2)
+  currency     Currency      @default(CNY)
+  taxRate      Decimal?      @map("tax_rate") @db.Decimal(5, 2)
+  taxAmount    Decimal?      @map("tax_amount") @db.Decimal(12, 2)
+  status       InvoiceStatus @default(DRAFT)
+  issuedAt     DateTime?     @map("issued_at")
+  dueDate      DateTime?     @map("due_date")
+  remark       String?       @db.Text
+  attachmentUrl String?      @map("attachment_url") @db.Text
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  student Student? @relation(fields: [studentId], references: [id])
+  order   Order?   @relation(fields: [orderId], references: [id])
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([status])
+  @@map("invoices")
+}
+
+model Refund {
+  id           Int          @id @default(autoincrement())
+  tenantId     Int          @map("tenant_id")
+  studentId    Int          @map("student_id")
+  orderId      Int?         @map("order_id")
+  contractId   Int?         @map("contract_id")
+  refundNo     String       @unique @map("refund_no") @db.VarChar(50)
+  amount       Decimal      @db.Decimal(12, 2)
+  currency     Currency     @default(CNY)
+  exchangeRate Decimal?     @default(1) @map("exchange_rate") @db.Decimal(10, 6)
+  baseAmount   Decimal?     @map("base_amount") @db.Decimal(12, 2)
+  reason       String?      @db.Text
+  status       RefundStatus @default(PENDING)
+  approvedBy   Int?         @map("approved_by")
+  approvedAt   DateTime?    @map("approved_at")
+  refundedAt   DateTime?    @map("refunded_at")
+  remark       String?      @db.Text
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  student  Student   @relation(fields: [studentId], references: [id])
+  order    Order?    @relation(fields: [orderId], references: [id])
+  contract Contract? @relation(fields: [contractId], references: [id])
+  items    RefundItem[]
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([status])
+  @@map("refunds")
+}
+
+model RefundItem {
+  id        Int     @id @default(autoincrement())
+  refundId  Int     @map("refund_id")
+  milestone String? @map("milestone") @db.VarChar(50) // 对应提成释放节点
+  amount    Decimal @db.Decimal(12, 2)
+  remark    String? @db.Text
+
+  refund Refund @relation(fields: [refundId], references: [id], onDelete: Cascade)
+
+  @@index([refundId])
+  @@map("refund_items")
 }
 
 model Cost {
