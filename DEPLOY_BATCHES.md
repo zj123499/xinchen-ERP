@@ -5,6 +5,16 @@
 
 ## 已部署批次
 
+### 批次 3（2026-07-18）— P9 深度动态 BI 大屏
+- 文件：`src/app/api/bi/applications-progress/route.ts`（新增）、`src/app/(main)/bi/screen/page.tsx`（重写）、`src/components/Sidebar.tsx`（加 Monitor 图标 + 数据大屏菜单）
+- 改动：
+  - 新增 `/api/bi/applications-progress`：返回所有申请的 5 节点进度（材料准备→递交申请→递交签证→到校注册→结案），按 Application.status + Visa.status + Order.status 计算当前节点
+  - 大屏 `/bi/screen` 深度动态化：顶部 5 节点进度漏斗（每节点人数+占比条）、左侧「学生申请进度滚动墙」（无缝循环滚动 + 当前节点脉冲动画）、各业务线饼图/月度合同趋势/回款走势/线索来源等 ECharts 动态图表、KPI 数字滚动、实时时钟、自动刷新
+- 部署方式：`deploy_batch.js` 打包上传 → `docker compose build --no-cache` → `up`
+- 验证：服务器 health=healthy；`/api/bi/applications-progress` 返回 200（15 个申请，节点 [材料准备,递交申请,递交签证,到校注册,结案]）；`/api/dashboard` 返回 200
+- 注意：本次首次部署时 `applications-progress/route.ts` 文件内容为空（写入异常）导致 405，已修复重部署；curl 测试登录会 500（body 解析问题），用 node http 直连验证正常，应用本身无碍
+- 状态：✅ 已部署，服务器验证通过
+
 ### 批次 1（2026-07-18）— P8 AI Agent 三件套增强
 - 文件：`prisma/schema.prisma`（新增 `ai_conversations` 表）、`src/app/api/ai/{school-select,writing,customer-service}/route.ts`、`src/app/(main)/ai/{school-select,writing,customer-service}/page.tsx`
 - 改动：

@@ -12,6 +12,7 @@ import {
   UserCog, Radio, Globe2, CalendarClock, FileEdit, BarChart3, Filter,
   ArrowRightLeft, ShieldCheck, TrendingUp, Briefcase, KeyRound,
   Database, Wrench, BookOpen, GitBranch, HeartHandshake, AlertTriangle, Sparkles,
+  Monitor,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -73,6 +74,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   success: <HeartHandshake className="w-5 h-5" />,
   risk: <AlertTriangle className="w-5 h-5" />,
   ai: <Sparkles className="w-5 h-5" />,
+  screen: <Monitor className="w-5 h-5" />,
 };
 
 const MENUS: MenuItem[] = [
@@ -188,7 +190,11 @@ const MENUS: MenuItem[] = [
     ],
   },
   {
-    name: "经营驾驶舱", code: "bi", icon: "bi", path: "/bi",
+    name: "经营驾驶舱", code: "bi", icon: "bi",
+    children: [
+      { name: "经营驾驶舱", code: "bi_dash", path: "/bi", icon: "bi" },
+      { name: "数据大屏", code: "bi_screen", path: "/bi/screen", icon: "screen" },
+    ],
   },
   {
     name: "系统设置", code: "settings", icon: "settings",
