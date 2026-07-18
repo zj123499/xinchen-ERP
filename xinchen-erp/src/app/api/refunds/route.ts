@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { submitApproval } from "@/lib/approvalBusiness";
 
 function getContext(request: NextRequest) {
   return {
@@ -91,5 +92,22 @@ export async function POST(request: NextRequest) {
     include: { student: { select: { id: true, name: true, phone: true } } },
   });
 
-  return NextResponse.json(refund, { status: 201 });
+  // 退费提交即触发审批流（RETURN 场景）；未配置审批流则保持 PENDING 由人工处理
+  let approvalRecordId: number | null = null;
+  try {
+    approvalRecordId = await submitApproval({
+      tenantId,
+      applicantId: userId,
+      businessType: "REFUND",
+      businessId: refund.id,
+      comment: reason || undefined,
+    });
+    if (approvalRecordId) {
+      await prisma.refund.update({ where: { id: refund.id }, data: { approvalRecordId } });
+    }
+  } catch {
+    // 未配置审批流：退费停留在 PENDING，不阻断创建
+  }
+
+  return NextResponse.json({ ...refund, approvalRecordId }, { status: 201 });
 }

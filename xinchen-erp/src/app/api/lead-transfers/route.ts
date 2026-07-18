@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { submitApproval } from "@/lib/approvalBusiness";
 
 function getContext(request: NextRequest) {
   return {
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+  const { userId, tenantId } = getContext(request);
   const body = await request.json();
   const leadId = parseInt(body.leadId);
   const toUserId = parseInt(body.toUserId);
@@ -70,14 +71,31 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "接收人与当前归属人相同" }, { status: 400 });
   }
 
-  // 事务：写日志 + 更新归属
-  const [log] = await prisma.$transaction([
-    prisma.leadTransferLog.create({
-      data: { leadId, fromUserId: lead.assignedToId, toUserId, reason },
-      include: { lead: { select: { id: true, name: true, phone: true } } },
-    }),
-    prisma.lead.update({ where: { id: leadId }, data: { assignedToId: toUserId } }),
-  ]);
+  // 先写划转日志（applied=false），再触发 LEAD_TRANSFER 审批，不在提交时立即划转
+  const log = await prisma.leadTransferLog.create({
+    data: { leadId, fromUserId: lead.assignedToId, toUserId, reason, applied: false },
+    include: { lead: { select: { id: true, name: true, phone: true } } },
+  });
 
-  return NextResponse.json(log, { status: 201 });
+  let approvalRecordId: number | null = null;
+  try {
+    approvalRecordId = await submitApproval({
+      tenantId,
+      applicantId: userId,
+      businessType: "LEAD_TRANSFER",
+      businessId: log.id,
+      comment: reason || undefined,
+    });
+    if (approvalRecordId) {
+      await prisma.leadTransferLog.update({ where: { id: log.id }, data: { approvalRecordId } });
+    }
+  } catch {
+    // 未配置审批流：可以直接划转（兼容性）
+    await prisma.$transaction([
+      prisma.lead.update({ where: { id: leadId }, data: { assignedToId: toUserId } }),
+      prisma.leadTransferLog.update({ where: { id: log.id }, data: { applied: true } }),
+    ]);
+  }
+
+  return NextResponse.json({ ...log, approvalRecordId }, { status: 201 });
 }

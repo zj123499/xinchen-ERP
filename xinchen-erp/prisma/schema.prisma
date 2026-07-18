@@ -729,16 +729,20 @@ model Lead {
 }
 
 model LeadTransferLog {
-  id         Int      @id @default(autoincrement())
-  leadId     Int      @map("lead_id")
-  fromUserId Int      @map("from_user_id")
-  toUserId   Int      @map("to_user_id")
-  reason     String?  @db.Text
-  createdAt  DateTime @default(now()) @map("created_at")
+  id              Int             @id @default(autoincrement())
+  leadId          Int             @map("lead_id")
+  fromUserId      Int             @map("from_user_id")
+  toUserId        Int             @map("to_user_id")
+  reason          String?         @db.Text
+  approvalRecordId Int?           @map("approval_record_id") // 关联审批流记录
+  applied         Boolean         @default(false) @map("applied") // 审批通过后是否已执行划转
+  createdAt       DateTime        @default(now()) @map("created_at")
 
-  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  lead            Lead            @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  approvalRecord  ApprovalRecord? @relation("LeadTransferApproval", fields: [approvalRecordId], references: [id])
 
   @@index([leadId])
+  @@index([approvalRecordId])
   @@map("lead_transfer_logs")
 }
 
@@ -794,18 +798,22 @@ model Contract {
   signedByCompany Int?           @map("signed_by_company")
   content         String?        @db.Text
   attachmentUrl   String?        @map("attachment_url") @db.Text
+  discountRate    Decimal?       @map("discount_rate") @db.Decimal(5, 2) // 优惠折扣率(%), 经审批生效
+  approvalRecordId Int?          @map("approval_record_id") // 关联审批流记录
   remark          String?        @db.Text
   createdAt       DateTime       @default(now()) @map("created_at")
   updatedAt       DateTime       @updatedAt @map("updated_at")
 
-  tenant       Tenant        @relation(fields: [tenantId], references: [id])
-  student      Student       @relation(fields: [studentId], references: [id])
-  businessLine BusinessLine? @relation(fields: [businessLineId], references: [id])
-  orders       Order[]
-  refunds      Refund[]
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  student        Student         @relation(fields: [studentId], references: [id])
+  businessLine   BusinessLine?   @relation(fields: [businessLineId], references: [id])
+  orders         Order[]
+  refunds        Refund[]
+  approvalRecord ApprovalRecord? @relation("ContractApproval", fields: [approvalRecordId], references: [id])
 
   @@index([tenantId])
   @@index([studentId])
+  @@index([approvalRecordId])
   @@map("contracts")
 }
 
@@ -1387,22 +1395,25 @@ model Refund {
   baseAmount   Decimal?     @map("base_amount") @db.Decimal(12, 2)
   reason       String?      @db.Text
   status       RefundStatus @default(PENDING)
-  approvedBy   Int?         @map("approved_by")
-  approvedAt   DateTime?    @map("approved_at")
-  refundedAt   DateTime?    @map("refunded_at")
-  remark       String?      @db.Text
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @updatedAt @map("updated_at")
+  approvedBy       Int?         @map("approved_by")
+  approvedAt       DateTime?    @map("approved_at")
+  refundedAt       DateTime?    @map("refunded_at")
+  approvalRecordId Int?         @map("approval_record_id") // 关联审批流记录
+  remark           String?      @db.Text
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
 
-  tenant   Tenant    @relation(fields: [tenantId], references: [id])
-  student  Student   @relation(fields: [studentId], references: [id])
-  order    Order?    @relation(fields: [orderId], references: [id])
-  contract Contract? @relation(fields: [contractId], references: [id])
-  items    RefundItem[]
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  student         Student          @relation(fields: [studentId], references: [id])
+  order           Order?           @relation(fields: [orderId], references: [id])
+  contract        Contract?        @relation(fields: [contractId], references: [id])
+  approvalRecord  ApprovalRecord?  @relation("RefundApproval", fields: [approvalRecordId], references: [id])
+  items           RefundItem[]
 
   @@index([tenantId])
   @@index([studentId])
   @@index([status])
+  @@index([approvalRecordId])
   @@map("refunds")
 }
 
@@ -1495,17 +1506,20 @@ model Reimbursement {
   amount      Decimal             @db.Decimal(10, 2)
   category    String              @db.VarChar(50)
   description String?             @db.Text
-  status      ReimbursementStatus @default(DRAFT)
-  reviewedBy  Int?                @map("reviewed_by")
-  reviewNote  String?             @map("review_note") @db.Text
-  paidAt      DateTime?           @map("paid_at")
-  createdAt   DateTime            @default(now()) @map("created_at")
-  updatedAt   DateTime            @updatedAt @map("updated_at")
+  status           ReimbursementStatus @default(DRAFT)
+  reviewedBy       Int?                @map("reviewed_by")
+  reviewNote       String?             @map("review_note") @db.Text
+  paidAt           DateTime?           @map("paid_at")
+  approvalRecordId Int?                @map("approval_record_id") // 关联审批流记录
+  createdAt        DateTime            @default(now()) @map("created_at")
+  updatedAt        DateTime            @updatedAt @map("updated_at")
 
-  tenant    Tenant @relation(fields: [tenantId], references: [id])
-  applicant User   @relation(fields: [applicantId], references: [id])
+  tenant          Tenant          @relation(fields: [tenantId], references: [id])
+  applicant       User            @relation(fields: [applicantId], references: [id])
+  approvalRecord  ApprovalRecord? @relation("ReimbursementApproval", fields: [approvalRecordId], references: [id])
 
   @@index([tenantId])
+  @@index([approvalRecordId])
   @@map("reimbursements")
 }
 
@@ -1837,6 +1851,10 @@ model ApprovalRecord {
   tenant Tenant       @relation(fields: [tenantId], references: [id])
   flow   ApprovalFlow @relation(fields: [flowId], references: [id])
   node   ApprovalNode @relation(fields: [nodeId], references: [id])
+  refunds Refund[]             @relation("RefundApproval")
+  contracts Contract[]         @relation("ContractApproval")
+  reimbursements Reimbursement[] @relation("ReimbursementApproval")
+  leadTransferLogs LeadTransferLog[] @relation("LeadTransferApproval")
 
   @@index([tenantId])
   @@index([businessType, businessId])

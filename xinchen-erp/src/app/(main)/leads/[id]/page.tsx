@@ -45,6 +45,8 @@ interface TransferLogItem {
   fromUserId: number;
   toUserId: number;
   reason?: string;
+  applied: boolean;
+  approvalRecordId?: number | null;
   createdAt: string;
 }
 
@@ -105,10 +107,47 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
   const [followUpNextDate, setFollowUpNextDate] = useState("");
   const [followUpSubmitting, setFollowUpSubmitting] = useState(false);
 
+  // 申请划转（提交审批）
+  const [showTransfer, setShowTransfer] = useState(false);
+  const [transferToId, setTransferToId] = useState("");
+  const [transferReason, setTransferReason] = useState("");
+  const [transferError, setTransferError] = useState("");
+  const [transferSubmitting, setTransferSubmitting] = useState(false);
+  const [employeeOptions, setEmployeeOptions] = useState<{ id: number; realName: string; username: string }[]>([]);
+
   // 线索来源（数据字典 lead_source 分组）
   const [sources, setSources] = useState<{ dictKey: string; dictValue: string }[]>(DEFAULT_SOURCES);
   const sourceMap: Record<string, string> = {};
   [...DEFAULT_SOURCES, ...sources].forEach((s) => { sourceMap[s.dictKey] = s.dictValue; });
+
+  useEffect(() => {
+    fetch("/api/employees?pageSize=1000").then((r) => r.json()).then((d) => {
+      setEmployeeOptions(d.list || []);
+    }).catch(() => {});
+  }, []);
+
+  async function handleTransfer(e: React.FormEvent) {
+    e.preventDefault();
+    setTransferError("");
+    if (!transferToId) { setTransferError("请选择接收人"); return; }
+    setTransferSubmitting(true);
+    try {
+      const res = await fetch("/api/lead-transfers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: lead?.id, toUserId: transferToId, reason: transferReason }),
+      });
+      const result = await res.json();
+      if (!res.ok) { setTransferError(result.error || "提交失败"); return; }
+      setShowTransfer(false);
+      setTransferToId(""); setTransferReason("");
+      fetchLead();
+    } catch {
+      setTransferError("网络错误");
+    } finally {
+      setTransferSubmitting(false);
+    }
+  }
 
   async function fetchLead() {
     setLoading(true);
@@ -381,7 +420,15 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
           {/* 归属顾问 */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">归属顾问</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">归属顾问</h2>
+              <button
+                onClick={() => { setTransferError(""); setShowTransfer(true); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 transition"
+              >
+                <Send className="w-4 h-4" />申请划转
+              </button>
+            </div>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                 <User className="w-5 h-5 text-blue-600" />
@@ -416,14 +463,19 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               <h2 className="text-lg font-semibold text-gray-900 mb-4">移交记录</h2>
               <div className="space-y-3">
                 {lead.transferLogs.map((log) => (
-                  <div key={log.id} className="text-sm">
-                    <div className="text-gray-500">
-                      移交至 #{log.toUserId}
-                      {log.reason && `（${log.reason}）`}
+                  <div key={log.id} className="text-sm flex items-center justify-between">
+                    <div>
+                      <div className="text-gray-500">
+                        移交至 #{log.toUserId}
+                        {log.reason && `（${log.reason}）`}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-0.5">
+                        {new Date(log.createdAt).toLocaleString("zh-CN")}
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      {new Date(log.createdAt).toLocaleString("zh-CN")}
-                    </div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${log.applied ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                      {log.applied ? "已执行" : "审批中"}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -483,6 +535,42 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowEdit(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
                 <button type="submit" disabled={saving} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium">{saving ? "保存中..." : "保存"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 申请划转弹窗 */}
+      {showTransfer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">申请线索划转</h2>
+              <button onClick={() => setShowTransfer(false)} className="p-1 text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            <form onSubmit={handleTransfer} className="p-6 space-y-4">
+              {transferError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{transferError}</div>}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">接收人 <span className="text-red-500">*</span></label>
+                <select required value={transferToId} onChange={(e) => setTransferToId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                  <option value="">请选择接收顾问</option>
+                  {employeeOptions.filter((u) => u.id !== lead?.assignedTo.id).map((u) => (
+                    <option key={u.id} value={u.id}>{u.realName || u.username}（@{u.username}）</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">划转理由</label>
+                <textarea value={transferReason} onChange={(e) => setTransferReason(e.target.value)} rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none resize-none" placeholder="说明划转原因，将提交主管审批" />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setShowTransfer(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+                <button type="submit" disabled={transferSubmitting} className="px-6 py-2 text-sm text-white bg-amber-600 rounded-lg hover:bg-amber-700 disabled:opacity-50 font-medium">
+                  {transferSubmitting ? "提交中..." : "提交审批"}
+                </button>
               </div>
             </form>
           </div>

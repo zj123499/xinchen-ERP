@@ -247,10 +247,9 @@ export default function ReimbursementsPage() {
                           <button onClick={() => handleStatusChange(r, "SUBMITTED")} className="px-2 py-1 text-xs text-yellow-700 bg-yellow-50 hover:bg-yellow-100 rounded transition" title="提交"><Send className="w-3 h-3" /></button>
                         )}
                         {r.status === "SUBMITTED" && (
-                          <>
-                            <button onClick={() => handleStatusChange(r, "APPROVED")} className="px-2 py-1 text-xs text-green-700 bg-green-50 hover:bg-green-100 rounded transition" title="批准"><CheckCircle className="w-3 h-3" /></button>
-                            <button onClick={() => handleStatusChange(r, "REJECTED")} className="px-2 py-1 text-xs text-red-700 bg-red-50 hover:bg-red-100 rounded transition" title="驳回"><XCircle className="w-3 h-3" /></button>
-                          </>
+                          <a href="/approval-records?scope=pending" className="px-2 py-1 text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 rounded transition inline-flex items-center gap-1" title="去审批">
+                            <Send className="w-3 h-3" />审批中
+                          </a>
                         )}
                         {r.status === "APPROVED" && (
                           <button onClick={() => handleStatusChange(r, "PAID")} className="px-2 py-1 text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 rounded transition" title="付款"><CreditCard className="w-3 h-3" /></button>

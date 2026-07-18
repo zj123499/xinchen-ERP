@@ -14,6 +14,8 @@ interface ContractDetail {
   totalAmount: string;
   currency: string;
   status: string;
+  discountRate: string | null;
+  approvalRecordId?: number | null;
   content?: string;
   remark?: string;
   createdAt: string;
@@ -74,6 +76,13 @@ export default function ContractDetailPage() {
   const [editError, setEditError] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // 优惠审批弹窗
+  const [showDiscount, setShowDiscount] = useState(false);
+  const [discountRate, setDiscountRate] = useState("");
+  const [discountReason, setDiscountReason] = useState("");
+  const [discountError, setDiscountError] = useState("");
+  const [discountSaving, setDiscountSaving] = useState(false);
+
   const fetchContract = useCallback(async () => {
     setLoading(true);
     try {
@@ -131,6 +140,30 @@ export default function ContractDetailPage() {
       setEditError("网络错误");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleSubmitDiscount(e: React.FormEvent) {
+    e.preventDefault();
+    setDiscountError("");
+    setDiscountSaving(true);
+    try {
+      const res = await fetch(`/api/contracts/${params.id}/discount-approval`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ discountRate, reason: discountReason }),
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        setDiscountError(result.error || "提交失败");
+        return;
+      }
+      setShowDiscount(false);
+      fetchContract();
+    } catch {
+      setDiscountError("网络错误");
+    } finally {
+      setDiscountSaving(false);
     }
   }
 
@@ -194,13 +227,29 @@ export default function ContractDetailPage() {
               </div>
             </div>
           </div>
-          <button
-            onClick={openEditForm}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
-          >
-            <Edit3 className="w-4 h-4" />
-            编辑
-          </button>
+          <div className="flex items-center gap-2">
+            {(contract.status === "DRAFT" || contract.status === "PENDING") && (
+              <button
+                onClick={() => {
+                  setDiscountRate(contract.discountRate || "");
+                  setDiscountReason("");
+                  setDiscountError("");
+                  setShowDiscount(true);
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 transition"
+              >
+                <FileText className="w-4 h-4" />
+                优惠审批
+              </button>
+            )}
+            <button
+              onClick={openEditForm}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
+            >
+              <Edit3 className="w-4 h-4" />
+              编辑
+            </button>
+          </div>
         </div>
 
         {/* 基本信息网格 */}
@@ -226,6 +275,18 @@ export default function ContractDetailPage() {
                 {CURRENCY_MAP[contract.currency] || contract.currency}
                 {parseFloat(contract.totalAmount).toLocaleString()}
               </span>
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-400 mb-1">优惠折扣</div>
+            <div className="flex items-center gap-1">
+              <TrendingUp className="w-4 h-4 text-gray-400" />
+              <span className="text-lg font-bold text-purple-600">
+                {contract.discountRate ? `${parseFloat(contract.discountRate)}%` : "无"}
+              </span>
+              {contract.approvalRecordId && (
+                <span className="text-xs text-gray-400 ml-1">· 审批中</span>
+              )}
             </div>
           </div>
           <div>
@@ -411,6 +472,52 @@ export default function ContractDetailPage() {
                 <button type="button" onClick={() => setShowEditForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button type="submit" disabled={saving} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium">
                   {saving ? "保存中..." : "保存修改"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 优惠审批弹窗 */}
+      {showDiscount && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">提交优惠审批</h2>
+              <button onClick={() => setShowDiscount(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded">✕</button>
+            </div>
+            <form onSubmit={handleSubmitDiscount} className="p-6 space-y-4">
+              {discountError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{discountError}</div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">优惠折扣率（%）</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={discountRate}
+                  onChange={(e) => setDiscountRate(e.target.value)}
+                  placeholder="如 20 表示优惠 20%"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none"
+                />
+                <p className="text-xs text-gray-400 mt-1">优惠 &gt;20% 将走多级审批（销售→主管→老板）</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">申请理由</label>
+                <textarea
+                  value={discountReason}
+                  onChange={(e) => setDiscountReason(e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none resize-none"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setShowDiscount(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button type="submit" disabled={discountSaving} className="px-6 py-2 text-sm text-white bg-amber-600 rounded-lg hover:bg-amber-700 disabled:opacity-50 transition font-medium">
+                  {discountSaving ? "提交中..." : "提交审批"}
                 </button>
               </div>
             </form>

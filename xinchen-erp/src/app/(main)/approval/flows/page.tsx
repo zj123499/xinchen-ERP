@@ -72,7 +72,10 @@ export default function ApprovalFlowsPage() {
       <div className="flex items-center justify-between mb-6">
         <div><h1 className="text-2xl font-bold text-gray-900">审批流配置</h1>
           <p className="text-sm text-gray-500 mt-1">可配置多级审批（独立于工作流），支持会签/或签</p></div>
-        <button onClick={() => { setFormError(""); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"><Plus className="w-4 h-4" /> 新增审批流</button>
+        <div className="flex items-center gap-2">
+          <button onClick={async () => { if (confirm("将按设计创建 合同优惠/退费/报销/线索划转 4 类默认审批流？")) { const r = await fetch("/api/approval-flows/init-defaults", { method: "POST" }); const d = await r.json(); alert(d.message || "初始化完成"); fetchData(); } }} className="flex items-center gap-2 px-4 py-2.5 border border-amber-300 text-amber-700 rounded-lg font-medium hover:bg-amber-50"><GitBranch className="w-4 h-4" /> 初始化默认审批流</button>
+          <button onClick={() => { setFormError(""); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"><Plus className="w-4 h-4" /> 新增审批流</button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">

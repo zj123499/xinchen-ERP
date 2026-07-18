@@ -178,7 +178,7 @@ export default function RefundsPage() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1">
                         {item.status === "PENDING" && (
-                          <button onClick={() => updateStatus(item, "APPROVED")} className="px-2 py-1 text-xs text-green-700 bg-green-50 hover:bg-green-100 rounded transition" title="审批通过">通过</button>
+                          <a href="/approval-records?scope=pending" className="px-2 py-1 text-xs text-amber-700 bg-amber-50 hover:bg-amber-100 rounded transition" title="去审批">审批中</a>
                         )}
                         {item.status === "APPROVED" && (
                           <button onClick={() => updateStatus(item, "REFUNDED")} className="px-2 py-1 text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 rounded transition" title="标记已退款">已退</button>

@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PrismaClient } from "@prisma/client";
+import { applyApproved, applyRejected } from "@/lib/approvalBusiness";
 
 function getContext(request: NextRequest) {
   return {
@@ -38,6 +39,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       where: { id: parseInt(id) },
       data: { status: "REJECTED", comment: comment || record.comment, approverId: userId, decidedAt: new Date() },
     });
+    // 回写业务：驳回
+    await applyRejected(prisma, record.businessType, record.businessId).catch(() => {});
     await notifyApplicant(prisma, record, "已被驳回", comment);
     return NextResponse.json(updated);
   }
@@ -71,6 +74,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         where: { id: parseInt(id) },
         data: { status: "APPROVED", approverId: userId, comment: comment || record.comment, decidedAt: new Date() },
       });
+      // 回写业务：审批通过
+      await applyApproved(prisma, record.businessType, record.businessId).catch(() => {});
       await notifyApplicant(prisma, record, "已通过", comment);
       return NextResponse.json(updated);
     }

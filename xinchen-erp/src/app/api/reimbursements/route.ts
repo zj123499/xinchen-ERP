@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { submitApproval } from "@/lib/approvalBusiness";
 
 function getContext(request: NextRequest) {
   return {
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+  const { userId, tenantId } = getContext(request);
   const body = await request.json();
   const { applicantId, amount, category, description } = body;
 
@@ -58,12 +59,29 @@ export async function POST(request: NextRequest) {
       amount: parseFloat(amount),
       category,
       description: description || null,
-      status: "DRAFT",
+      status: "SUBMITTED",
     },
     include: {
       applicant: { select: { id: true, realName: true, username: true } },
     },
   });
 
-  return NextResponse.json(reimbursement, { status: 201 });
+  // 报销提交即触发审批流（REIMBURSEMENT 场景）；未配置审批流则保持 SUBMITTED 由人工处理
+  let approvalRecordId: number | null = null;
+  try {
+    approvalRecordId = await submitApproval({
+      tenantId,
+      applicantId: userId,
+      businessType: "REIMBURSEMENT",
+      businessId: reimbursement.id,
+      comment: description || undefined,
+    });
+    if (approvalRecordId) {
+      await prisma.reimbursement.update({ where: { id: reimbursement.id }, data: { approvalRecordId } });
+    }
+  } catch {
+    // 未配置审批流：报销停留在 SUBMITTED，不阻断创建
+  }
+
+  return NextResponse.json({ ...reimbursement, approvalRecordId }, { status: 201 });
 }
