@@ -9,7 +9,7 @@ import {
   TrendingUp as TrendUp, FileSpreadsheet, ArrowDownCircle, ArrowUpCircle, FileText as FileIcon, RotateCcw,
   Settings, ChevronDown, ChevronRight,
   MessageSquare, Building2, Plane, Home, Globe, Share2, PhoneCall,
-  UserCog, Radio, Globe2, CalendarClock, FileEdit,
+  UserCog, Radio, Globe2, CalendarClock, FileEdit, BarChart3, Filter,
   ArrowRightLeft, ShieldCheck, TrendingUp, Briefcase, KeyRound,
   Database, Wrench, BookOpen, GitBranch, HeartHandshake, AlertTriangle, Sparkles,
 } from "lucide-react";
@@ -55,6 +55,9 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   sites: <Globe className="w-5 h-5" />,
   media: <Radio className="w-5 h-5" />,
   overseas: <Globe2 className="w-5 h-5" />,
+  touchpoints: <Radio className="w-5 h-5" />,
+  attributions: <Filter className="w-5 h-5" />,
+  channelRoi: <BarChart3 className="w-5 h-5" />,
   visitPlan: <CalendarClock className="w-5 h-5" />,
   copywriter: <FileEdit className="w-5 h-5" />,
   leadFlow: <ArrowRightLeft className="w-5 h-5" />,
@@ -135,6 +138,9 @@ const MENUS: MenuItem[] = [
     children: [
       { name: "站群管理", code: "sites", path: "/sites", icon: "sites" },
       { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
+      { name: "触点管理", code: "touchpoints", path: "/touchpoints", icon: "touchpoints" },
+      { name: "归因结果", code: "attributions", path: "/attributions", icon: "attributions" },
+      { name: "渠道ROI", code: "channel_roi", path: "/channel-roi", icon: "channelRoi" },
     ],
   },
   {

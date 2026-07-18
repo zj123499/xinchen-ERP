@@ -216,6 +216,8 @@ model Tenant {
   payables            Payable[]
   invoices            Invoice[]
   refunds             Refund[]
+  touchpoints         Touchpoint[]
+  attributions        Attribution[]
   commissions         Commission[]
   salaries            Salary[]
   reimbursements      Reimbursement[]
@@ -674,6 +676,8 @@ model Student {
   receivables         Receivable[]
   invoices            Invoice[]
   refunds             Refund[]
+  touchpoints         Touchpoint[]
+  attributions        Attribution[]
   commissions         Commission[]
   rentalOrders        RentalOrder[]
   overseasServices    OverseasService[]
@@ -1074,6 +1078,71 @@ model Partner {
 
   @@index([tenantId])
   @@map("partners")
+}
+
+enum ChannelType {
+  SEARCH
+  SOCIAL
+  REFERRAL
+  PARTNER
+  SITE
+  OFFLINE
+  OTHER
+}
+
+enum AttributionModel {
+  FIRST_TOUCH
+  LAST_TOUCH
+  LINEAR
+  TIME_DECAY
+}
+
+model Touchpoint {
+  id          Int         @id @default(autoincrement())
+  tenantId    Int         @map("tenant_id")
+  studentId   Int         @map("student_id")
+  channel     ChannelType
+  source      String      @db.VarChar(50)
+  medium      String?     @db.VarChar(50)
+  campaign    String?     @db.VarChar(100)
+  touchUrl    String?     @map("touch_url") @db.Text
+  occurredAt  DateTime    @map("occurred_at") @default(now())
+  remark      String?     @db.Text
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+  attributions Attribution[]
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([channel])
+  @@index([occurredAt])
+  @@map("touchpoints")
+}
+
+model Attribution {
+  id               Int              @id @default(autoincrement())
+  tenantId         Int              @map("tenant_id")
+  studentId        Int              @map("student_id")
+  touchpointId     Int              @map("touchpoint_id")
+  model            AttributionModel
+  weight           Decimal          @db.Decimal(5, 4)
+  attributedAmount Decimal?         @map("attributed_amount") @db.Decimal(12, 2)
+  contractId       Int?             @map("contract_id")
+  runBatch         String?          @map("run_batch")
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
+  student    Student    @relation(fields: [studentId], references: [id])
+  touchpoint Touchpoint @relation(fields: [touchpointId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([studentId])
+  @@index([touchpointId])
+  @@index([model])
+  @@index([runBatch])
+  @@map("attributions")
 }
 
 model Site {
