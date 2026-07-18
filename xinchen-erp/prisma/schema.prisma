@@ -233,6 +233,7 @@ model Tenant {
   businessLines       BusinessLine[]
   commissionRules     CommissionRule[]
   configVersions      ConfigVersion[]
+  aiConversations      AiConversation[]
   countries           Country[]
   institutions        Institution[]
   majors              Major[]
@@ -729,6 +730,7 @@ model Student {
   referralsMade       Referral[]              @relation("ReferralsByStudent")
   referralNew         Referral[]              @relation("ReferralNewStudent")
   riskRecords         RiskRecord[]
+  aiConversations      AiConversation[]
 
   @@index([tenantId])
   @@index([assignedToId])
@@ -974,6 +976,45 @@ model CopywriterTask {
   @@index([applicationId])
   @@index([assignedToId])
   @@map("copywriter_tasks")
+}
+
+// ============================================================
+// AI 智能层产出/会话存储（P8 三件套：选校/文书/客服）
+// 把 AI 生成结果固化到业务流，支持按学生/业务对象复用
+// ============================================================
+enum AiConversationType {
+  SCHOOL_SELECT  // 选校方案
+  WRITING        // 文书草稿
+  CUSTOMER_SERVICE // 客服会话
+}
+
+model AiConversation {
+  id            Int               @id @default(autoincrement())
+  tenantId      Int               @map("tenant_id")
+  type          AiConversationType
+  // 发起人（员工）
+  operatorId    Int?              @map("operator_id")
+  // 关联学生（选校/客服场景）
+  studentId     Int?              @map("student_id")
+  // 关联业务对象（可选：文书任务 copywriterTaskId / 申请 applicationId）
+  relatedId     Int?              @map("related_id")
+  title         String?           @db.VarChar(200)
+  // 用户输入（背景/问题）
+  input         Json?
+  // AI 输出（方案/草稿/回复）
+  output        Json?
+  // 多轮消息（客服场景）
+  messages      Json?
+  isFallback    Boolean           @default(false) @map("is_fallback")
+  createdAt     DateTime          @default(now()) @map("created_at")
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  student Student? @relation(fields: [studentId], references: [id])
+
+  @@index([tenantId, type])
+  @@index([studentId])
+  @@index([relatedId])
+  @@map("ai_conversations")
 }
 
 model Offer {

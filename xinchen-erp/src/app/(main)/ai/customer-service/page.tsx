@@ -1,35 +1,66 @@
 "use client";
 
-import { useState } from "react";
-import { Sparkles, Send, MessageCircle, UserCheck } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Sparkles, Send, MessageCircle, UserCheck, User, Save } from "lucide-react";
 
-interface Msg { role: "user" | "ai"; content: string; needHuman?: boolean; fallback?: boolean; }
+interface Msg { role: "user" | "ai"; content: string; needHuman?: boolean; fallback?: boolean }
+interface StudentOpt { id: number; name: string }
 
 export default function AICustomerServicePage() {
+  const [students, setStudents] = useState<StudentOpt[]>([]);
+  const [studentId, setStudentId] = useState<number | "">("");
   const [question, setQuestion] = useState("");
   const [context, setContext] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/students?pageSize=50").then((r) => r.json()).then((d) => setStudents(d.data || [])).catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!question.trim()) return;
     const q = question;
     setMsgs((m) => [...m, { role: "user", content: q }]);
-    setQuestion(""); setLoading(true);
+    setQuestion(""); setLoading(true); setSaved(false);
     try {
-      const res = await fetch("/api/ai/customer-service", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: q, context }) });
+      const res = await fetch("/api/ai/customer-service", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: studentId || undefined, question: q, context, messages: msgs }),
+      });
       const d = await res.json();
       setMsgs((m) => [...m, { role: "ai", content: d.answer || "", needHuman: d.needHuman, fallback: d.fallback }]);
     } catch { setMsgs((m) => [...m, { role: "ai", content: "请求失败" }]); } finally { setLoading(false); }
   }
 
+  async function handleSave() {
+    if (msgs.length === 0) return;
+    setSaving(true);
+    try {
+      await fetch("/api/ai/customer-service", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: studentId || undefined, question: msgs[msgs.length - 1]?.content, context, messages: msgs, save: true }),
+      });
+      setSaved(true);
+    } catch {} finally { setSaving(false); }
+  }
+
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <div className="mb-6"><h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2"><Sparkles className="w-6 h-6 text-blue-600" /> AI 客服助手</h1>
-        <p className="text-sm text-gray-500 mt-1">自动应答家长常见问题，复杂问题智能转人工</p></div>
+        <p className="text-sm text-gray-500 mt-1">自动应答家长常见问题，复杂问题智能转人工，支持多轮对话与保存</p></div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-[520px] flex flex-col">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-[560px] flex flex-col">
+        <div className="p-3 border-b flex items-center gap-2">
+          <User className="w-4 h-4 text-gray-400" />
+          <select value={studentId} onChange={(e) => setStudentId(Number(e.target.value))} className="flex-1 px-2 py-1 border border-gray-300 rounded-lg text-sm bg-white">
+            <option value="">不关联学生</option>{students.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
+          <button onClick={handleSave} disabled={msgs.length === 0 || saving} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-60">
+            <Save className="w-3.5 h-3.5" /> {saving ? "保存中" : saved ? "已保存" : "保存会话"}</button>
+        </div>
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {msgs.length === 0 && <div className="h-full flex flex-col items-center justify-center text-gray-400"><MessageCircle className="w-12 h-12 mb-3 text-gray-300" /><p className="text-sm">输入家长常见问题开始对话</p></div>}
           {msgs.map((m, i) => m.role === "user" ? (

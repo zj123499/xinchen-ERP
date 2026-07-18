@@ -1,8 +1,9 @@
 /**
  * AI 选校顾问（AI 智能层）
- * POST /api/ai/school-select
- *  body: { gpa, ielts, toefl, budget, targetCountry, targetDegree, targetMajor }
- * 基于院校数据库 + 规则（无 Key 时降级）输出冲/稳/保三档推荐
+ * POST /api/ai/school-select  body: { studentId?, gpa, ielts, toefl, budget, targetCountry, targetDegree, targetMajor, save? }
+ *   - 支持 studentId 预填学生背景
+ *   - save=true 时把选校方案写入 ai_conversations（SCHOOL_SELECT）
+ * GET  /api/ai/school-select?studentId=  -> 历史选校方案
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -16,21 +17,70 @@ function getContext(request: NextRequest) {
   };
 }
 
-export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
-  const body = await request.json();
-  const { gpa, ielts, toefl, budget, targetCountry, targetDegree, targetMajor } = body;
+// 从学生档案预填背景
+async function fillFromStudent(studentId: number, tenantId: number) {
+  const s = await prisma.student.findFirst({ where: { id: studentId, tenantId } });
+  if (!s) return null;
+  let ielts = "";
+  let toefl = "";
+  if (s.languageScore && typeof s.languageScore === "object") {
+    const ls = s.languageScore as Record<string, any>;
+    ielts = ls.ielts ?? ls.IELTS ?? "";
+    toefl = ls.toefl ?? ls.TOEFL ?? "";
+  }
+  return {
+    gpa: s.gpa ? String(s.gpa) : "",
+    ielts,
+    toefl,
+    budget: s.budget ? String(s.budget) : "",
+    targetCountry: s.targetCountry || "",
+    targetDegree: s.targetDegree || "",
+    targetMajor: s.targetMajor || "",
+  };
+}
 
-  // 从院校库检索候选（按国家 + 专业方向）
+export async function GET(request: NextRequest) {
+  const { tenantId } = getContext(request);
+  const studentId = parseInt(request.nextUrl.searchParams.get("studentId") || "0");
+  const list = await prisma.aiConversation.findMany({
+    where: { tenantId, type: "SCHOOL_SELECT", ...(studentId ? { studentId } : {}) },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+  });
+  return NextResponse.json(list);
+}
+
+export async function POST(request: NextRequest) {
+  const { userId, tenantId } = getContext(request);
+  const body = await request.json();
+  const { studentId, gpa, ielts, toefl, budget, targetCountry, targetDegree, targetMajor, save } = body;
+
+  // 若传 studentId，优先用学生档案填充空字段
+  let filled = { gpa: gpa || "", ielts: ielts || "", toefl: toefl || "", budget: budget || "", targetCountry: targetCountry || "", targetDegree: targetDegree || "", targetMajor: targetMajor || "" };
+  if (studentId) {
+    const stu = await fillFromStudent(parseInt(studentId), tenantId);
+    if (stu) {
+      filled = {
+        gpa: filled.gpa || stu.gpa,
+        ielts: filled.ielts || stu.ielts,
+        toefl: filled.toefl || stu.toefl,
+        budget: filled.budget || stu.budget,
+        targetCountry: filled.targetCountry || stu.targetCountry,
+        targetDegree: filled.targetDegree || stu.targetDegree,
+        targetMajor: filled.targetMajor || stu.targetMajor,
+      };
+    }
+  }
+
   const institutions = await prisma.institution.findMany({
     where: {
       tenantId,
-      ...(targetCountry ? { country: { name: { contains: targetCountry } } } : {}),
+      ...(filled.targetCountry ? { country: { name: { contains: filled.targetCountry } } } : {}),
     },
     include: {
       country: { select: { name: true } },
       majors: {
-        where: targetMajor ? { OR: [{ name: { contains: targetMajor } }, { category: { contains: targetMajor } }] } : {},
+        where: filled.targetMajor ? { OR: [{ name: { contains: filled.targetMajor } }, { category: { contains: filled.targetMajor } }] } : {},
         take: 5,
       },
     },
@@ -38,7 +88,6 @@ export async function POST(request: NextRequest) {
     orderBy: { ranking: "asc" },
   });
 
-  // 院校分级规则：按排名分档
   const reach: typeof institutions = [];
   const match: typeof institutions = [];
   const safety: typeof institutions = [];
@@ -58,13 +107,8 @@ export async function POST(request: NextRequest) {
       matchedMajors: i.majors.map((m) => m.name),
     }));
 
-  const dataBlock = {
-    reach: fmt(reach),
-    match: fmt(match),
-    safety: fmt(safety),
-  };
-
-  const profile = `学生背景：GPA ${gpa || "未知"}，雅思 ${ielts || "未知"}，托福 ${toefl || "未知"}，预算 ${budget || "未知"}，目标国家 ${targetCountry || "未知"}，目标学位 ${targetDegree || "未知"}，目标专业 ${targetMajor || "未知"}`;
+  const dataBlock = { reach: fmt(reach), match: fmt(match), safety: fmt(safety) };
+  const profile = `学生背景：GPA ${filled.gpa || "未知"}，雅思 ${filled.ielts || "未知"}，托福 ${filled.toefl || "未知"}，预算 ${filled.budget || "未知"}，目标国家 ${filled.targetCountry || "未知"}，目标学位 ${filled.targetDegree || "未知"}，目标专业 ${filled.targetMajor || "未知"}`;
 
   const ai = await callAi([
     {
@@ -78,16 +122,34 @@ export async function POST(request: NextRequest) {
     },
   ]);
 
+  let strategy: string;
+  let fallback = false;
   if (ai.fallback) {
-    // 降级：直接返回结构化的院校分档
-    return NextResponse.json({
-      fallback: true,
-      profile,
-      recommendation: dataBlock,
-      strategy:
-        "（当前未配置 AI API Key，已按院校排名提供冲/稳/保三档候选。配置 AI_GATEWAY_API_KEY 后可获得自然语言选校策略。）",
-    });
+    fallback = true;
+    strategy =
+      "（当前未配置 AI API Key，已按院校排名提供冲/稳/保三档候选。配置 AI_GATEWAY_API_KEY 后可获得自然语言选校策略。）";
+  } else {
+    strategy = ai.content;
   }
 
-  return NextResponse.json({ fallback: false, profile, recommendation: dataBlock, strategy: ai.content });
+  const result: any = { fallback, profile, recommendation: dataBlock, strategy };
+
+  // 保存选校方案到 ai_conversations
+  if (save) {
+    const conv = await prisma.aiConversation.create({
+      data: {
+        tenantId,
+        type: "SCHOOL_SELECT",
+        operatorId: userId || null,
+        studentId: studentId ? parseInt(studentId) : null,
+        title: `${filled.targetCountry || "选校"}·${filled.targetMajor || "通用"} 方案`,
+        input: filled,
+        output: { recommendation: dataBlock, strategy },
+        isFallback: fallback,
+      },
+    });
+    result.id = conv.id;
+  }
+
+  return NextResponse.json(result);
 }
