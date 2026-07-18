@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Shield, Plus, Edit2, Trash2, RefreshCw, Users, Lock, UserPlus, X } from "lucide-react";
+import { Shield, Plus, Edit2, Trash2, RefreshCw, Users, Lock, UserPlus, X, SlidersHorizontal, Check } from "lucide-react";
 
 interface Role {
   id: number;
@@ -39,6 +39,16 @@ export default function RolesPage() {
   const [allUsers, setAllUsers] = useState<UserItem[]>([]);
   const [memberLoading, setMemberLoading] = useState(false);
   const [addUserId, setAddUserId] = useState("");
+
+  // 权限配置弹窗状态
+  const [showAccess, setShowAccess] = useState(false);
+  const [accessRole, setAccessRole] = useState<Role | null>(null);
+  const [accessLoading, setAccessLoading] = useState(false);
+  const [allMenus, setAllMenus] = useState<any[]>([]);
+  const [allPerms, setAllPerms] = useState<any[]>([]);
+  const [checkedMenus, setCheckedMenus] = useState<Set<number>>(new Set());
+  const [checkedPerms, setCheckedPerms] = useState<Set<number>>(new Set());
+  const [savingAccess, setSavingAccess] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -132,6 +142,94 @@ export default function RolesPage() {
       fetchData();
     } catch {
       alert("移除失败");
+    }
+  }
+
+  // ===== 权限配置（菜单 + 接口） =====
+  async function openAccess(role: Role) {
+    setAccessRole(role);
+    setShowAccess(true);
+    setAccessLoading(true);
+    try {
+      const [mRes, pRes] = await Promise.all([
+        fetch(`/api/roles/${role.id}/menus`),
+        fetch(`/api/roles/${role.id}/permissions`),
+      ]);
+      const m = await mRes.json();
+      const p = await pRes.json();
+      setAllMenus(m.menus || []);
+      setCheckedMenus(new Set(m.checked || []));
+      setAllPerms(p.permissions || []);
+      setCheckedPerms(new Set(p.checked || []));
+    } catch {
+      alert("加载权限配置失败");
+    } finally {
+      setAccessLoading(false);
+    }
+  }
+
+  function toggleMenu(id: number) {
+    setCheckedMenus((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function togglePerm(id: number) {
+    setCheckedPerms((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function setMenuGroup(ids: number[], on: boolean) {
+    setCheckedMenus((prev) => {
+      const next = new Set(prev);
+      ids.forEach((i) => (on ? next.add(i) : next.delete(i)));
+      return next;
+    });
+  }
+
+  function setPermGroup(ids: number[], on: boolean) {
+    setCheckedPerms((prev) => {
+      const next = new Set(prev);
+      ids.forEach((i) => (on ? next.add(i) : next.delete(i)));
+      return next;
+    });
+  }
+
+  const topMenus = allMenus.filter((m) => !m.parentId);
+  const childrenOf = (pid: number) => allMenus.filter((m) => m.parentId === pid);
+  const permGroups: Record<string, any[]> = allPerms.reduce((acc: Record<string, any[]>, p: any) => {
+    (acc[p.groupName] = acc[p.groupName] || []).push(p);
+    return acc;
+  }, {});
+
+  async function saveAccess() {
+    if (!accessRole) return;
+    setSavingAccess(true);
+    try {
+      const [mRes, pRes] = await Promise.all([
+        fetch(`/api/roles/${accessRole.id}/menus`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ menuIds: [...checkedMenus] }),
+        }),
+        fetch(`/api/roles/${accessRole.id}/permissions`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ permissionIds: [...checkedPerms] }),
+        }),
+      ]);
+      if (!mRes.ok || !pRes.ok) { alert("保存失败"); return; }
+      alert("权限配置已保存");
+      setShowAccess(false);
+    } catch {
+      alert("网络错误");
+    } finally {
+      setSavingAccess(false);
     }
   }
 
@@ -232,6 +330,9 @@ export default function RolesPage() {
                     <div className="flex items-center justify-end gap-2">
                       <button onClick={() => openMembers(role)} className="text-green-600 hover:bg-green-50 p-1.5 rounded" title="管理成员">
                         <UserPlus className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => openAccess(role)} className="text-purple-600 hover:bg-purple-50 p-1.5 rounded" title="权限配置（菜单 / 接口）">
+                        <SlidersHorizontal className="w-4 h-4" />
                       </button>
                       <button onClick={() => openEditForm(role)} className="text-gray-500 hover:bg-gray-100 p-1.5 rounded" title="编辑角色">
                         <Edit2 className="w-4 h-4" />
@@ -360,6 +461,129 @@ export default function RolesPage() {
           </div>
         </div>
       )}
+
+      {/* 权限配置弹窗（菜单 + 接口） */}
+      {showAccess && accessRole && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowAccess(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[88vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-5 h-5 text-purple-600" />
+                <h2 className="text-lg font-bold text-gray-900">{accessRole.name} - 权限配置</h2>
+              </div>
+              <button onClick={() => setShowAccess(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded">✕</button>
+            </div>
+
+            {accessLoading ? (
+              <div className="py-16 text-center text-gray-400">加载中...</div>
+            ) : (
+              <div className="p-6 overflow-y-auto flex-1 space-y-8">
+                {/* 菜单权限（导航可见性） */}
+                <section>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-gray-800">菜单权限（左侧导航可见性）</h3>
+                    <div className="flex gap-2 text-xs">
+                      <button onClick={() => setMenuGroup(allMenus.map((m) => m.id), true)} className="px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100">全选</button>
+                      <button onClick={() => setMenuGroup(allMenus.map((m) => m.id), false)} className="px-2 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200">清空</button>
+                    </div>
+                  </div>
+                  <div className="border border-gray-200 rounded-lg divide-y divide-gray-100">
+                    {topMenus.map((tm) => {
+                      const childIds = childrenOf(tm.id).map((m) => m.id);
+                      const allChecked = childIds.length > 0 && childIds.every((id) => checkedMenus.has(id));
+                      return (
+                        <div key={tm.id} className="px-4 py-3">
+                          <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="w-4 h-4 accent-purple-600"
+                              checked={allChecked}
+                              onChange={() => setMenuGroup(childIds, !allChecked)}
+                            />
+                            {tm.name}
+                            <span className="text-xs text-gray-400">（{childIds.length} 项）</span>
+                          </label>
+                          {childIds.length > 0 && (
+                            <div className="mt-2 ml-6 grid grid-cols-2 gap-x-4 gap-y-1">
+                              {childrenOf(tm.id).map((cm) => (
+                                <label key={cm.id} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    className="w-4 h-4 accent-purple-600"
+                                    checked={checkedMenus.has(cm.id)}
+                                    onChange={() => toggleMenu(cm.id)}
+                                  />
+                                  {cm.name}
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* 接口(API)权限 */}
+                <section>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-gray-800">接口 / 操作权限（API）</h3>
+                    <div className="flex gap-2 text-xs">
+                      <button onClick={() => setPermGroup(allPerms.map((p) => p.id), true)} className="px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100">全选</button>
+                      <button onClick={() => setPermGroup(allPerms.map((p) => p.id), false)} className="px-2 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200">清空</button>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {Object.keys(permGroups).map((g) => {
+                      const gIds = permGroups[g].map((p: any) => p.id);
+                      const gAll = gIds.length > 0 && gIds.every((id) => checkedPerms.has(id));
+                      return (
+                        <div key={g} className="border border-gray-200 rounded-lg p-3">
+                          <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer mb-2">
+                            <input
+                              type="checkbox"
+                              className="w-4 h-4 accent-purple-600"
+                              checked={gAll}
+                              onChange={() => setPermGroup(gIds, !gAll)}
+                            />
+                            {g}
+                          </label>
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                            {permGroups[g].map((p: any) => (
+                              <label key={p.id} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  className="w-4 h-4 accent-purple-600"
+                                  checked={checkedPerms.has(p.id)}
+                                  onChange={() => togglePerm(p.id)}
+                                />
+                                <span>{p.name}</span>
+                                <code className="text-[10px] text-gray-400">{p.code}</code>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              </div>
+            )}
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+              <button onClick={() => setShowAccess(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</button>
+              <button
+                onClick={saveAccess}
+                disabled={savingAccess || accessLoading}
+                className="px-5 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700 disabled:opacity-50"
+              >
+                {savingAccess ? "保存中..." : "保存权限"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
