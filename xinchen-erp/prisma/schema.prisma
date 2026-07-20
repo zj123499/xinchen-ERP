@@ -251,6 +251,9 @@ model Tenant {
   riskNotifications   RiskNotification[]
   operationLogs       OperationLog[]
   loginLogs           LoginLog[]
+  employeeChanges     EmployeeChange[]
+  partnerAgreements   PartnerAgreement[]
+  partnerCommissions  PartnerCommission[]
 
   @@map("tenants")
 }
@@ -288,6 +291,7 @@ model User {
   assignedOrders   Order[]          @relation("order_assignee")
   reimbursements   Reimbursement[]
   uploadedFiles    File[]
+  operatedChanges  EmployeeChange[]
 
   @@index([tenantId])
   @@map("users")
