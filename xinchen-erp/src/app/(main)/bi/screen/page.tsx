@@ -48,6 +48,7 @@ interface AppItem {
   updatedAt: string;
 }
 interface ProgressData {
+  scope?: string;
   nodes: string[];
   total: number;
   nodeCounts: number[];
@@ -301,6 +302,11 @@ export default function BigScreenPage() {
         <h1 className="bs-title">
           <span className="bs-title-main">新辰留学 · 实时经营大屏</span>
           <span className="bs-title-sub">XINCHEN ERP REAL-TIME DASHBOARD</span>
+          {progress?.scope === "self" && (
+            <span style={{ fontSize: "12px", color: "#22d3ee", background: "rgba(34,211,238,.12)", borderRadius: "8px", padding: "2px 10px", marginTop: "6px", display: "inline-block" }}>
+              仅显示你负责的数据
+            </span>
+          )}
         </h1>
         <div className="bs-header-side bs-status">
           <button className="bs-auto" onClick={() => setAuto((a) => !a)}>{auto ? "● 自动刷新" : "○ 已暂停"}</button>
