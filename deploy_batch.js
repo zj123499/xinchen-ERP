@@ -37,7 +37,8 @@ function exec(conn, cmd) {
   await new Promise((res, rej) => sftp.fastPut(TARBALL, '/home/ubuntu/xinchen_src.tar', (e) => e ? rej(e) : res()));
   console.log('上传完成');
 
-  await exec(conn, `mkdir -p ${REMOTE} && tar -xf /home/ubuntu/xinchen_src.tar -C ${REMOTE} && echo UNPACK_OK`);
+  // 先清空目标目录再解压，避免本地已删除的文件在服务器上残留（tar 解压不会删旧文件）
+  await exec(conn, `rm -rf ${REMOTE} && mkdir -p ${REMOTE} && tar -xf /home/ubuntu/xinchen_src.tar -C ${REMOTE} && echo UNPACK_OK`);
   const t = await exec(conn, `cd ${REMOTE} && rm -f /tmp/dbuild.log && setsid bash -c 'cd ${REMOTE} && docker compose build --no-cache > /tmp/dbuild.log 2>&1 && docker compose up -d >> /tmp/dbuild.log 2>&1 && echo BUILD_DONE >> /tmp/dbuild.log' < /dev/null & disown; echo TRIGGERED`);
   console.log(t.out.trim());
   conn.end();
