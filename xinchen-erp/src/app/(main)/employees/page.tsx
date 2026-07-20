@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Search, Plus, ChevronLeft, ChevronRight, RefreshCw,
+  Search, Plus, ChevronLeft, ChevronRight, RefreshCw, RotateCw,
   User, Phone, Mail, Calendar, MoreHorizontal, Trash2, Key, UserPlus,
 } from "lucide-react";
 
@@ -73,6 +73,10 @@ export default function EmployeesPage() {
   const [reassignCount, setReassignCount] = useState<{ leads: number; students: number; orders: number; tasks: number; total: number } | null>(null);
   const [reassigning, setReassigning] = useState(false);
   const [reassignMsg, setReassignMsg] = useState("");
+
+  // 批量同步登录账号（将username改为手机号）
+  const [migrating, setMigrating] = useState(false);
+  const [migrateMsg, setMigrateMsg] = useState("");
 
   const fetchRoles = useCallback(async () => {
     try {
@@ -251,6 +255,29 @@ export default function EmployeesPage() {
 
   function handleSearch() { setPage(1); fetchData(); }
 
+  async function handleMigrateAccounts() {
+    setMigrating(true);
+    setMigrateMsg("");
+    try {
+      const res = await fetch("/api/employees/migrate-accounts", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setMigrateMsg(data.error || "同步失败");
+        return;
+      }
+      const parts: string[] = [];
+      if (data.updated > 0) parts.push(`${data.updated} 个账号已同步为手机号`);
+      if (data.skipped > 0) parts.push(`${data.skipped} 个无需同步`);
+      if (data.failed > 0) parts.push(`${data.failed} 个失败`);
+      setMigrateMsg(parts.length > 0 ? parts.join("，") : "没有需要同步的账号");
+      if (data.updated > 0) fetchData();
+    } catch {
+      setMigrateMsg("网络错误，请重试");
+    } finally {
+      setMigrating(false);
+    }
+  }
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -279,7 +306,15 @@ export default function EmployeesPage() {
           <button onClick={handleSearch} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">搜索</button>
           <button onClick={() => { setKeyword(""); setStatusFilter(""); setPage(1); }}
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-4 h-4" /></button>
+          <button onClick={handleMigrateAccounts} disabled={migrating}
+            className="flex items-center gap-1 px-3 py-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition disabled:opacity-50"
+            title="将已有员工的登录账号批量同步为手机号">
+            <RotateCw className={`w-4 h-4 ${migrating ? "animate-spin" : ""}`} />同步账号
+          </button>
         </div>
+        {migrateMsg && (
+          <div className="mt-3 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2">{migrateMsg}</div>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -330,7 +365,10 @@ export default function EmployeesPage() {
                     <td className="px-4 py-3 text-sm">
                       {emp.user?.username ? (
                         <div className="space-y-1">
-                          <span className="font-mono text-gray-700">{emp.user.username}</span>
+                          <span className="font-mono text-gray-700">{emp.phone || emp.user.username}</span>
+                          {emp.phone && emp.user.username !== emp.phone && (
+                            <div className="text-xs text-gray-400">账号: {emp.user.username}</div>
+                          )}
                           <div className="flex flex-wrap gap-1">
                             <span className={`text-xs px-1.5 py-0.5 rounded-full ${emp.user.isDefaultPassword ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}>
                               {emp.user.isDefaultPassword ? "默认密码" : "自定义密码"}
