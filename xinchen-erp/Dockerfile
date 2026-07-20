@@ -25,7 +25,9 @@ RUN npx prisma generate
 # 注意：不要用 `| tail` 吞掉错误码，否则 next build 失败会被误判为成功，
 # 导致 .next/standalone 缺失、后续步骤报错且容器停留在旧版本。
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npx next build
+# Next.js 16 默认使用 Turbopack，但其原生绑定在 Alpine(musl) 上不可用，
+# 必须用 Webpack 构建（官方也建议：next build --webpack）
+RUN npx next build --webpack
 
 # 将 standalone 子目录内容扁平化到 .next/standalone/ 根下
 # next build 会输出 .next/standalone/<project-name>/，需统一路径
