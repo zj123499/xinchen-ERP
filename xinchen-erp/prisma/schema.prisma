@@ -758,6 +758,7 @@ model Student {
   referralNew         Referral[]              @relation("ReferralNewStudent")
   riskRecords         RiskRecord[]
   aiConversations      AiConversation[]
+  partnerCommissions   PartnerCommission[]
 
   @@index([tenantId])
   @@index([assignedToId])
