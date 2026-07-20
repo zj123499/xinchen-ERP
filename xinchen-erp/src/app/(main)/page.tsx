@@ -36,6 +36,7 @@ interface DashboardData {
   visitRecordsByType: { label: string; value: number }[];
   recentLeads: { id: number; name: string; phone: string; status: string; assignee?: string; createdAt: string }[];
   recentPayments: { id: number; paymentNo: string; amount: number; studentName?: string; paidAt: string; paymentType: string }[];
+  scope?: "all" | "self";
 }
 
 function formatCurrency(amount: number | undefined | null) {
@@ -225,7 +226,18 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">工作台</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">工作台</h1>
+          {data.scope === "self" ? (
+            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200" title="仅显示你负责的数据">
+              我的工作台（仅看我负责的数据）
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 border border-gray-200" title="可查看全公司数据">
+              全公司看板
+            </span>
+          )}
+        </div>
         <button onClick={fetchData} className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
           <RefreshCw className="w-4 h-4" />刷新
         </button>
@@ -328,7 +340,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">员工线索 TOP10</h3>
+          <h3 className="text-md font-semibold text-gray-900 mb-4">{data.scope === "self" ? "我的线索状态分布" : "员工线索 TOP10"}</h3>
           <div className="space-y-3">
             {leadsByAssignee.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               leadsByAssignee.map((d, i) => (

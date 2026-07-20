@@ -22,8 +22,10 @@ COPY src ./src
 RUN npx prisma generate
 
 # Next.js 构建（standalone 模式）
+# 注意：不要用 `| tail` 吞掉错误码，否则 next build 失败会被误判为成功，
+# 导致 .next/standalone 缺失、后续步骤报错且容器停留在旧版本。
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npx next build 2>&1 | tail -20
+RUN npx next build
 
 # 将 standalone 子目录内容扁平化到 .next/standalone/ 根下
 # next build 会输出 .next/standalone/<project-name>/，需统一路径
