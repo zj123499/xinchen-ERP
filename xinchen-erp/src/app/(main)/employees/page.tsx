@@ -56,6 +56,7 @@ export default function EmployeesPage() {
   const [formData, setFormData] = useState({
     name: "", gender: "", phone: "", email: "",
     entryDate: "", status: "active", username: "",
+    password: "", mustChangePassword: true,
     roleIds: [] as number[],
   });
   const [formError, setFormError] = useState("");
@@ -97,7 +98,7 @@ export default function EmployeesPage() {
 
   function openNewForm() {
     setEditingEmployee(null);
-    setFormData({ name: "", gender: "", phone: "", email: "", entryDate: "", status: "active", username: "", roleIds: [] });
+    setFormData({ name: "", gender: "", phone: "", email: "", entryDate: "", status: "active", username: "", password: "", mustChangePassword: true, roleIds: [] });
     setFormError("");
     setShowForm(true);
   }
@@ -112,6 +113,7 @@ export default function EmployeesPage() {
       entryDate: emp.entryDate ? emp.entryDate.slice(0, 10) : "",
       status: emp.status,
       username: emp.user?.username || "",
+      password: "", mustChangePassword: true,
       roleIds: emp.roles?.map((r) => r.id) || [],
     });
     setFormError("");
@@ -127,6 +129,8 @@ export default function EmployeesPage() {
         ...formData,
         entryDate: formData.entryDate || undefined,
         username: formData.username || undefined,
+        password: formData.password || undefined,
+        mustChangePassword: formData.mustChangePassword,
         roleIds: formData.roleIds,
       };
       const url = editingEmployee ? `/api/employees/${editingEmployee.id}` : "/api/employees";
@@ -374,6 +378,20 @@ export default function EmployeesPage() {
                 </div>
                 <div className="flex items-end">
                   <p className="text-xs text-gray-400 leading-relaxed">创建后初始密码为 <span className="font-mono text-gray-600">Xc@123456</span>，员工首次登录需修改</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">登录密码</label>
+                  <input type="password" value={formData.password} onChange={(e) => setFormData((d) => ({ ...d, password: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="留空则使用默认 Xc@123456" />
+                </div>
+                <div className="flex items-end">
+                  <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                    <input type="checkbox" checked={formData.mustChangePassword} onChange={(e) => setFormData((d) => ({ ...d, mustChangePassword: e.target.checked }))} className="w-4 h-4" />
+                    首次登录强制修改密码
+                  </label>
                 </div>
               </div>
 

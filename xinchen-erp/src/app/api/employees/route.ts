@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
   const {
     name, userId, positionId, gender, phone, email,
     dingtalkId, entryDate, status = "active",
-    roleIds, username, password,
+    roleIds, username, password, mustChangePassword,
   } = body;
 
   if (!name) return NextResponse.json({ error: "请输入员工姓名" }, { status: 400 });
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
         passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
         realName: name,
         phone: phone || null,
-        mustChangePassword: true,
+        mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
         isActive: true,
       },
     });

@@ -40,7 +40,7 @@ export async function PUT(
   const {
     name, userId, positionId, gender, phone, email,
     dingtalkId, entryDate, leaveDate, status,
-    roleIds, username, password, resetPassword,
+    roleIds, username, password, resetPassword, mustChangePassword,
   } = body;
 
   const existing = await prisma.employee.findFirst({
@@ -79,7 +79,7 @@ export async function PUT(
   if (resetPassword && employee.userId) {
     await prisma.user.update({
       where: { id: employee.userId },
-      data: { passwordHash: await hashPassword(password || DEFAULT_PASSWORD), mustChangePassword: true },
+      data: { passwordHash: await hashPassword(password || DEFAULT_PASSWORD), mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : true },
     });
   }
 
@@ -95,14 +95,17 @@ export async function PUT(
         passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
         realName: name || existing.name,
         phone: phone || null,
-        mustChangePassword: true,
+        mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
         isActive: true,
       },
     });
     await prisma.employee.update({ where: { id: parseInt(id) }, data: { userId: newUser.id } });
     effectiveUserId = newUser.id;
   } else if (username && employee.userId) {
-    await prisma.user.update({ where: { id: employee.userId }, data: { username } });
+    const updateData: Record<string, unknown> = { username };
+    if (mustChangePassword !== undefined) updateData.mustChangePassword = mustChangePassword;
+    if (password) updateData.passwordHash = await hashPassword(password);
+    await prisma.user.update({ where: { id: employee.userId }, data: updateData });
   }
 
   // 同步角色
