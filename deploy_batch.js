@@ -3,7 +3,7 @@
  * 新辰ERP - 批次部署脚本
  * 用法：node deploy_batch.js "<批次说明>"
  * 动作：本地打包源码(排除 node_modules/.next/.git/.env) -> ssh2 上传 -> 解压覆盖 -> 触发 docker compose build(后台) -> 立即返回
- * 之后用 node check_deploy.js 查进度。
+ * 之后在服务器查进度：docker compose -f /home/ubuntu/xinchen-erp/docker-compose.yml logs -f 或 tail -f /tmp/dbuild.log
  */
 const ssh = require('ssh2');
 const fs = require('fs');
@@ -42,5 +42,5 @@ function exec(conn, cmd) {
   const t = await exec(conn, `cd ${REMOTE} && rm -f /tmp/dbuild.log && setsid bash -c 'cd ${REMOTE} && docker compose build --no-cache > /tmp/dbuild.log 2>&1 && docker compose up -d >> /tmp/dbuild.log 2>&1 && echo BUILD_DONE >> /tmp/dbuild.log' < /dev/null & disown; echo TRIGGERED`);
   console.log(t.out.trim());
   conn.end();
-  console.log('OK 已触发后台重建。运行 node check_deploy.js 查进度。');
+  console.log('OK 已触发后台重建。服务器查进度：tail -f /tmp/dbuild.log 或 docker compose -f /home/ubuntu/xinchen-erp/docker-compose.yml logs -f');
 })().catch(e => { console.log('ERR ' + e.message); process.exit(1); });
