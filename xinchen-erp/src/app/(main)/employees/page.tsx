@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Search, Plus, ChevronLeft, ChevronRight, RefreshCw, RotateCw,
+  Search, Plus, ChevronLeft, ChevronRight, RefreshCw, RotateCw, Shield,
   User, Phone, Mail, Calendar, MoreHorizontal, Trash2, Key, UserPlus,
 } from "lucide-react";
 
@@ -77,6 +77,10 @@ export default function EmployeesPage() {
   // 批量同步登录账号（将username改为手机号）
   const [migrating, setMigrating] = useState(false);
   const [migrateMsg, setMigrateMsg] = useState("");
+
+  // 批量配置角色看板权限
+  const [permSetting, setPermSetting] = useState(false);
+  const [permMsg, setPermMsg] = useState("");
 
   const fetchRoles = useCallback(async () => {
     try {
@@ -255,6 +259,21 @@ export default function EmployeesPage() {
 
   function handleSearch() { setPage(1); fetchData(); }
 
+  async function handleEnsurePermissions() {
+    setPermSetting(true);
+    setPermMsg("");
+    try {
+      const res = await fetch("/api/employees/ensure-view-permissions", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) { setPermMsg(data.error || "配置失败"); return; }
+      setPermMsg(`角色看板权限配置完成：${data.message || "已更新"}（新增 ${data.added || 0} 项，跳过 ${data.skipped || 0} 项）`);
+    } catch {
+      setPermMsg("网络错误，请重试");
+    } finally {
+      setPermSetting(false);
+    }
+  }
+
   async function handleMigrateAccounts() {
     setMigrating(true);
     setMigrateMsg("");
@@ -311,9 +330,17 @@ export default function EmployeesPage() {
             title="将已有员工的登录账号批量同步为手机号">
             <RotateCw className={`w-4 h-4 ${migrating ? "animate-spin" : ""}`} />同步账号
           </button>
+          <button onClick={handleEnsurePermissions} disabled={permSetting}
+            className="flex items-center gap-1 px-3 py-2 text-sm text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition disabled:opacity-50"
+            title="为所有角色批量配置看板视图权限（leads:view等）">
+            <Shield className={`w-4 h-4 ${permSetting ? "animate-pulse" : ""}`} />配置权限
+          </button>
         </div>
         {migrateMsg && (
           <div className="mt-3 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2">{migrateMsg}</div>
+        )}
+        {permMsg && (
+          <div className="mt-3 text-sm text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg p-2">{permMsg}</div>
         )}
       </div>
 
