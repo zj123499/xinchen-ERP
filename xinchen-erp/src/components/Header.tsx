@@ -44,6 +44,7 @@ export default function Header() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loadingNotif, setLoadingNotif] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ realName?: string; username?: string; roles?: string[] } | null>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
 
@@ -94,6 +95,21 @@ export default function Header() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // 获取当前登录用户信息（显示右上角姓名）
+  useEffect(() => {
+    async function fetchMe() {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.user) setCurrentUser(data.user);
+      } catch {
+        // 静默失败
+      }
+    }
+    fetchMe();
   }, []);
 
   // 打开通知面板时加载数据
@@ -247,7 +263,12 @@ export default function Header() {
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
               <User className="w-4 h-4 text-white" />
             </div>
-            <span className="text-sm text-gray-700">管理员</span>
+            <div className="flex flex-col items-start leading-tight">
+              <span className="text-sm text-gray-700">{currentUser?.realName || currentUser?.username || "用户"}</span>
+              {currentUser?.roles?.[0] && (
+                <span className="text-[11px] text-gray-400">{currentUser.roles[0]}</span>
+              )}
+            </div>
           </button>
 
           {showUserMenu && (
