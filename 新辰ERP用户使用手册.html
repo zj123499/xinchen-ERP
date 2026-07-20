@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新辰ERP 用户使用手册 v1.0</title>
+<style>
+:root {
+  --pri: #1e40af; --pri2: #3b82f6; --accent: #0891b2;
+  --bg: #f0f4f8; --card: #fff; --border: #e2e8f0;
+  --t: #0f172a; --tm: #475569; --tl: #94a3b8;
+  --suc: #059669; --warn: #d97706; --err: #dc2626;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--t); line-height:1.85; font-size:16px; }
+.wrap { max-width:1100px; margin:0 auto; padding:0 20px 60px; }
+
+/* 封面 */
+.cover { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #0c4a6e 100%); color:#fff; padding:80px 20px; text-align:center; margin-bottom:0; position:relative; }
+.cover::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 50%, rgba(56,189,248,.08) 0%, transparent 60%); }
+.cover h1 { font-size:2.6em; position:relative; letter-spacing:3px; }
+.cover .sub { font-size:1.15em; opacity:.8; margin-top:12px; position:relative; }
+.cover .meta { display:flex; gap:20px; justify-content:center; margin-top:24px; position:relative; }
+.cover .meta span { background:rgba(255,255,255,.1); padding:4px 18px; border-radius:20px; font-size:.85em; }
+
+/* 导航 */
+.nav { position:sticky; top:0; z-index:100; background:#fff; border-bottom:1px solid var(--border); padding:10px 0; backdrop-filter:blur(8px); box-shadow:0 1px 3px rgba(0,0,0,.03); }
+.nav-inner { max-width:1100px; margin:0 auto; display:flex; gap:6px; flex-wrap:wrap; padding:0 20px; }
+.nav a { color:var(--tm); text-decoration:none; padding:6px 13px; border-radius:6px; font-size:.88em; transition:all .15s; white-space:nowrap; }
+.nav a:hover, .nav a.act { background:var(--pri2); color:#fff; }
+
+/* Section */
+.sec { margin:44px auto; max-width:1100px; padding:0 20px; }
+.sec h2 { font-size:1.7em; color:var(--pri); border-bottom:3px solid var(--pri2); padding-bottom:10px; margin-bottom:22px; display:flex; align-items:center; gap:10px; }
+.sec h3 { font-size:1.2em; color:var(--pri); margin:28px 0 12px; }
+.sec h4 { font-size:1.05em; margin:18px 0 8px; color:var(--t); }
+
+.card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:22px; margin:14px 0; }
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:14px; }
+
+/* Tags */
+.tag { display:inline-block; padding:2px 10px; border-radius:12px; font-size:.8em; font-weight:500; }
+.tg-g { background:#d1fae5; color:#065f46; } .tg-b { background:#dbeafe; color:#1e40af; }
+.tg-o { background:#fef3c7; color:#92400e; } .tg-r { background:#fee2e2; color:#991b1b; }
+.tg-s { background:#e0e7ff; color:#3730a3; }
+
+/* 步骤 */
+.steps { counter-reset:step; list-style:none; }
+.steps li { counter-increment:step; padding:14px 0 14px 56px; position:relative; border-left:2px solid var(--border); margin-left:20px; }
+.steps li::before { content:'0' counter(step); position:absolute; left:-22px; top:10px; width:42px; height:42px; background:var(--pri2); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.9em; }
+.steps li:last-child { border-left-color:transparent; }
+
+/* 流程图 */
+.flow { display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:16px 0; font-size:.9em; }
+.flow .node { background:var(--pri2); color:#fff; padding:6px 16px; border-radius:6px; white-space:nowrap; }
+.flow .arrow { color:var(--pri2); font-weight:bold; font-size:1.2em; }
+
+/* 提示框 */
+.note { padding:14px 18px; border-radius:8px; margin:14px 0; font-size:.93em; }
+.note-info { background:#eff6ff; border-left:4px solid var(--pri2); color:#1e40af; }
+.note-warn { background:#fffbeb; border-left:4px solid var(--warn); color:#92400e; }
+.note-suc { background:#ecfdf5; border-left:4px solid var(--suc); color:#065f46; }
+.note-err { background:#fef2f2; border-left:4px solid var(--err); color:#991b1b; }
+
+/* Table */
+.tbl { width:100%; border-collapse:collapse; margin:14px 0; font-size:.93em; }
+.tbl th { background:var(--pri); color:#fff; padding:10px 14px; text-align:left; font-weight:500; }
+.tbl td { padding:10px 14px; border-bottom:1px solid var(--border); }
+.tbl tr:nth-child(even) td { background:#f8fafc; }
+
+/* 快捷键 */
+.kbd { background:#f1f5f9; border:1px solid var(--border); border-radius:4px; padding:1px 7px; font-family:monospace; font-size:.9em; box-shadow:0 1px 0 rgba(0,0,0,.08); }
+
+/* 图片占位 */
+.screenshot { background:linear-gradient(135deg, #f1f5f9, #e2e8f0); border:2px dashed var(--border); border-radius:10px; padding:40px 20px; text-align:center; color:var(--tl); margin:16px 0; font-size:.9em; }
+
+/* 搜索 */
+.search-box { display:flex; gap:10px; margin:16px 0; }
+.search-box input { flex:1; padding:10px 16px; border:1px solid var(--border); border-radius:8px; font-size:1em; outline:none; }
+.search-box input:focus { border-color:var(--pri2); box-shadow:0 0 0 3px rgba(59,130,246,.15); }
+
+.footer { background:var(--pri); color:rgba(255,255,255,.7); text-align:center; padding:30px 20px; margin-top:60px; font-size:.9em; }
+
+@media (max-width:768px) {
+  .cover h1 { font-size:1.6em; }
+  .card-grid { grid-template-columns:1fr; }
+  .flow { flex-direction:column; align-items:flex-start; }
+  .flow .arrow { transform:rotate(90deg); }
+}
+
+.print-only { display:none; }
+@media print { .nav { display:none; } .print-only { display:block; } }
+</style>
+</head>
+<body>
+
+<!-- 封面 -->
+<header class="cover">
+  <h1>新辰ERP 用户使用手册</h1>
+  <p class="sub">新辰留学 · 企业资源管理系统 — 让每一环节都井然有序</p>
+  <div class="meta">
+    <span>📋 v1.0</span>
+    <span>📅 2026-07-21</span>
+    <span>👥 适用所有岗位</span>
+  </div>
+</header>
+
+<!-- 导航 -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#start">快速开始</a>
+    <a href="#dashboard">工作台</a>
+    <a href="#sale">销售流程</a>
+    <a href="#contract">合同订单</a>
+    <a href="#delivery">交付管理</a>
+    <a href="#finance">财务管理</a>
+    <a href="#employee">员工管理</a>
+    <a href="#settings">系统设置</a>
+    <a href="#tips">技巧速查</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ===== 一、快速开始 ===== -->
+<section class="sec" id="start">
+<h2>📌 一、快速开始</h2>
+
+<div class="card">
+  <h3>1.1 登录系统</h3>
+  <ol class="steps">
+    <li>打开浏览器，访问系统地址（如 <code>http://111.229.72.128:3000</code>）</li>
+    <li>在登录页输入<strong>手机号</strong>（或用户名）和密码</li>
+    <li>首次登录时，系统会提示<strong>修改初始密码</strong>（默认密码：<code>Xc@123456</code>）</li>
+    <li>登录成功后自动跳转到工作台首页</li>
+  </ol>
+  <div class="note note-warn">
+    <strong>⚠️ 安全提示：</strong>首次登录务必修改默认密码！密码至少 6 位。连续 5 次输错密码账号将被锁定。
+  </div>
+</div>
+
+<div class="card">
+  <h3>1.2 界面导航</h3>
+  <p>登录后主界面分为三个区域：</p>
+  <table class="tbl">
+    <tr><th style="width:120px">区域</th><th>说明</th></tr>
+    <tr><td>左侧菜单栏</td><td>所有功能模块入口。根据你的角色权限，会显示不同的菜单项</td></tr>
+    <tr><td>顶部导航栏</td><td>显示当前用户姓名和角色，右上角为个人信息入口</td></tr>
+    <tr><td>主内容区</td><td>当前页面的操作区和数据展示区</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>1.3 角色与可见菜单</h3>
+  <p>不同角色看到的菜单不同。以下是典型角色的菜单对照：</p>
+  <table class="tbl">
+    <tr><th>角色</th><th>主要菜单</th></tr>
+    <tr><td><span class="tag tg-r">超级管理员</span></td><td>全部菜单（15 个一级模块）</td></tr>
+    <tr><td><span class="tag tg-b">市场专员</span></td><td>工作台、销售管理、合同订单、客户回访、AI 智能</td></tr>
+    <tr><td><span class="tag tg-g">升学顾问</span></td><td>工作台、交付管理、客户回访、AI 智能</td></tr>
+    <tr><td><span class="tag tg-o">财务</span></td><td>工作台、财务管理（收款/成本/提成/薪资/报销/利润报表）</td></tr>
+    <tr><td><span class="tag tg-s">运营总监</span></td><td>全部业务菜单 + 经营驾驶舱</td></tr>
+  </table>
+</div>
+</section>
+
+<!-- ===== 二、工作台 ===== -->
+<section class="sec" id="dashboard">
+<h2>📊 二、工作台（数据看板）</h2>
+
+<div class="card">
+  <h3>2.1 工作台概述</h3>
+  <p>工作台是登录后的首页，展示与你相关的<strong>业务数据概览</strong>。根据你的角色权限，能看到的指标范围不同。例如：</p>
+  <ul style="margin-left:20px; line-height:2.2;">
+    <li>有 <code>leads:view</code> 权限 → 能看到线索统计数据</li>
+    <li>有 <code>payments:view</code> 权限 → 能看到收款和成本数据</li>
+    <li>没有任何业务 view 权限 → 只能看到员工数、合作方数等基本团队信息</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>2.2 核心指标卡片</h3>
+  <table class="tbl">
+    <tr><th>指标</th><th>含义</th><th>使用场景</th></tr>
+    <tr><td>今日新增线索</td><td>当天录入的新线索数量</td><td>评估市场获客效果</td></tr>
+    <tr><td>待跟进线索</td><td>状态为新线索/已联系的线索数</td><td>追踪销售待办</td></tr>
+    <tr><td>本月签约</td><td>本月已签订的合同数量</td><td>衡量销售业绩</td></tr>
+    <tr><td>本月收款</td><td>本月收款总额（含利润）</td><td>监控现金流</td></tr>
+    <tr><td>本年业绩完成率</td><td>当年收款 ÷ 当年合同额的百分比</td><td>年度目标达成率</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>2.3 图表分析区</h3>
+  <p>工作台下方提供多维度图表：</p>
+  <ul style="margin-left:20px; line-height:2.2;">
+    <li><strong>线索分析：</strong>按来源（上门/转介绍/新媒体等）、按状态（新线索/已联系/已转化）、按负责人分布</li>
+    <li><strong>收款分析：</strong>按类型（客户服务费/学校返佣/合作方费用）、按月度分布</li>
+    <li><strong>合同分析：</strong>按月趋势、按业务线分布</li>
+    <li><strong>学生分析：</strong>按目标国家、按目标学位</li>
+    <li><strong>最近动态：</strong>最新 5 条线索和收款记录</li>
+  </ul>
+</div>
+</section>
+
+<!-- ===== 三、销售流程 ===== -->
+<section class="sec" id="sale">
+<h2>📞 三、销售流程 — 从线索到签约</h2>
+
+<div class="card">
+  <h3>3.1 完整业务流程</h3>
+  <div class="flow">
+    <span class="node">录入线索</span><span class="arrow">→</span>
+    <span class="node">跟进沟通</span><span class="arrow">→</span>
+    <span class="node">转化为学生</span><span class="arrow">→</span>
+    <span class="node">创建合同</span><span class="arrow">→</span>
+    <span class="node">生成订单</span><span class="arrow">→</span>
+    <span class="node">服务交付</span>
+  </div>
+</div>
+
+<div class="card">
+  <h3>3.2 录入线索</h3>
+  <ol class="steps">
+    <li>点击左侧菜单「销售管理 → 线索管理」</li>
+    <li>点击右上角 <strong>+ 新增线索</strong> 按钮</li>
+    <li>填写必填字段：<strong>姓名、手机号</strong>（必填且唯一，重复手机号会被拦截）</li>
+    <li>选填：微信、来源渠道、意向国家、意向专业、备注等</li>
+    <li>选择<strong>负责人</strong>（默认自己，主管可分配给他人）</li>
+    <li>点击保存</li>
+  </ol>
+  <div class="note note-info">
+    <strong>💡 撞单处理：</strong>如果录入的手机号已被其他顾问录入，系统会自动提示，并引导发起转介绍申诉流程。
+  </div>
+</div>
+
+<div class="card">
+  <h3>3.3 线索跟进</h3>
+  <ol class="steps">
+    <li>在线索列表找到需要跟进的线索</li>
+    <li>点击线索姓名进入详情页</li>
+    <li>在「跟进记录」区域添加新的跟进：选择跟进方式（电话/微信/面谈/邮件），填写沟通内容</li>
+    <li>设置「下次联系时间」，系统会在到期时提醒</li>
+    <li>跟进后更新线索状态：新线索 → 已联系 → 已筛选 → 已转化</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>3.4 线索转化学生</h3>
+  <ol class="steps">
+    <li>当沟通深入、客户意向明确时，将线索<strong>转化为学生</strong></li>
+    <li>在线索详情页点击「转学生」按钮</li>
+    <li>系统自动带入线索信息（姓名、手机号等）</li>
+    <li>补充详细学术信息：当前学历、GPA、语言成绩（雅思/托福/GRE/GMAT）、目标国家/专业/学位</li>
+    <li>保存后，该学生在「学生档案」中可查</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>3.5 线索搜索与筛选</h3>
+  <p>线索列表页支持多种筛选方式：</p>
+  <ul style="margin-left:20px; line-height:2.2;">
+    <li><strong>关键词搜索：</strong>按姓名、手机号、微信匹配</li>
+    <li><strong>状态筛选：</strong>新线索 / 已联系 / 已筛选 / 已转化 / 已无效</li>
+    <li><strong>来源筛选：</strong>上门、转介绍、新媒体、搜索引擎等</li>
+  </ul>
+</div>
+</section>
+
+<!-- ===== 四、合同订单 ===== -->
+<section class="sec" id="contract">
+<h2>📝 四、合同与订单</h2>
+
+<div class="card">
+  <h3>4.1 创建合同</h3>
+  <ol class="steps">
+    <li>进入「合同订单 → 合同管理」</li>
+    <li>点击「新增合同」，选择关联<strong>学生</strong></li>
+    <li>填写合同信息：<strong>合同金额、签约日期、有效期</strong></li>
+    <li>绑定服务角色：签约顾问、规划顾问、文书顾问（可同一人）</li>
+    <li>选择业务线（留学申请 / 语言培训 / 背景提升等）</li>
+    <li>提交后，合同进入「待审批」状态</li>
+  </ol>
+  <div class="note note-warn">
+    <strong>⚠️ 注意：</strong>如果合同优惠折扣超过 20%，需要走审批流（销售→主管→经理逐级审批）。
+  </div>
+</div>
+
+<div class="card">
+  <h3>4.2 订单管理</h3>
+  <p>合同签订后生成订单，订单支持分期付款。操作流程：</p>
+  <ol class="steps">
+    <li>进入「合同订单 → 订单管理」</li>
+    <li>合同签约后自动生成订单，状态为「待付款」</li>
+    <li>录入首付款后，订单状态变为「进行中」</li>
+    <li>全部款项到账后，订单状态变为「已完成」</li>
+  </ol>
+</div>
+</section>
+
+<!-- ===== 五、交付管理 ===== -->
+<section class="sec" id="delivery">
+<h2>📬 五、交付管理 — 申请到入学</h2>
+
+<div class="card">
+  <h3>5.1 完整交付流程</h3>
+  <div class="flow">
+    <span class="node">创建申请</span><span class="arrow">→</span>
+    <span class="node">准备材料</span><span class="arrow">→</span>
+    <span class="node">递交申请</span><span class="arrow">→</span>
+    <span class="node">等待Offer</span><span class="arrow">→</span>
+    <span class="node">办理签证</span><span class="arrow">→</span>
+    <span class="node">入学注册</span>
+  </div>
+</div>
+
+<div class="card">
+  <h3>5.2 创建申请</h3>
+  <ol class="steps">
+    <li>进入「交付管理 → 申请管理」</li>
+    <li>点击「添加申请」，选择对应的<strong>学生</strong></li>
+    <li>填写申请信息：目标院校、专业、学位、入学季节</li>
+    <li>关联学生材料清单（成绩单、推荐信、语言成绩等）</li>
+    <li>保存后，申请状态为「材料准备中」</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>5.3 材料管理</h3>
+  <p>在申请详情页可管理材料清单：</p>
+  <ul style="margin-left:20px; line-height:2.2;">
+    <li>标记每项材料的<strong>上传状态</strong>（待提交 / 已提交 / 已审核）</li>
+    <li>系统根据院校要求自动生成材料清单</li>
+    <li>截止日期临近时自动提醒</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>5.4 Offer 与签证管理</h3>
+  <ol class="steps">
+    <li><strong>Offer 管理：</strong>收到 Offer 后在系统中录入（条件/无条件），标记接受或拒绝</li>
+    <li><strong>签证管理：</strong>在签证模块创建签证记录，跟踪递交→面签→出签全流程</li>
+    <li><strong>入学确认：</strong>学生入学后，订单状态标识为「已完成」</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>5.5 文书工作台</h3>
+  <p>文书顾问的专属工作台：</p>
+  <ul style="margin-left:20px; line-height:2.2;">
+    <li>查看所有分配给自己的文书任务</li>
+    <li>按学生查看 PS / CV / 推荐信的编写进度</li>
+    <li>使用 <strong>AI 文书助手</strong> 辅助生成初稿和优化建议</li>
+  </ul>
+</div>
+</section>
+
+<!-- ===== 六、财务管理 ===== -->
+<section class="sec" id="finance">
+<h2>💰 六、财务管理</h2>
+
+<div class="card">
+  <h3>6.1 收款录入</h3>
+  <ol class="steps">
+    <li>进入「财务管理 → 收款管理」</li>
+    <li>点击「添加收款」，选择关联<strong>学生</strong></li>
+    <li>填写收款金额、收款类型（客户服务费/学校返佣/合作方费用/其他）</li>
+    <li>选择付款方式（银行转账/微信/支付宝/现金等）</li>
+    <li>财务年度和月份<strong>自动匹配当前时间</strong></li>
+    <li>保存后，总金额自动反映在工作台和利润报表中</li>
+  </ol>
+  <div class="note note-info">
+    <strong>💡 多币种支持：</strong>系统支持 CNY/USD/GBP/AUD 等多币种，录入时选择币种即可自动换算。
+  </div>
+</div>
+
+<div class="card">
+  <h3>6.2 成本管理</h3>
+  <ol class="steps">
+    <li>进入「财务管理 → 成本管理」</li>
+    <li>成本类型包括：市场费用、员工薪资、渠道佣金、运营开支等</li>
+    <li>每笔成本关联到财务年度和月份</li>
+    <li>成本数据影响<strong>利润报表</strong>的计算（利润 = 收款 - 成本）</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>6.3 提成与薪资</h3>
+  <table class="tbl">
+    <tr><th>功能</th><th>说明</th></tr>
+    <tr><td>提成规则</td><td>配置销售提成比例，支持按里程碑分阶段释放（首款/尾款/Offer/入学）</td></tr>
+    <tr><td>提成明细</td><td>自动计算每个顾问的提成金额，按签约合同和到账情况生成</td></tr>
+    <tr><td>薪资管理</td><td>员工底薪 + 提成汇总 + 扣款，每月生成薪资单</td></tr>
+    <tr><td>报销管理</td><td>员工提交费用报销，通过审批流审批后确认支付</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>6.4 财务报表</h3>
+  <ul style="margin-left:20px; line-height:2.2;">
+    <li><strong>利润报表：</strong>按月度统计收入/成本/利润</li>
+    <li><strong>应收应付：</strong>跟踪客户欠款和供应商应付款</li>
+    <li><strong>发票管理：</strong>开具和登记发票</li>
+    <li><strong>退费管理：</strong>退费申请→审批→执行退款→自动计算扣回提成</li>
+  </ul>
+</div>
+</section>
+
+<!-- ===== 七、员工管理 ===== -->
+<section class="sec" id="employee">
+<h2>👥 七、员工管理</h2>
+
+<div class="card">
+  <h3>7.1 新增员工（自动建号）</h3>
+  <ol class="steps">
+    <li>管理员进入「系统设置 → 员工信息」</li>
+    <li>点击「新增员工」</li>
+    <li>填写姓名、手机号（<strong>必填</strong>，将作为登录账号）、性别、邮箱等</li>
+    <li>选择角色（可多选）</li>
+    <li>登录账号栏<strong>留空即可</strong>，系统自动用手机号创建账号</li>
+    <li>默认密码为 <code>Xc@123456</code>，首次登录强制修改</li>
+    <li>保存后员工即可用手机号登录</li>
+  </ol>
+  <div class="note note-suc">
+    <strong>✅ 自动化：</strong>填写手机号 → 保存 → 账号自动创建完毕，无需单独操作。
+  </div>
+</div>
+
+<div class="card">
+  <h3>7.2 员工离职处理</h3>
+  <ol class="steps">
+    <li>在员工列表找到要处理的员工</li>
+    <li>编辑员工，将状态改为「<strong>离职</strong>」</li>
+    <li>系统<strong>自动停用</strong>该员工的登录权限</li>
+    <li>其名下的线索/学生/订单等数据<strong>不会丢失</strong></li>
+    <li>管理员在列表点击该员工的「重新分配数据」按钮</li>
+    <li>选择目标接收人，一键将所有业务数据转移</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>7.3 批量同步账号</h3>
+  <p>如果老员工的登录账号还是工号（如 <code>EMP2025001</code>），可使用<strong>同步账号</strong>功能一键改为手机号：</p>
+  <ol class="steps">
+    <li>在员工列表页工具栏点击「同步账号」</li>
+    <li>系统自动将所有员工的登录账号更新为手机号</li>
+    <li>已完成同步的员工不会被重复处理</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>7.4 角色权限配置</h3>
+  <ol class="steps">
+    <li>在员工列表页工具栏点击「<strong>配置权限</strong>」</li>
+    <li>系统自动为每个角色按业务语义分配 view 权限</li>
+    <li>也可在「系统设置 → 角色权限」中手动调整</li>
+    <li>权限生效：用户重新登录后即可看到对应菜单和数据</li>
+  </ol>
+</div>
+</section>
+
+<!-- ===== 八、系统设置 ===== -->
+<section class="sec" id="settings">
+<h2>⚙️ 八、系统设置</h2>
+
+<div class="card-grid">
+  <div class="card">
+    <h4>数据字典</h4>
+    <p>管理系统中的下拉选项：线索来源、学生状态、申请状态、合同类型等。管理员可自定义。</p>
+  </div>
+  <div class="card">
+    <h4>系统配置</h4>
+    <p>全局参数设置：公司名称、AI 网关地址/密钥、钉钉集成配置等。</p>
+  </div>
+  <div class="card">
+    <h4>审计日志</h4>
+    <p>记录所有关键数据的变更：谁、什么时间、改了哪个字段、改前/改后的值。不可删除。</p>
+  </div>
+  <div class="card">
+    <h4>操作日志</h4>
+    <p>记录用户的操作行为：登录、查看、导出、删除等。</p>
+  </div>
+  <div class="card">
+    <h4>钉钉集成</h4>
+    <p>支持钉钉 Webhook：入职自动建账号、离职自动停用、事件同步。</p>
+  </div>
+  <div class="card">
+    <h4>审批流配置</h4>
+    <p>配置业务审批流程：合同优惠、退费审批、报销审批、线索划转。支持多级、会签、或签。</p>
+  </div>
+</div>
+</section>
+
+<!-- ===== 九、技巧速查 ===== -->
+<section class="sec" id="tips">
+<h2>💡 九、技巧与常见操作速查</h2>
+
+<div class="card">
+  <h3>全局快捷键</h3>
+  <table class="tbl">
+    <tr><th>操作</th><th>方式</th></tr>
+    <tr><td>搜索员工/线索/学生</td><td>在列表页搜索框输入姓名或手机号，按 <kbd>Enter</kbd></td></tr>
+    <tr><td>快速新建</td><td>在各模块右上角点击绿色 + 按钮</td></tr>
+    <tr><td>刷新数据</td><td>点击 <kbd>🔄</kbd> 刷新按钮</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>常见问题速查</h3>
+  <table class="tbl">
+    <tr><th>问题</th><th>解决方法</th></tr>
+    <tr><td>忘记密码</td><td>联系管理员重置密码（管理员在员工管理页点击「重置密码」）</td></tr>
+    <tr><td>看不到某个模块</td><td>联系管理员在角色权限中检查是否分配了对应菜单和 view 权限</td></tr>
+    <tr><td>工作台数据全 0</td><td>管理员在员工管理页点击「配置权限」补全角色的 view 权限</td></tr>
+    <tr><td>手机号登录失败</td><td>确认手机号是否正确；如果是从工号切换过来，管理员需点击「同步账号」</td></tr>
+    <tr><td>离职员工数据在哪</td><td>离职后数据保留，在员工列表点击「重新分配数据」转移给在职同事</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>每天必做清单</h3>
+  <ul style="margin-left:20px; line-height:2.2;">
+    <li>✅ 查看工作台：了解今日新线索和待跟进线索</li>
+    <li>✅ 跟进你的线索：及时更新跟进记录和线索状态</li>
+    <li>✅ 处理待审批事项：进入审批中心处理待审</li>
+    <li>✅ 检查交付进度：关注申请和签证的到期时间</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>数据安全须知</h3>
+  <div class="note note-warn">
+    <ul style="margin-left:16px;">
+      <li>不要将登录账号借给他人使用</li>
+      <li>离开工位时关闭浏览器或锁屏</li>
+      <li>1 小时内导出超过 50 条数据会触发<strong>安全锁定</strong></li>
+      <li>所有数据操作均记录在审计日志中，不可删除</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+</div>
+
+<!-- 页脚 -->
+<footer class="footer">
+  <p>新辰ERP 用户使用手册 · v1.0 · 2026-07-21</p>
+  <p style="margin-top:8px;opacity:.5">如有疑问，请联系系统管理员</p>
+</footer>
+
+<script>
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
