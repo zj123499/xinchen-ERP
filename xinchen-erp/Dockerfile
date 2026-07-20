@@ -7,9 +7,9 @@ FROM node:22-alpine AS builder
 RUN apk add --no-cache openssl
 WORKDIR /app
 
-# 复制依赖清单并安装
+# 复制依赖清单并安装（带重试，失败即中断并暴露真实错误）
 COPY package.json package-lock.json ./
-RUN npm ci --legacy-peer-deps 2>&1 | tail -5
+RUN for i in 1 2 3; do npm ci --legacy-peer-deps && break || (echo "npm ci attempt $i failed, retrying in 5s..." && sleep 5); done
 
 # 复制源码与配置
 COPY prisma ./prisma
@@ -44,7 +44,10 @@ FROM node:22-alpine AS prisma-builder
 RUN apk add --no-cache openssl curl
 WORKDIR /prisma-cli
 RUN echo '{"name":"prisma-cli","version":"1.0.0","private":true}' > package.json && \
-    npm install prisma@^7.8.0 @prisma/engines@^7.8.0 @prisma/adapter-pg@^7.8.0 pg@^8.22.0 tsx@^4.23.1 dotenv@^16 2>&1 | tail -5
+    for i in 1 2 3; do \
+      npm install prisma@^7.8.0 @prisma/engines@^7.8.0 @prisma/adapter-pg@^7.8.0 pg@^8.22.0 tsx@^4.23.1 dotenv@^16 && break || \
+      echo "npm install attempt $i failed, retrying in 5s..." && sleep 5; \
+    done
 
 # ---- 阶段3: 运行镜像 ----
 FROM node:22-alpine
