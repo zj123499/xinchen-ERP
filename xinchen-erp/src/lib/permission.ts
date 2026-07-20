@@ -15,6 +15,33 @@ export interface AuthContext {
   roles: string[]; // 角色 code 列表
 }
 
+/** 模块 view 权限合集（看板/BI 数据过滤用） */
+export const VIEW_PERMISSIONS = [
+  "leads:view",
+  "students:view",
+  "contracts:view",
+  "payments:view",
+  "applications:view",
+  "visits:view",
+  "reports:view",
+] as const;
+
+export type ViewPermission = (typeof VIEW_PERMISSIONS)[number];
+
+export interface ViewPermissionSet {
+  leads: boolean;
+  students: boolean;
+  contracts: boolean;
+  payments: boolean;
+  applications: boolean;
+  visits: boolean;
+  reports: boolean;
+  /** 是否拥有平台管理权限（settings:manage） */
+  settings: boolean;
+  /** 原始已拥有的权限 code 集合 */
+  granted: Set<string>;
+}
+
 export function getAuthContext(request: NextRequest): AuthContext {
   const roleStr = request.headers.get("x-user-roles") || "";
   return {
@@ -41,6 +68,63 @@ export async function hasPermission(request: NextRequest, code: string): Promise
     },
   });
   return count > 0;
+}
+
+/**
+ * 批量查询用户各模块的查看权限（一次 SQL 查询）。
+ * admin 角色返回全 true。
+ * 用于看板/BI API 按权限过滤数据模块。
+ */
+export async function getViewPermissions(
+  tenantId: number,
+  roles: string[]
+): Promise<ViewPermissionSet> {
+  // admin 拥有全部权限
+  if (isAdmin(roles)) {
+    return {
+      leads: true,
+      students: true,
+      contracts: true,
+      payments: true,
+      applications: true,
+      visits: true,
+      reports: true,
+      settings: true,
+      granted: new Set(VIEW_PERMISSIONS),
+    };
+  }
+
+  if (roles.length === 0) {
+    return {
+      leads: false, students: false, contracts: false, payments: false,
+      applications: false, visits: false, reports: false, settings: false,
+      granted: new Set(),
+    };
+  }
+
+  // 检查所有 view 权限 + settings:manage
+  const codes = [...VIEW_PERMISSIONS, "settings:manage"];
+  const rows = await prisma.rolePermission.findMany({
+    where: {
+      permission: { code: { in: codes } },
+      role: { code: { in: roles }, tenantId },
+    },
+    select: { permission: { select: { code: true } } },
+  });
+
+  const granted = new Set(rows.map((r) => r.permission.code));
+
+  return {
+    leads: granted.has("leads:view"),
+    students: granted.has("students:view"),
+    contracts: granted.has("contracts:view"),
+    payments: granted.has("payments:view"),
+    applications: granted.has("applications:view"),
+    visits: granted.has("visits:view"),
+    reports: granted.has("reports:view"),
+    settings: granted.has("settings:manage"),
+    granted,
+  };
 }
 
 /**

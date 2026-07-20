@@ -5,6 +5,7 @@ import { RefreshCw, TrendingUp, Wallet, Users, FileSignature, AlertTriangle } fr
 
 interface Dash {
   scope?: string;
+  visibleModules?: string[];
   todayNewLeads: number; pendingFollowLeads: number; monthContracts: number; monthPaymentAmount: number;
   todayVisits: number; yearCompletionRate: number; totalStudents: number; totalLeads: number;
   yearPaymentAmount: number; yearContractAmount: number;
@@ -92,13 +93,16 @@ export default function BIPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">经营驾驶舱</h1>
-          {d.scope === "self" ? (
-            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200" title="仅显示你负责的数据">
-              我的驾驶舱（仅看我负责的数据）
+          {d.scope === "all" ? (
+            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 border border-gray-200" title="可查看全公司全部数据">
+              全公司看板
             </span>
           ) : (
-            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 border border-gray-200" title="可查看全公司数据">
-              全公司看板
+            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200"
+              title={`可见模块：${(d.visibleModules || []).join("、") || "无"}`}>
+              {d.visibleModules && d.visibleModules.length > 0
+                ? `可见模块：${d.visibleModules.join("、")}`
+                : "无数据权限"}
             </span>
           )}
         </div>

@@ -302,9 +302,14 @@ export default function BigScreenPage() {
         <h1 className="bs-title">
           <span className="bs-title-main">新辰留学 · 实时经营大屏</span>
           <span className="bs-title-sub">XINCHEN ERP REAL-TIME DASHBOARD</span>
-          {progress?.scope === "self" && (
+          {progress?.scope === "visible" && (
             <span style={{ fontSize: "12px", color: "#22d3ee", background: "rgba(34,211,238,.12)", borderRadius: "8px", padding: "2px 10px", marginTop: "6px", display: "inline-block" }}>
-              仅显示你负责的数据
+              按权限显示申请数据
+            </span>
+          )}
+          {progress?.scope === "hidden" && (
+            <span style={{ fontSize: "12px", color: "#94a3b8", background: "rgba(148,163,184,.12)", borderRadius: "8px", padding: "2px 10px", marginTop: "6px", display: "inline-block" }}>
+              无申请模块权限
             </span>
           )}
         </h1>

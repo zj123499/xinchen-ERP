@@ -2,16 +2,22 @@
  * 工作台统计 API（BI 看板）
  * GET /api/dashboard - 返回多维度统计数据
  *
- * 数据权限：
- *  - admin / manager / finance 角色 -> 查看全公司数据 (scope = "all")
- *  - 其他角色(销售/交付等) -> 仅查看自己负责的数据 (scope = "self")
- *    归属关系：线索/学生/订单按 assignedToId；合同/收款/申请按 student.assignedToId；
- *    佣金按 employee.userId；回访按 visitorId。成本为财务数据，仅全量角色可见。
+ * 数据权限：按角色配置的模块权限决定可见数据范围
+ *  - 拥有 leads:view → 可查看全公视线索统计
+ *  - 拥有 students:view → 可查看全公司学生统计
+ *  - 拥有 contracts:view → 可查看全公司合同统计
+ *  - 拥有 payments:view → 可查看全公司收款/成本/佣金统计
+ *  - 拥有 applications:view → 可查看全公司申请统计
+ *  - 拥有 visits:view → 可查看全公司回访统计
+ *  - 拥有 reports:view → 可查看业绩完成率（合同/回款汇总）
+ *  - admin 角色拥有全部模块权限
+ *  - 无对应权限的模块返回 0 / 空数组
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/jwt";
+import { getViewPermissions, isAdmin } from "@/lib/permission";
 
 function getToken(request: NextRequest): string | undefined {
   const auth = request.headers.get("authorization");
@@ -25,20 +31,21 @@ function getToken(request: NextRequest): string | undefined {
   return bearer || cookieToken;
 }
 
-// 拥有全公司数据视野的角色
-const ALL_SCOPE_ROLES = ["admin", "manager", "finance"];
+/** 构造"无权查看"过滤条件：强制返回 0 条 */
+const EMPTY = { id: -1 };
 
 export async function GET(request: NextRequest) {
   const token = getToken(request);
   const payload = token ? await verifyToken(token) : null;
   if (!payload) return NextResponse.json({ error: "未授权" }, { status: 401 });
 
-  // 直接从 JWT 解析，避免依赖中间件注入的 header（更稳健）
   const tenantId = payload.tenantId;
   const userId = payload.userId;
   const roles = payload.roles || [];
-  const allScope = roles.some((r) => ALL_SCOPE_ROLES.includes(r));
-  const scope = allScope ? "all" : "self";
+
+  // 批量查询各模块查看权限（一次 SQL，admin 全 true）
+  const perm = await getViewPermissions(tenantId, roles);
+  const scope = isAdmin(roles) ? "all" : "module";
 
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -49,26 +56,32 @@ export async function GET(request: NextRequest) {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
 
-  // “本人”数据范围过滤条件
-  const meFilter = allScope ? {} : { assignedToId: userId }; // 线索/学生/订单
-  const meStudentFilter = allScope ? {} : { student: { assignedToId: userId } }; // 合同/收款/申请
-  const visitFilter = allScope ? {} : { visitorId: userId }; // 回访
-  const costFilter = allScope ? {} : { id: -1 }; // 成本仅全量角色可见
+  // 按模块权限构造过滤条件
+  const leadFilter = perm.leads ? {} : EMPTY;
+  const studentFilter = perm.students ? {} : EMPTY;
+  const contractFilter = perm.contracts ? {} : EMPTY;
+  const paymentFilter = perm.payments ? {} : EMPTY;
+  const applicationFilter = perm.applications ? {} : EMPTY;
+  const visitFilter = perm.visits ? {} : EMPTY;
+  const reportFilter = perm.reports ? {} : EMPTY;
+  const costFilter = perm.payments ? {} : EMPTY; // 成本随收款权限
+  const commissionFilter = perm.payments ? {} : EMPTY; // 佣金随收款权限
 
-  // 佣金按当前用户对应的员工记录归属
-  let myEmployeeId: number | null = null;
-  if (!allScope) {
-    const emp = await prisma.employee.findFirst({ where: { tenantId, userId } });
-    myEmployeeId = emp?.id ?? null;
-  }
-  const commissionFilter = allScope ? {} : myEmployeeId ? { employeeId: myEmployeeId } : { id: -1 };
+  // 学生维度条件（归合同/收款/申请使用）
+  const stCtrFilter = perm.students ? {} : EMPTY;
+  const stPayFilter = perm.students ? {} : EMPTY;
+  const stAppFilter = perm.students ? {} : EMPTY;
 
   try {
     const [
-      // 核心指标
-      todayLeads, pendingFollowLeads, monthContracts, monthPayments,
-      todayVisitRecords, yearPayments, yearContracts, totalStudents, totalLeads,
-      // 细粒度数据
+      // === 核心指标 ===
+      todayLeads, pendingFollowLeads,
+      monthContracts, monthPayments,
+      todayVisitRecords,
+      yearPayments, yearContracts,
+      totalStudents, totalLeads,
+
+      // === 细粒度数据 ===
       leadsBySource, leadsByStatus, leadsByAssignee,
       paymentsByType, paymentsByMonth,
       contractsByMonth, contractsByBusinessLine,
@@ -82,59 +95,59 @@ export async function GET(request: NextRequest) {
       mediaAccountsCount, sitesCount, partnersCount, employeesCount,
     ] = await Promise.all([
       // === 核心指标 ===
-      prisma.lead.count({ where: { tenantId, ...meFilter, createdAt: { gte: todayStart, lt: todayEnd } } }),
-      prisma.lead.count({ where: { tenantId, ...meFilter, status: { in: ["NEW", "CONTACTED"] } } }),
-      prisma.contract.count({ where: { tenantId, ...meStudentFilter, signDate: { gte: monthStart, lt: monthEnd }, status: { in: ["SIGNED", "APPROVED"] } } }),
-      prisma.payment.aggregate({ where: { tenantId, ...meStudentFilter, fiscalYear: currentYear, fiscalMonth: currentMonth }, _sum: { amount: true } }),
+      prisma.lead.count({ where: { tenantId, ...leadFilter, createdAt: { gte: todayStart, lt: todayEnd } } }),
+      prisma.lead.count({ where: { tenantId, ...leadFilter, status: { in: ["NEW", "CONTACTED"] } } }),
+      prisma.contract.count({ where: { tenantId, ...contractFilter, signDate: { gte: monthStart, lt: monthEnd }, status: { in: ["SIGNED", "APPROVED"] } } }),
+      prisma.payment.aggregate({ where: { tenantId, ...paymentFilter, fiscalYear: currentYear, fiscalMonth: currentMonth }, _sum: { amount: true } }),
       prisma.visitRecord.count({ where: { ...visitFilter, visitDate: { gte: todayStart, lt: todayEnd } } }),
-      prisma.payment.aggregate({ where: { tenantId, ...meStudentFilter, paidAt: { gte: yearStart } }, _sum: { amount: true } }),
-      prisma.contract.aggregate({ where: { tenantId, ...meStudentFilter, signDate: { gte: yearStart }, status: { in: ["SIGNED", "APPROVED"] } }, _sum: { totalAmount: true } }),
-      prisma.student.count({ where: { tenantId, ...meFilter } }),
-      prisma.lead.count({ where: { tenantId, ...meFilter } }),
+      prisma.payment.aggregate({ where: { tenantId, ...paymentFilter, paidAt: { gte: yearStart } }, _sum: { amount: true } }),
+      prisma.contract.aggregate({ where: { tenantId, ...contractFilter, signDate: { gte: yearStart }, status: { in: ["SIGNED", "APPROVED"] } }, _sum: { totalAmount: true } }),
+      prisma.student.count({ where: { tenantId, ...studentFilter } }),
+      prisma.lead.count({ where: { tenantId, ...leadFilter } }),
 
       // === 线索维度 ===
-      prisma.lead.groupBy({ by: ["source"], where: { tenantId, ...meFilter }, _count: { _all: true }, orderBy: { _count: { source: "desc" } } }),
-      prisma.lead.groupBy({ by: ["status"], where: { tenantId, ...meFilter }, _count: { _all: true }, orderBy: { _count: { status: "desc" } } }),
-      prisma.lead.groupBy({ by: ["assignedToId"], where: { tenantId, ...meFilter }, _count: { _all: true }, take: 10, orderBy: { _count: { assignedToId: "desc" } } }),
+      prisma.lead.groupBy({ by: ["source"], where: { tenantId, ...leadFilter }, _count: { _all: true }, orderBy: { _count: { source: "desc" } } }),
+      prisma.lead.groupBy({ by: ["status"], where: { tenantId, ...leadFilter }, _count: { _all: true }, orderBy: { _count: { status: "desc" } } }),
+      prisma.lead.groupBy({ by: ["assignedToId"], where: { tenantId, ...leadFilter }, _count: { _all: true }, take: 10, orderBy: { _count: { assignedToId: "desc" } } }),
 
       // === 收款维度 ===
-      prisma.payment.groupBy({ by: ["paymentType"], where: { tenantId, ...meStudentFilter, paidAt: { gte: yearStart } }, _sum: { amount: true }, _count: { _all: true } }),
-      prisma.payment.groupBy({ by: ["fiscalMonth"], where: { tenantId, ...meStudentFilter, fiscalYear: currentYear }, _sum: { amount: true }, _count: { _all: true }, orderBy: { fiscalMonth: "asc" } }),
+      prisma.payment.groupBy({ by: ["paymentType"], where: { tenantId, ...paymentFilter, paidAt: { gte: yearStart } }, _sum: { amount: true }, _count: { _all: true } }),
+      prisma.payment.groupBy({ by: ["fiscalMonth"], where: { tenantId, ...paymentFilter, fiscalYear: currentYear }, _sum: { amount: true }, _count: { _all: true }, orderBy: { fiscalMonth: "asc" } }),
 
       // === 合同维度 ===
-      prisma.contract.findMany({ where: { tenantId, ...meStudentFilter, signDate: { gte: yearStart } }, select: { signDate: true, totalAmount: true, status: true }, orderBy: { signDate: "asc" } }),
-      prisma.contract.groupBy({ by: ["businessLineId"], where: { tenantId, ...meStudentFilter, signDate: { gte: yearStart } }, _sum: { totalAmount: true }, _count: { _all: true } }),
+      prisma.contract.findMany({ where: { tenantId, ...contractFilter, signDate: { gte: yearStart } }, select: { signDate: true, totalAmount: true, status: true }, orderBy: { signDate: "asc" } }),
+      prisma.contract.groupBy({ by: ["businessLineId"], where: { tenantId, ...contractFilter, signDate: { gte: yearStart } }, _sum: { totalAmount: true }, _count: { _all: true } }),
 
       // === 申请维度 ===
-      prisma.application.groupBy({ by: ["status"], where: { tenantId, ...meStudentFilter }, _count: { _all: true }, orderBy: { _count: { status: "desc" } } }),
-      prisma.application.groupBy({ by: ["institutionName"], where: { tenantId, ...meStudentFilter }, _count: { _all: true }, take: 10, orderBy: { _count: { institutionName: "desc" } } }),
+      prisma.application.groupBy({ by: ["status"], where: { tenantId, ...applicationFilter }, _count: { _all: true }, orderBy: { _count: { status: "desc" } } }),
+      prisma.application.groupBy({ by: ["institutionName"], where: { tenantId, ...applicationFilter }, _count: { _all: true }, take: 10, orderBy: { _count: { institutionName: "desc" } } }),
 
       // === 学生维度 ===
-      prisma.student.groupBy({ by: ["targetCountry"], where: { tenantId, ...meFilter, targetCountry: { not: null } }, _count: { _all: true }, take: 10, orderBy: { _count: { targetCountry: "desc" } } }),
-      prisma.student.groupBy({ by: ["targetDegree"], where: { tenantId, ...meFilter, targetDegree: { not: null } }, _count: { _all: true }, orderBy: { _count: { targetDegree: "desc" } } }),
+      prisma.student.groupBy({ by: ["targetCountry"], where: { tenantId, ...studentFilter, targetCountry: { not: null } }, _count: { _all: true }, take: 10, orderBy: { _count: { targetCountry: "desc" } } }),
+      prisma.student.groupBy({ by: ["targetDegree"], where: { tenantId, ...studentFilter, targetDegree: { not: null } }, _count: { _all: true }, orderBy: { _count: { targetDegree: "desc" } } }),
 
       // === 成本维度 ===
       prisma.cost.aggregate({ where: { tenantId, ...costFilter, fiscalYear: currentYear, fiscalMonth: currentMonth }, _sum: { amount: true } }),
       prisma.cost.aggregate({ where: { tenantId, ...costFilter, fiscalYear: currentYear }, _sum: { amount: true } }),
 
       // === 汇总数 ===
-      prisma.contract.count({ where: { tenantId, ...meStudentFilter } }),
-      prisma.order.count({ where: { tenantId, ...meFilter } }),
-      prisma.application.count({ where: { tenantId, ...meStudentFilter } }),
-      prisma.payment.count({ where: { tenantId, ...meStudentFilter } }),
+      prisma.contract.count({ where: { tenantId, ...contractFilter } }),
+      prisma.order.count({ where: { tenantId, ...(perm.contracts ? {} : EMPTY) } }),
+      prisma.application.count({ where: { tenantId, ...applicationFilter } }),
+      prisma.payment.count({ where: { tenantId, ...paymentFilter } }),
       prisma.cost.count({ where: { tenantId, ...costFilter } }),
 
       // === 佣金维度 ===
       prisma.commission.groupBy({ by: ["status"], where: { tenantId, ...commissionFilter }, _sum: { amount: true }, _count: { _all: true } }),
 
       // === 最近动态 ===
-      prisma.lead.findMany({ where: { tenantId, ...meFilter }, orderBy: { createdAt: "desc" }, take: 5, include: { assignedTo: { select: { realName: true } } } }),
-      prisma.payment.findMany({ where: { tenantId, ...meStudentFilter }, orderBy: { paidAt: "desc" }, take: 5, include: { student: { select: { name: true } } } }),
+      prisma.lead.findMany({ where: { tenantId, ...leadFilter }, orderBy: { createdAt: "desc" }, take: 5, include: { assignedTo: { select: { realName: true } } } }),
+      prisma.payment.findMany({ where: { tenantId, ...paymentFilter }, orderBy: { paidAt: "desc" }, take: 5, include: { student: { select: { name: true } } } }),
 
       // === 回访维度 ===
       prisma.visitRecord.groupBy({ by: ["visitType"], where: { ...visitFilter, visitDate: { gte: yearStart } }, _count: { _all: true } }),
 
-      // === 其他模块计数（公司级聚合，非逐条业务数据） ===
+      // === 其他计数（公司级聚合，不按业务权限过滤） ===
       prisma.mediaAccount.count({ where: { tenantId } }),
       prisma.site.count({ where: { tenantId } }),
       prisma.partner.count({ where: { tenantId } }),
@@ -179,7 +192,6 @@ export async function GET(request: NextRequest) {
       WALK_IN: "上门咨询", REFERRAL: "转介绍", MEDIA: "新媒体",
       SEARCH: "搜索引擎", PARTNER: "合作方", EXHIBITION: "展会", OTHER: "其他",
     };
-    // 数据字典中的线索来源覆盖默认标签
     try {
       const dictSource = await prisma.dict.findMany({
         where: { tenantId, groupName: "lead_source" },
@@ -193,13 +205,29 @@ export async function GET(request: NextRequest) {
       CLIENT_FEE: "客户服务费", SCHOOL_COMMISSION: "学校返佣", PARTNER_FEE: "合作方费用", OTHER_INCOME: "其他收入",
     };
 
-    // 本人视角下，将“按负责人分布”替换为“我的线索状态分布”，避免单一柱图
-    const leadsByAssigneeFinal = allScope
-      ? leadsByAssignee.map((l) => ({ label: assigneeMap.get(l.assignedToId) || `用户${l.assignedToId}`, value: l._count._all }))
-      : leadsByStatus.map((s) => ({ label: STATUS_LABELS[s.status] || s.status, value: s._count._all }));
+    // 制作可见模块清单（供前端显示）
+    const visibleModules: string[] = [];
+    if (perm.leads) visibleModules.push("线索");
+    if (perm.students) visibleModules.push("学生");
+    if (perm.contracts) visibleModules.push("合同");
+    if (perm.payments) visibleModules.push("财务");
+    if (perm.applications) visibleModules.push("申请");
+    if (perm.visits) visibleModules.push("回访");
+    if (perm.reports) visibleModules.push("报表");
 
     return NextResponse.json({
       scope,
+      visibleModules,
+      permissions: {
+        leads: perm.leads,
+        students: perm.students,
+        contracts: perm.contracts,
+        payments: perm.payments,
+        applications: perm.applications,
+        visits: perm.visits,
+        reports: perm.reports,
+        settings: perm.settings,
+      },
       // 核心指标
       todayNewLeads: todayLeads,
       pendingFollowLeads,
@@ -230,7 +258,7 @@ export async function GET(request: NextRequest) {
       // 线索分析
       leadsBySource: leadsBySource.map((s) => ({ label: SOURCE_LABELS[s.source] || s.source, value: s._count._all })),
       leadsByStatus: leadsByStatus.map((s) => ({ label: STATUS_LABELS[s.status] || s.status, value: s._count._all })),
-      leadsByAssignee: leadsByAssigneeFinal,
+      leadsByAssignee: leadsByAssignee.map((l) => ({ label: assigneeMap.get(l.assignedToId) || `用户${l.assignedToId}`, value: l._count._all })),
       // 收款分析
       paymentsByType: paymentsByType.map((p) => ({ label: PAYMENT_TYPE_LABELS[p.paymentType] || p.paymentType, value: Number(p._sum.amount || 0), count: p._count._all })),
       paymentsByMonth: paymentsByMonth.map((p) => ({ label: `${p.fiscalMonth}月`, value: Number(p._sum.amount || 0), count: p._count._all })),

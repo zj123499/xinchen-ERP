@@ -4,14 +4,18 @@
  * 返回所有（近期）申请的 5 节点进度状态，供大屏滚动展示
  * 节点：0 材料准备 → 1 递交申请 → 2 递交签证 → 3 到校注册 → 4 结案
  *
- * 数据权限：admin/manager/finance 可查看全部；其他角色仅看本人负责的申请
+ * 数据权限：按角色权限配置决定
+ *  - 拥有 applications:view → 可查看全公司申请进度
+ *  - 无此权限 → 返回空数据
+ *  - admin 角色拥有全部权限
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/jwt";
+import { getViewPermissions } from "@/lib/permission";
 
-const ALL_SCOPE_ROLES = ["admin", "manager", "finance"];
+const EMPTY = { id: -1 };
 
 function getToken(request: NextRequest): string | undefined {
   const auth = request.headers.get("authorization");
@@ -23,13 +27,6 @@ function getToken(request: NextRequest): string | undefined {
     cookieToken = m ? decodeURIComponent(m[1]) : undefined;
   }
   return bearer || cookieToken;
-}
-
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
 }
 
 // 5 个业务节点定义（与前端大屏一致）
@@ -46,39 +43,35 @@ function calcStep(
   visaStatuses: string[],
   orderStatus: string
 ): number {
-  // 结案为终态
   if (orderStatus === "COMPLETED") return 4;
-  // 到校注册：任意签证已批准
   if (visaStatuses.includes("APPROVED")) return 3;
-  // 递交签证：处于 OFFER/ACCEPTED 且签证已启动
   if (
     (appStatus === "OFFER" || appStatus === "ACCEPTED") &&
     visaStatuses.some((v) => ["SUBMITTED", "APPROVED", "REJECTED", "APPEALING"].includes(v))
   ) {
     return 2;
   }
-  // 递交申请：已提交 / 审核中 / 延期 / 已拿 offer / 已接受
   if (["SUBMITTED", "REVIEWING", "DEFERRED", "OFFER", "ACCEPTED"].includes(appStatus)) {
     return 1;
   }
-  // 默认：材料准备阶段
   return 0;
 }
 
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
-  if (!tenantId) return NextResponse.json({ error: "未授权" }, { status: 401 });
-
-  // 从 JWT 解析用户角色，确定数据权限范围
   const token = getToken(request);
   const payload = token ? await verifyToken(token) : null;
-  const roles = payload?.roles || [];
-  const allScope = roles.some((r) => ALL_SCOPE_ROLES.includes(r));
-  const meFilter = allScope ? {} : { student: { assignedToId: payload!.userId } };
+  if (!payload) return NextResponse.json({ error: "未授权" }, { status: 401 });
+
+  const tenantId = payload.tenantId;
+  const roles = payload.roles || [];
+
+  // 按模块权限决定是否可见
+  const perm = await getViewPermissions(tenantId, roles);
+  const appFilter = perm.applications ? {} : EMPTY;
 
   try {
     const apps = await prisma.application.findMany({
-      where: { tenantId, ...meFilter },
+      where: { tenantId, ...appFilter },
       orderBy: { updatedAt: "desc" },
       take: 300,
       include: {
@@ -106,14 +99,13 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // 各节点统计（到达该节点但未结案的人数）
     const nodeCounts = PROGRESS_NODES.map((_, idx) =>
       items.filter((it) => it.currentStep >= idx).length
     );
     const closedCount = items.filter((it) => it.isClosed).length;
 
     return NextResponse.json({
-      scope: allScope ? "all" : "self",
+      scope: perm.applications ? "visible" : "hidden",
       nodes: PROGRESS_NODES,
       total: items.length,
       nodeCounts,
