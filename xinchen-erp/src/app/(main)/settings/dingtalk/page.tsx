@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Key, Eye, EyeOff, RefreshCw, CheckCircle, AlertCircle, Smartphone, QrCode } from "lucide-react";
+import { Save, Key, Eye, EyeOff, RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
 
 interface SyncResult {
   success: boolean;
@@ -122,7 +122,7 @@ export default function DingtalkSettingsPage() {
         </div>
 
         <p className="text-sm text-gray-500 mb-4">
-          在钉钉开放平台创建应用后获取 AppKey 和 AppSecret，配置后即可使用钉钉免登和组织架构同步功能。
+          在钉钉开放平台创建机器人/应用后获取 AppKey 和 AppSecret，配置后可用于组织架构同步与事件订阅。
         </p>
 
         {loading ? (
@@ -200,11 +200,29 @@ export default function DingtalkSettingsPage() {
         )}
       </div>
 
+      {/* 使用说明 */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Key className="w-5 h-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">使用说明</h2>
+        </div>
+        <div className="space-y-3 text-sm text-gray-600">
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <p className="font-medium text-gray-900">系统登录</p>
+            <p className="text-gray-500 mt-1">ERP 使用系统自带的账号密码登录，账号权限由系统角色管理，与钉钉无关。</p>
+          </div>
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <p className="font-medium text-gray-900">钉钉集成用途</p>
+            <p className="text-gray-500 mt-1">本页配置的钉钉应用仅用于"组织架构同步"与"事件订阅"，将钉钉部门/员工同步到本地，便于员工与部门管理。</p>
+          </div>
+        </div>
+      </div>
+
       {/* 组织架构同步 */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">组织架构同步</h2>
         <p className="text-sm text-gray-500 mb-4">
-          将钉钉组织架构（部门、员工）同步到本地系统。同步后，钉钉用户可直接免登访问系统。
+          将钉钉组织架构（部门、员工）同步到本地系统，用于员工与部门管理。
         </p>
         <button
           onClick={handleSync}
@@ -252,37 +270,6 @@ export default function DingtalkSettingsPage() {
             )}
           </div>
         )}
-      </div>
-
-      {/* 免登说明 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Smartphone className="w-5 h-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-gray-900">钉钉免登</h2>
-        </div>
-        <div className="space-y-3 text-sm text-gray-600">
-          <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-            <Smartphone className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium text-gray-900">方式一：钉钉客户端内打开（自动免登）</p>
-              <p className="text-gray-500 mt-1">在钉钉工作台或钉钉聊天中点击系统链接，自动获取免登码完成登录，无需输入账号密码。</p>
-              <p className="text-gray-400 mt-1 text-xs">需在钉钉开放平台配置应用首页地址为：http://111.229.72.128:3000/login</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-            <QrCode className="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium text-gray-900">方式二：账号密码登录</p>
-              <p className="text-gray-500 mt-1">在浏览器中直接访问系统地址，使用同步过来的钉钉用户名（钉钉 userid）和初始密码登录。</p>
-              <p className="text-gray-400 mt-1 text-xs">初始密码格式：dingtalk_用户userid，建议登录后修改密码。</p>
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-          <p className="text-xs text-orange-700">
-            <strong>注意：</strong>免登功能需要在钉钉开放平台的应用配置中，将服务器出口 IP 添加到"IP白名单"中（当前服务器 IP: 111.229.72.128）。
-          </p>
-        </div>
       </div>
 
       {/* 事件订阅 */}

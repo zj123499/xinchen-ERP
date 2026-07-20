@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -31,6 +32,8 @@ const PAYMENT_METHOD_MAP: Record<string, string> = {
 };
 
 export async function GET(request: NextRequest) {
+  const denied = await requirePermission(request, "payments:view");
+  if (denied) return denied;
   const { tenantId } = getContext(request);
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
@@ -78,6 +81,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const denied = await requirePermission(request, "payments:create");
+  if (denied) return denied;
   const { userId, tenantId } = getContext(request);
   const body = await request.json();
   const {

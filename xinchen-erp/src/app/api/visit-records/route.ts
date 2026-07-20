@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -9,6 +10,8 @@ function getContext(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const denied = await requirePermission(request, "visits:view");
+  if (denied) return denied;
   const { tenantId } = getContext(request);
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
@@ -51,6 +54,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const denied = await requirePermission(request, "visits:create");
+  if (denied) return denied;
   const { userId, tenantId } = getContext(request);
   const body = await request.json();
   const { studentId, visitType, visitDate, duration, satisfaction, mood, summary, studentFeedback,

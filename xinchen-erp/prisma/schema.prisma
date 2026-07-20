@@ -266,6 +266,7 @@ model User {
   avatar         String?   @db.Text
   dingtalkUserId String?   @map("dingtalk_user_id") @db.VarChar(100)
   isActive       Boolean   @default(true) @map("is_active")
+  mustChangePassword Boolean @default(false) @map("must_change_password")
   lastLoginAt    DateTime? @map("last_login_at")
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")

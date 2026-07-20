@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search, Plus, ChevronLeft, ChevronRight, RefreshCw,
-  User, Phone, Mail, Calendar, MoreHorizontal, Trash2,
+  User, Phone, Mail, Calendar, MoreHorizontal, Trash2, Key,
 } from "lucide-react";
 
 interface EmployeeItem {
@@ -55,7 +55,7 @@ export default function EmployeesPage() {
   const [editingEmployee, setEditingEmployee] = useState<EmployeeItem | null>(null);
   const [formData, setFormData] = useState({
     name: "", gender: "", phone: "", email: "",
-    entryDate: "", status: "active",
+    entryDate: "", status: "active", username: "",
     roleIds: [] as number[],
   });
   const [formError, setFormError] = useState("");
@@ -97,7 +97,7 @@ export default function EmployeesPage() {
 
   function openNewForm() {
     setEditingEmployee(null);
-    setFormData({ name: "", gender: "", phone: "", email: "", entryDate: "", status: "active", roleIds: [] });
+    setFormData({ name: "", gender: "", phone: "", email: "", entryDate: "", status: "active", username: "", roleIds: [] });
     setFormError("");
     setShowForm(true);
   }
@@ -111,6 +111,7 @@ export default function EmployeesPage() {
       email: emp.email || "",
       entryDate: emp.entryDate ? emp.entryDate.slice(0, 10) : "",
       status: emp.status,
+      username: emp.user?.username || "",
       roleIds: emp.roles?.map((r) => r.id) || [],
     });
     setFormError("");
@@ -125,6 +126,7 @@ export default function EmployeesPage() {
       const payload = {
         ...formData,
         entryDate: formData.entryDate || undefined,
+        username: formData.username || undefined,
         roleIds: formData.roleIds,
       };
       const url = editingEmployee ? `/api/employees/${editingEmployee.id}` : "/api/employees";
@@ -160,6 +162,25 @@ export default function EmployeesPage() {
     }
   }
 
+  async function handleResetPassword(emp: EmployeeItem) {
+    if (!window.confirm(`确定将 ${emp.name} 的登录密码重置为 Xc@123456 吗？\n重置后该员工下次登录需重新修改密码。`)) return;
+    try {
+      const res = await fetch(`/api/employees/${emp.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resetPassword: true }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        setFormError(err.error || "重置失败");
+        return;
+      }
+      fetchData();
+    } catch {
+      setFormError("重置失败");
+    }
+  }
+
   function handleSearch() { setPage(1); fetchData(); }
 
   return (
@@ -167,7 +188,7 @@ export default function EmployeesPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">员工信息</h1>
-          <p className="text-sm text-gray-500 mt-1">管理公司员工档案，关联系统用户账号</p>
+          <p className="text-sm text-gray-500 mt-1">管理公司员工档案，并为员工创建系统登录账号</p>
         </div>
         <button onClick={openNewForm} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
           <Plus className="w-4 h-4" />新增员工
@@ -212,6 +233,7 @@ export default function EmployeesPage() {
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">员工</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">工号</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">联系方式</th>
+                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">登录账号</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">角色</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">入职日期</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">状态</th>
@@ -237,6 +259,13 @@ export default function EmployeesPage() {
                       {emp.phone && <div className="text-sm text-gray-600 flex items-center gap-1"><Phone className="w-3 h-3 text-gray-400" />{emp.phone}</div>}
                       {emp.email && <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5"><Mail className="w-3 h-3" />{emp.email}</div>}
                     </td>
+                    <td className="px-4 py-3 text-sm">
+                      {emp.user?.username ? (
+                        <span className="font-mono text-gray-700">{emp.user.username}</span>
+                      ) : (
+                        <span className="text-xs text-gray-400">未创建</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       {emp.roles && emp.roles.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
@@ -259,6 +288,11 @@ export default function EmployeesPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
+                        {emp.user && (
+                          <button onClick={() => handleResetPassword(emp)} className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition" title="重置密码">
+                            <Key className="w-4 h-4" />
+                          </button>
+                        )}
                         <button onClick={() => openEditForm(emp)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑">
                           <MoreHorizontal className="w-4 h-4" />
                         </button>
@@ -312,7 +346,7 @@ export default function EmployeesPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">性别</label>
                   <select value={formData.gender} onChange={(e) => setFormData((d) => ({ ...d, gender: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     <option value="">请选择</option>
                     <option value="MALE">男</option>
                     <option value="FEMALE">女</option>
@@ -331,8 +365,20 @@ export default function EmployeesPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">登录账号</label>
+                  <input type="text" value={formData.username} onChange={(e) => setFormData((d) => ({ ...d, username: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="留空则不创建登录账号" />
+                </div>
+                <div className="flex items-end">
+                  <p className="text-xs text-gray-400 leading-relaxed">创建后初始密码为 <span className="font-mono text-gray-600">Xc@123456</span>，员工首次登录需修改</p>
+                </div>
+              </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">角色 <span className="text-gray-400 text-xs">（可多选）</span></label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">角色 <span className="text-gray-400 text-xs">（可多选，决定系统权限）</span></label>
                 <div className="flex flex-wrap gap-2 p-3 border border-gray-300 rounded-lg max-h-32 overflow-y-auto">
                   {roles.length === 0 ? (
                     <span className="text-sm text-gray-400">暂无角色数据，请先在系统设置中创建角色</span>
@@ -378,7 +424,7 @@ export default function EmployeesPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
                   <select value={formData.status} onChange={(e) => setFormData((d) => ({ ...d, status: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     <option value="active">在职</option>
                     <option value="inactive">离职</option>
                   </select>

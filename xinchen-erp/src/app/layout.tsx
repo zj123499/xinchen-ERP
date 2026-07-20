@@ -38,8 +38,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="bg-gray-50 min-h-screen">
-        <script dangerouslySetInnerHTML={{ __html: errorScript }} />
         {children}
+        {/* 错误捕获脚本必须放在 children 之后：Next 会在 <body> 开头注入
+            client-boundary 标记，若 <script> 夹在标记与 children 之间会导致
+            React 19 hydration 不匹配（Minified React error #418）。 */}
+        <script dangerouslySetInnerHTML={{ __html: errorScript }} />
       </body>
     </html>
   );

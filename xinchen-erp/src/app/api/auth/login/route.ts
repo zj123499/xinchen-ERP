@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
         realName: user.realName,
         email: user.email,
         avatar: user.avatar,
+        mustChangePassword: user.mustChangePassword,
         roles,
       },
     });

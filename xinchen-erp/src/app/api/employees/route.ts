@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { hashPassword } from "@/lib/auth";
+
+const DEFAULT_PASSWORD = "Xc@123456";
 
 function getContext(request: NextRequest) {
   return {
@@ -84,10 +87,16 @@ export async function POST(request: NextRequest) {
   const {
     name, userId, positionId, gender, phone, email,
     dingtalkId, entryDate, status = "active",
-    roleIds,
+    roleIds, username, password,
   } = body;
 
   if (!name) return NextResponse.json({ error: "请输入员工姓名" }, { status: 400 });
+
+  // 若提供登录用户名，预检唯一性
+  if (username) {
+    const existed = await prisma.user.findUnique({ where: { username } });
+    if (existed) return NextResponse.json({ error: "登录用户名已存在" }, { status: 400 });
+  }
 
   const employeeNo = generateEmployeeNo();
 
@@ -105,6 +114,41 @@ export async function POST(request: NextRequest) {
       entryDate: entryDate ? new Date(entryDate) : null,
       status,
     },
+  });
+
+  // 若提供登录用户名且员工尚未关联账号，则创建登录账号（初始密码默认 Xc@123456，强制改密）
+  let effectiveUserId = employee.userId;
+  if (username && !employee.userId) {
+    const newUser = await prisma.user.create({
+      data: {
+        tenantId,
+        username,
+        passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
+        realName: name,
+        phone: phone || null,
+        mustChangePassword: true,
+        isActive: true,
+      },
+    });
+    await prisma.employee.update({
+      where: { id: employee.id },
+      data: { userId: newUser.id },
+    });
+    effectiveUserId = newUser.id;
+  }
+
+  // 如果传了 roleIds 且有关联的 user，同步更新角色
+  if (roleIds && Array.isArray(roleIds) && effectiveUserId) {
+    await prisma.userRole.deleteMany({ where: { userId: effectiveUserId } });
+    if (roleIds.length > 0) {
+      await prisma.userRole.createMany({
+        data: roleIds.map((rid: number) => ({ userId: effectiveUserId!, roleId: rid })),
+      });
+    }
+  }
+
+  const result = await prisma.employee.findFirst({
+    where: { id: employee.id },
     include: {
       user: {
         select: {
@@ -118,22 +162,8 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  // 如果传了 roleIds 且有关联的 user，同步更新角色
-  if (roleIds && Array.isArray(roleIds) && employee.userId) {
-    // 先删除旧的角色关联
-    await prisma.userRole.deleteMany({ where: { userId: employee.userId } });
-    // 创建新的角色关联
-    if (roleIds.length > 0) {
-      await prisma.userRole.createMany({
-        data: roleIds.map((rid: number) => ({ userId: employee.userId!, roleId: rid })),
-      });
-    }
-  }
-
-  const result = {
-    ...employee,
-    roles: employee.user?.userRoles?.map((ur) => ur.role) || [],
-  };
-
-  return NextResponse.json(result, { status: 201 });
+  return NextResponse.json({
+    ...result,
+    roles: result?.user?.userRoles?.map((ur) => ur.role) || [],
+  }, { status: 201 });
 }

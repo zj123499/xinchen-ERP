@@ -6,7 +6,6 @@ const PUBLIC_PATHS = [
   "/api/auth/register",
   "/api/auth/logout",
   "/api/dingtalk/callback",
-  "/api/dingtalk/login",
   "/api/health",
   "/login",
   "/_next",

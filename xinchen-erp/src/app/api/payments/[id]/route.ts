@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -12,6 +13,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = await requirePermission(request, "payments:view");
+  if (denied) return denied;
   const { tenantId } = getContext(request);
   const { id } = await params;
 
@@ -32,6 +35,8 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = await requirePermission(request, "payments:create");
+  if (denied) return denied;
   const { userId, tenantId } = getContext(request);
   const { id } = await params;
 
@@ -89,6 +94,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const denied = await requirePermission(request, "payments:create");
+  if (denied) return denied;
   const { userId, tenantId } = getContext(request);
   const { id } = await params;
 

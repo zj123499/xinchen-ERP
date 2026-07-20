@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { hashPassword } from "@/lib/auth";
+
+const DEFAULT_PASSWORD = "Xc@123456";
 
 function getContext(request: NextRequest) {
   return {
@@ -37,7 +40,7 @@ export async function PUT(
   const {
     name, userId, positionId, gender, phone, email,
     dingtalkId, entryDate, leaveDate, status,
-    roleIds,
+    roleIds, username, password, resetPassword,
   } = body;
 
   const existing = await prisma.employee.findFirst({
@@ -72,22 +75,65 @@ export async function PUT(
     },
   });
 
-  // 如果传了 roleIds，同步更新用户的角色关联
-  if (roleIds !== undefined && employee.userId) {
-    await prisma.userRole.deleteMany({ where: { userId: employee.userId } });
+  // 重置密码
+  if (resetPassword && employee.userId) {
+    await prisma.user.update({
+      where: { id: employee.userId },
+      data: { passwordHash: await hashPassword(password || DEFAULT_PASSWORD), mustChangePassword: true },
+    });
+  }
+
+  // 创建 / 更新登录账号
+  let effectiveUserId = employee.userId;
+  if (username && !employee.userId) {
+    const existed = await prisma.user.findUnique({ where: { username } });
+    if (existed) return NextResponse.json({ error: "登录用户名已存在" }, { status: 400 });
+    const newUser = await prisma.user.create({
+      data: {
+        tenantId,
+        username,
+        passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
+        realName: name || existing.name,
+        phone: phone || null,
+        mustChangePassword: true,
+        isActive: true,
+      },
+    });
+    await prisma.employee.update({ where: { id: parseInt(id) }, data: { userId: newUser.id } });
+    effectiveUserId = newUser.id;
+  } else if (username && employee.userId) {
+    await prisma.user.update({ where: { id: employee.userId }, data: { username } });
+  }
+
+  // 同步角色
+  if (roleIds !== undefined && effectiveUserId) {
+    await prisma.userRole.deleteMany({ where: { userId: effectiveUserId } });
     if (Array.isArray(roleIds) && roleIds.length > 0) {
       await prisma.userRole.createMany({
-        data: roleIds.map((rid: number) => ({ userId: employee.userId!, roleId: rid })),
+        data: roleIds.map((rid: number) => ({ userId: effectiveUserId!, roleId: rid })),
       });
     }
   }
 
-  const result = {
-    ...employee,
-    roles: employee.user?.userRoles?.map((ur) => ur.role) || [],
-  };
+  const result = await prisma.employee.findFirst({
+    where: { id: parseInt(id), tenantId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          realName: true,
+          username: true,
+          userRoles: { include: { role: { select: { id: true, name: true, code: true } } } },
+        },
+      },
+      position: { select: { id: true, name: true } },
+    },
+  });
 
-  return NextResponse.json(result);
+  return NextResponse.json({
+    ...result,
+    roles: result?.user?.userRoles?.map((ur) => ur.role) || [],
+  });
 }
 
 export async function DELETE(

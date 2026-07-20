@@ -1,8 +1,7 @@
 /**
  * 钉钉鉴权工具
  * - 获取 access_token（优先从数据库读取 AppKey/AppSecret，回退到环境变量）
- * - 免登 code 换取用户身份
- * - 根据 authCode 获取用户信息
+ * - 供组织架构同步 / 事件订阅使用
  */
 
 import { prisma } from "@/lib/prisma";
@@ -88,57 +87,6 @@ export async function getAccessToken(): Promise<string> {
   };
 
   return cachedToken.token;
-}
-
-/**
- * 根据免登授权码获取用户信息
- */
-export async function getUserInfoByAuthCode(authCode: string) {
-  const token = await getAccessToken();
-
-  const res = await fetch(`${DINGTALK_API_BASE}/topapi/v2/user/getuserinfo`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ access_token: token, code: authCode }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`获取用户信息失败: ${await res.text()}`);
-  }
-
-  const data = await res.json();
-  if (data.errcode !== 0) {
-    throw new Error(`钉钉 API 错误: ${data.errmsg}`);
-  }
-
-  return data.result;
-}
-
-/**
- * 根据 userid 获取用户详情
- */
-export async function getUserDetail(userId: string) {
-  const token = await getAccessToken();
-
-  const res = await fetch(
-    `${DINGTALK_API_BASE}/topapi/v2/user/get?access_token=${token}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userid: userId }),
-    }
-  );
-
-  if (!res.ok) {
-    throw new Error(`获取用户详情失败: ${await res.text()}`);
-  }
-
-  const data = await res.json();
-  if (data.errcode !== 0) {
-    throw new Error(`钉钉 API 错误: ${data.errmsg}`);
-  }
-
-  return data.result;
 }
 
 /**

@@ -490,7 +490,10 @@ export default function RolesPage() {
                   <div className="border border-gray-200 rounded-lg divide-y divide-gray-100">
                     {topMenus.map((tm) => {
                       const childIds = childrenOf(tm.id).map((m) => m.id);
-                      const allChecked = childIds.length > 0 && childIds.every((id) => checkedMenus.has(id));
+                      const isLeaf = childIds.length === 0;
+                      const allChecked = isLeaf
+                        ? checkedMenus.has(tm.id)
+                        : childIds.every((id) => checkedMenus.has(id));
                       return (
                         <div key={tm.id} className="px-4 py-3">
                           <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer">
@@ -498,10 +501,10 @@ export default function RolesPage() {
                               type="checkbox"
                               className="w-4 h-4 accent-purple-600"
                               checked={allChecked}
-                              onChange={() => setMenuGroup(childIds, !allChecked)}
+                              onChange={() => (isLeaf ? toggleMenu(tm.id) : setMenuGroup(childIds, !allChecked))}
                             />
                             {tm.name}
-                            <span className="text-xs text-gray-400">（{childIds.length} 项）</span>
+                            {!isLeaf && <span className="text-xs text-gray-400">（{childIds.length} 项）</span>}
                           </label>
                           {childIds.length > 0 && (
                             <div className="mt-2 ml-6 grid grid-cols-2 gap-x-4 gap-y-1">
