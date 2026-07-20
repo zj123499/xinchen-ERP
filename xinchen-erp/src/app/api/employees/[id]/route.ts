@@ -35,7 +35,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const { tenantId, userId: operatorId } = getContext(request);
   const { id } = await params;
   const body = await request.json();
   const {
@@ -132,6 +132,18 @@ export async function PUT(
     await prisma.user.update({
       where: { id: effectiveUserId },
       data: { isActive: newStatus === "active" },
+    });
+    // 记录异动
+    await prisma.employeeChange.create({
+      data: {
+        tenantId,
+        employeeId: parseInt(id),
+        fromStatus: prevStatus,
+        toStatus: newStatus,
+        changeType: newStatus === "inactive" ? "离职" : newStatus === "active" ? "复职" : "状态变更",
+        reason: `通过员工管理修改状态: ${prevStatus} → ${newStatus}`,
+        operatedBy: operatorId,
+      },
     });
   }
 
