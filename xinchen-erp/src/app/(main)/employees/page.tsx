@@ -19,7 +19,7 @@ interface EmployeeItem {
   leaveDate?: string;
   status: string;
   createdAt: string;
-  user?: { id: number; realName: string; username: string } | null;
+  user?: { id: number; realName: string; username: string; isDefaultPassword?: boolean; mustChangePassword?: boolean } | null;
   position?: { id: number; name: string } | null;
   roles?: { id: number; name: string; code: string }[];
 }
@@ -56,11 +56,12 @@ export default function EmployeesPage() {
   const [formData, setFormData] = useState({
     name: "", gender: "", phone: "", email: "",
     entryDate: "", status: "active", username: "",
-    password: "", mustChangePassword: true,
+    password: "", confirmPassword: "", mustChangePassword: true,
     roleIds: [] as number[],
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
 
   const [deleteConfirm, setDeleteConfirm] = useState<EmployeeItem | null>(null);
   const [roles, setRoles] = useState<{ id: number; name: string; code: string }[]>([]);
@@ -98,7 +99,7 @@ export default function EmployeesPage() {
 
   function openNewForm() {
     setEditingEmployee(null);
-    setFormData({ name: "", gender: "", phone: "", email: "", entryDate: "", status: "active", username: "", password: "", mustChangePassword: true, roleIds: [] });
+    setFormData({ name: "", gender: "", phone: "", email: "", entryDate: "", status: "active", username: "", password: "", confirmPassword: "", mustChangePassword: true, roleIds: [] });
     setFormError("");
     setShowForm(true);
   }
@@ -113,7 +114,7 @@ export default function EmployeesPage() {
       entryDate: emp.entryDate ? emp.entryDate.slice(0, 10) : "",
       status: emp.status,
       username: emp.user?.username || "",
-      password: "", mustChangePassword: true,
+      password: "", confirmPassword: "", mustChangePassword: true,
       roleIds: emp.roles?.map((r) => r.id) || [],
     });
     setFormError("");
@@ -123,6 +124,10 @@ export default function EmployeesPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError("");
+    if (formData.password && formData.password !== formData.confirmPassword) {
+      setFormError("两次输入的密码不一致");
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = {
@@ -130,6 +135,7 @@ export default function EmployeesPage() {
         entryDate: formData.entryDate || undefined,
         username: formData.username || undefined,
         password: formData.password || undefined,
+        confirmPassword: formData.confirmPassword || undefined,
         mustChangePassword: formData.mustChangePassword,
         roleIds: formData.roleIds,
       };
@@ -265,7 +271,17 @@ export default function EmployeesPage() {
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {emp.user?.username ? (
-                        <span className="font-mono text-gray-700">{emp.user.username}</span>
+                        <div className="space-y-1">
+                          <span className="font-mono text-gray-700">{emp.user.username}</span>
+                          <div className="flex flex-wrap gap-1">
+                            <span className={`text-xs px-1.5 py-0.5 rounded-full ${emp.user.isDefaultPassword ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}>
+                              {emp.user.isDefaultPassword ? "默认密码" : "自定义密码"}
+                            </span>
+                            {emp.user.mustChangePassword && (
+                              <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">待改密</span>
+                            )}
+                          </div>
+                        </div>
                       ) : (
                         <span className="text-xs text-gray-400">未创建</span>
                       )}
@@ -381,13 +397,32 @@ export default function EmployeesPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">登录密码</label>
-                  <input type="password" value={formData.password} onChange={(e) => setFormData((d) => ({ ...d, password: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="留空则使用默认 Xc@123456" />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium text-gray-700">登录密码</label>
+                  <button type="button" onClick={() => setShowPwd((v) => !v)}
+                    className="text-xs text-blue-600 hover:underline">{showPwd ? "隐藏" : "显示"}密码</button>
                 </div>
-                <div className="flex items-end">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <input type={showPwd ? "text" : "password"} value={formData.password}
+                      onChange={(e) => setFormData((d) => ({ ...d, password: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      placeholder="留空则使用默认 Xc@123456" />
+                  </div>
+                  <div>
+                    <input type={showPwd ? "text" : "password"} value={formData.confirmPassword}
+                      onChange={(e) => setFormData((d) => ({ ...d, confirmPassword: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      placeholder="再次输入以确认一致性" />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    {formData.password
+                      ? "将以你填写的自定义密码创建，请牢记并转告员工"
+                      : "留空则使用默认密码 Xc@123456，员工首次登录需修改"}
+                  </p>
                   <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                     <input type="checkbox" checked={formData.mustChangePassword} onChange={(e) => setFormData((d) => ({ ...d, mustChangePassword: e.target.checked }))} className="w-4 h-4" />
                     首次登录强制修改密码

@@ -21,7 +21,7 @@ export async function GET(
   const employee = await prisma.employee.findFirst({
     where: { id: parseInt(id), tenantId },
     include: {
-      user: { select: { id: true, realName: true, username: true } },
+      user: { select: { id: true, realName: true, username: true, isDefaultPassword: true, mustChangePassword: true } },
       position: { select: { id: true, name: true } },
     },
   });
@@ -40,8 +40,13 @@ export async function PUT(
   const {
     name, userId, positionId, gender, phone, email,
     dingtalkId, entryDate, leaveDate, status,
-    roleIds, username, password, resetPassword, mustChangePassword,
+    roleIds, username, password, confirmPassword, resetPassword, mustChangePassword,
   } = body;
+
+  // 自定义密码需二次确认一致，避免管理员填错
+  if (password && password !== confirmPassword) {
+    return NextResponse.json({ error: "两次输入的密码不一致" }, { status: 400 });
+  }
 
   const existing = await prisma.employee.findFirst({
     where: { id: parseInt(id), tenantId },
@@ -77,9 +82,14 @@ export async function PUT(
 
   // 重置密码
   if (resetPassword && employee.userId) {
+    const useDefault = !password;
     await prisma.user.update({
       where: { id: employee.userId },
-      data: { passwordHash: await hashPassword(password || DEFAULT_PASSWORD), mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : true },
+      data: {
+        passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
+        mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : true,
+        isDefaultPassword: useDefault,
+      },
     });
   }
 
@@ -88,6 +98,7 @@ export async function PUT(
   if (username && !employee.userId) {
     const existed = await prisma.user.findUnique({ where: { username } });
     if (existed) return NextResponse.json({ error: "登录用户名已存在" }, { status: 400 });
+    const useDefault = !password;
     const newUser = await prisma.user.create({
       data: {
         tenantId,
@@ -96,6 +107,7 @@ export async function PUT(
         realName: name || existing.name,
         phone: phone || null,
         mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
+        isDefaultPassword: useDefault,
         isActive: true,
       },
     });
@@ -104,7 +116,10 @@ export async function PUT(
   } else if (username && employee.userId) {
     const updateData: Record<string, unknown> = { username };
     if (mustChangePassword !== undefined) updateData.mustChangePassword = mustChangePassword;
-    if (password) updateData.passwordHash = await hashPassword(password);
+    if (password) {
+      updateData.passwordHash = await hashPassword(password);
+      updateData.isDefaultPassword = false;
+    }
     await prisma.user.update({ where: { id: employee.userId }, data: updateData });
   }
 
@@ -126,6 +141,8 @@ export async function PUT(
           id: true,
           realName: true,
           username: true,
+          isDefaultPassword: true,
+          mustChangePassword: true,
           userRoles: { include: { role: { select: { id: true, name: true, code: true } } } },
         },
       },

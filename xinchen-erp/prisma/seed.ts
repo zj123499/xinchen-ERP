@@ -307,6 +307,7 @@ async function main() {
       passwordHash,
       realName: "系统管理员",
       email: "admin@xinchen.com",
+      isDefaultPassword: false,
       isActive: true,
     },
   });
@@ -336,6 +337,7 @@ async function main() {
         username: du.username,
         passwordHash,
         realName: du.realName,
+        isDefaultPassword: false,
         isActive: true,
       },
     });

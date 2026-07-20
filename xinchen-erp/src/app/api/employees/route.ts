@@ -54,6 +54,8 @@ export async function GET(request: NextRequest) {
             id: true,
             realName: true,
             username: true,
+            isDefaultPassword: true,
+            mustChangePassword: true,
             userRoles: {
               include: {
                 role: { select: { id: true, name: true, code: true } },
@@ -87,10 +89,15 @@ export async function POST(request: NextRequest) {
   const {
     name, userId, positionId, gender, phone, email,
     dingtalkId, entryDate, status = "active",
-    roleIds, username, password, mustChangePassword,
+    roleIds, username, password, confirmPassword, mustChangePassword,
   } = body;
 
   if (!name) return NextResponse.json({ error: "请输入员工姓名" }, { status: 400 });
+
+  // 自定义密码需二次确认一致，避免管理员填错
+  if (password && password !== confirmPassword) {
+    return NextResponse.json({ error: "两次输入的密码不一致" }, { status: 400 });
+  }
 
   // 若提供登录用户名，预检唯一性
   if (username) {
@@ -119,6 +126,7 @@ export async function POST(request: NextRequest) {
   // 若提供登录用户名且员工尚未关联账号，则创建登录账号（初始密码默认 Xc@123456，强制改密）
   let effectiveUserId = employee.userId;
   if (username && !employee.userId) {
+    const useDefault = !password;
     const newUser = await prisma.user.create({
       data: {
         tenantId,
@@ -127,6 +135,7 @@ export async function POST(request: NextRequest) {
         realName: name,
         phone: phone || null,
         mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
+        isDefaultPassword: useDefault,
         isActive: true,
       },
     });
@@ -155,6 +164,8 @@ export async function POST(request: NextRequest) {
           id: true,
           realName: true,
           username: true,
+          isDefaultPassword: true,
+          mustChangePassword: true,
           userRoles: { include: { role: { select: { id: true, name: true, code: true } } } },
         },
       },
