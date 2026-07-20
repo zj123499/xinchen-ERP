@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
+import { resolveAccountUsername } from "@/lib/employee-account";
 
 const DEFAULT_PASSWORD = "Xc@123456";
 
@@ -99,11 +100,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "两次输入的密码不一致" }, { status: 400 });
   }
 
-  // 若提供登录用户名，预检唯一性
-  if (username) {
-    const existed = await prisma.user.findUnique({ where: { username } });
-    if (existed) return NextResponse.json({ error: "登录用户名已存在" }, { status: 400 });
-  }
+  // 登录用户名唯一性由下方自动解析（resolveAccountUsername）保证
 
   const employeeNo = generateEmployeeNo();
 
@@ -123,27 +120,31 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  // 若提供登录用户名且员工尚未关联账号，则创建登录账号（初始密码默认 Xc@123456，强制改密）
+  // 员工有手机号（或显式账号）且尚未关联登录账号时，自动建立系统账号
+  // 登录账号默认使用手机号（若显式填写登录用户名则以其为准），初始密码默认 Xc@123456，强制改密
   let effectiveUserId = employee.userId;
-  if (username && !employee.userId) {
-    const useDefault = !password;
-    const newUser = await prisma.user.create({
-      data: {
-        tenantId,
-        username,
-        passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
-        realName: name,
-        phone: phone || null,
-        mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
-        isDefaultPassword: useDefault,
-        isActive: true,
-      },
-    });
-    await prisma.employee.update({
-      where: { id: employee.id },
-      data: { userId: newUser.id },
-    });
-    effectiveUserId = newUser.id;
+  if (!employee.userId) {
+    const effectiveUsername = await resolveAccountUsername(username, phone);
+    if (effectiveUsername) {
+      const useDefault = !password;
+      const newUser = await prisma.user.create({
+        data: {
+          tenantId,
+          username: effectiveUsername,
+          passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
+          realName: name,
+          phone: phone || null,
+          mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
+          isDefaultPassword: useDefault,
+          isActive: status === "active",
+        },
+      });
+      await prisma.employee.update({
+        where: { id: employee.id },
+        data: { userId: newUser.id },
+      });
+      effectiveUserId = newUser.id;
+    }
   }
 
   // 如果传了 roleIds 且有关联的 user，同步更新角色

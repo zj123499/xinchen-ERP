@@ -17,8 +17,9 @@ export async function POST(request: NextRequest) {
     // 登录失败且用户不存在时，无租户上下文，回退到默认租户
     const FALLBACK_TENANT = 1;
 
-    const user = await prisma.user.findUnique({
-      where: { username },
+    // 支持用手机号或用户名登录（默认手机号）
+    const user = await prisma.user.findFirst({
+      where: { OR: [{ username }, { phone: username }] },
       include: {
         userRoles: {
           include: {

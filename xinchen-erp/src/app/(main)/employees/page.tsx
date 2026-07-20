@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search, Plus, ChevronLeft, ChevronRight, RefreshCw,
-  User, Phone, Mail, Calendar, MoreHorizontal, Trash2, Key,
+  User, Phone, Mail, Calendar, MoreHorizontal, Trash2, Key, UserPlus,
 } from "lucide-react";
 
 interface EmployeeItem {
@@ -65,6 +65,14 @@ export default function EmployeesPage() {
 
   const [deleteConfirm, setDeleteConfirm] = useState<EmployeeItem | null>(null);
   const [roles, setRoles] = useState<{ id: number; name: string; code: string }[]>([]);
+
+  // 离职员工数据重新分配
+  const [reassignEmp, setReassignEmp] = useState<EmployeeItem | null>(null);
+  const [reassignTargets, setReassignTargets] = useState<EmployeeItem[]>([]);
+  const [reassignTo, setReassignTo] = useState<number | "">("");
+  const [reassignCount, setReassignCount] = useState<{ leads: number; students: number; orders: number; tasks: number; total: number } | null>(null);
+  const [reassigning, setReassigning] = useState(false);
+  const [reassignMsg, setReassignMsg] = useState("");
 
   const fetchRoles = useCallback(async () => {
     try {
@@ -191,6 +199,56 @@ export default function EmployeesPage() {
     }
   }
 
+  // 打开离职数据重新分配弹窗
+  async function openReassign(emp: EmployeeItem) {
+    setReassignEmp(emp);
+    setReassignTo("");
+    setReassignMsg("");
+    setReassignCount(null);
+    try {
+      if (emp.user?.id) {
+        const cRes = await fetch(`/api/employees/reassign?fromUserId=${emp.user.id}`);
+        if (cRes.ok) setReassignCount(await cRes.json());
+      }
+      const tRes = await fetch("/api/employees?status=active&pageSize=200");
+      if (tRes.ok) {
+        const tData = await tRes.json();
+        const list: EmployeeItem[] = (tData.list || []).filter(
+          (e: EmployeeItem) => e.user?.id && e.user.id !== emp.user?.id
+        );
+        setReassignTargets(list);
+      }
+    } catch {
+      // 静默
+    }
+  }
+
+  // 确认重新分配离职员工的数据给目标员工
+  async function confirmReassign() {
+    if (!reassignEmp?.user?.id || !reassignTo) return;
+    setReassigning(true);
+    setReassignMsg("");
+    try {
+      const res = await fetch("/api/employees/reassign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fromUserId: reassignEmp.user.id, toUserId: reassignTo }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setReassignMsg(data.error || "重新分配失败");
+        return;
+      }
+      setReassignMsg(`已重新分配：线索 ${data.leads} 条、学生 ${data.students} 条、订单 ${data.orders} 条、文案任务 ${data.tasks} 条`);
+      setTimeout(() => setReassignEmp(null), 1800);
+      fetchData();
+    } catch {
+      setReassignMsg("网络错误，请重试");
+    } finally {
+      setReassigning(false);
+    }
+  }
+
   function handleSearch() { setPage(1); fetchData(); }
 
   return (
@@ -313,6 +371,11 @@ export default function EmployeesPage() {
                             <Key className="w-4 h-4" />
                           </button>
                         )}
+                        {emp.status === "inactive" && emp.user && (
+                          <button onClick={() => openReassign(emp)} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition" title="重新分配离职数据">
+                            <UserPlus className="w-4 h-4" />
+                          </button>
+                        )}
                         <button onClick={() => openEditForm(emp)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑">
                           <MoreHorizontal className="w-4 h-4" />
                         </button>
@@ -388,9 +451,9 @@ export default function EmployeesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">登录账号</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">登录账号（默认手机号）</label>
                   <input type="text" value={formData.username} onChange={(e) => setFormData((d) => ({ ...d, username: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="留空则不创建登录账号" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="留空则自动用手机号作为登录账号" />
                 </div>
                 <div className="flex items-end">
                   <p className="text-xs text-gray-400 leading-relaxed">创建后初始密码为 <span className="font-mono text-gray-600">Xc@123456</span>，员工首次登录需修改</p>
@@ -505,6 +568,51 @@ export default function EmployeesPage() {
               <div className="flex justify-end gap-3 mt-4">
                 <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition">确认删除</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {reassignEmp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">重新分配离职员工数据</h2>
+              <button onClick={() => setReassignEmp(null)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-gray-700">
+                将离职员工 <strong>{reassignEmp.name}</strong> 名下的业务数据转移给其他在职员工（不会删除或影响其历史档案）：
+              </p>
+              {reassignCount && (
+                <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 flex flex-wrap gap-x-4 gap-y-1">
+                  <span>线索 {reassignCount.leads} 条</span>
+                  <span>学生 {reassignCount.students} 条</span>
+                  <span>订单 {reassignCount.orders} 条</span>
+                  <span>文案任务 {reassignCount.tasks} 条</span>
+                  <span className="font-medium text-gray-700">共 {reassignCount.total} 条</span>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">转移给</label>
+                <select value={reassignTo} onChange={(e) => setReassignTo(e.target.value ? Number(e.target.value) : "")}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                  <option value="">请选择目标员工</option>
+                  {reassignTargets.map((t) => (
+                    <option key={t.id} value={t.user!.id}>{t.name}（{t.user!.username}）</option>
+                  ))}
+                </select>
+              </div>
+              {reassignMsg && (
+                <div className="text-sm text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg p-3">{reassignMsg}</div>
+              )}
+              <div className="flex justify-end gap-3 pt-1">
+                <button onClick={() => setReassignEmp(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button onClick={confirmReassign} disabled={!reassignTo || reassigning}
+                  className="px-4 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition">
+                  {reassigning ? "转移中..." : "确认转移"}
+                </button>
               </div>
             </div>
           </div>

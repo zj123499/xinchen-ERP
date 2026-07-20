@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
+import { resolveAccountUsername } from "@/lib/employee-account";
 
 const DEFAULT_PASSWORD = "Xc@123456";
 
@@ -93,26 +94,29 @@ export async function PUT(
     });
   }
 
-  // 创建 / 更新登录账号
+  // 创建 / 更新登录账号（无账号时自动用手机号建立；默认手机号登录）
+  const prevStatus = existing.status;
+  const newStatus = status || existing.status;
   let effectiveUserId = employee.userId;
-  if (username && !employee.userId) {
-    const existed = await prisma.user.findUnique({ where: { username } });
-    if (existed) return NextResponse.json({ error: "登录用户名已存在" }, { status: 400 });
-    const useDefault = !password;
-    const newUser = await prisma.user.create({
-      data: {
-        tenantId,
-        username,
-        passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
-        realName: name || existing.name,
-        phone: phone || null,
-        mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
-        isDefaultPassword: useDefault,
-        isActive: true,
-      },
-    });
-    await prisma.employee.update({ where: { id: parseInt(id) }, data: { userId: newUser.id } });
-    effectiveUserId = newUser.id;
+  if (!employee.userId) {
+    const effectiveUsername = await resolveAccountUsername(username, phone);
+    if (effectiveUsername) {
+      const useDefault = !password;
+      const newUser = await prisma.user.create({
+        data: {
+          tenantId,
+          username: effectiveUsername,
+          passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
+          realName: name || existing.name,
+          phone: phone || null,
+          mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
+          isDefaultPassword: useDefault,
+          isActive: newStatus === "active",
+        },
+      });
+      await prisma.employee.update({ where: { id: parseInt(id) }, data: { userId: newUser.id } });
+      effectiveUserId = newUser.id;
+    }
   } else if (username && employee.userId) {
     const updateData: Record<string, unknown> = { username };
     if (mustChangePassword !== undefined) updateData.mustChangePassword = mustChangePassword;
@@ -121,6 +125,14 @@ export async function PUT(
       updateData.isDefaultPassword = false;
     }
     await prisma.user.update({ where: { id: employee.userId }, data: updateData });
+  }
+
+  // 离职自动取消登录权限；复职自动恢复
+  if (effectiveUserId && prevStatus !== newStatus) {
+    await prisma.user.update({
+      where: { id: effectiveUserId },
+      data: { isActive: newStatus === "active" },
+    });
   }
 
   // 同步角色
