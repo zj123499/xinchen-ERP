@@ -11,8 +11,10 @@ import { prisma } from "@/lib/prisma";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
-// 文件存储根目录（待本地服务器搭建后改为公司存储路径）
-const STORAGE_BASE = process.env.UPLOAD_PATH || "/uploads";
+// 文件存储根目录
+// 当前使用 /tmp/erp_uploads（容器可写目录）
+// 待公司本地服务器搭建后，改为环境变量 UPLOAD_PATH 指向 NAS/本地存储
+const STORAGE_BASE = process.env.UPLOAD_PATH || "/tmp/erp_uploads";
 
 function getContext(request: NextRequest) {
   return {
