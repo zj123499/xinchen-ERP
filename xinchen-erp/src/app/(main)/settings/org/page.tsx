@@ -46,11 +46,16 @@ export default function OrganizationPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/departments");
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        console.error("departments fetch error:", res.status);
+        throw new Error(`请求失败(${res.status})`);
+      }
       const result = await res.json();
       setData(result.list || []);
-    } catch {
-      setFormError("加载失败");
+      setFormError("");
+    } catch (e: any) {
+      setData([]);
+      setFormError("加载部门数据失败，请刷新重试");
     } finally {
       setLoading(false);
     }
@@ -260,6 +265,14 @@ export default function OrganizationPage() {
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
         {loading ? (
           <div className="p-16 text-center text-gray-400">加载中...</div>
+        ) : formError ? (
+          <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+            <Building2 className="w-16 h-16 mb-4 text-red-200" />
+            <p className="text-sm text-red-500 mb-4">{formError}</p>
+            <button onClick={fetchData} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+              <RefreshCw className="w-4 h-4" />重试加载
+            </button>
+          </div>
         ) : data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-gray-400">
             <Building2 className="w-16 h-16 mb-4 text-gray-300" />
