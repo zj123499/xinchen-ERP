@@ -155,8 +155,8 @@ export default function LeadsPage() {
         if (list.length > 0) setSources(list);
       })
       .catch(() => {});
-    // 加载顾问列表
-    fetch("/api/advisors")
+    // 加载顾问列表（仅升学顾问角色）
+    fetch("/api/advisors?roleCode=academic_advisor")
       .then((r) => r.json())
       .then((d) => setAdvisors(d.list || []))
       .catch(() => {});
