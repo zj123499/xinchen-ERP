@@ -1,8 +1,8 @@
 /**
  * 顾问列表 API（按角色过滤）
- * GET /api/advisors                   — 返回所有顾问角色用户
- * GET /api/advisors?roleCode=xx       — 仅返回指定角色的用户
- * 有效角色码：academic_advisor, marketing_specialist, admin, general_manager, operations_director, network_operator, newmedia_manager
+ * GET /api/advisors                         — 返回所有顾问角色用户
+ * GET /api/advisors?roleCode=academic_advisor  — 仅返回指定角色
+ * GET /api/advisors?roleCode=marketing_specialist,academic_advisor — 逗号分隔多角色
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -22,12 +22,14 @@ function getContext(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const { tenantId } = getContext(request);
   const { searchParams } = new URL(request.url);
-  const roleCode = searchParams.get("roleCode");
+  const roleCodeParam = searchParams.get("roleCode");
 
-  // 如果指定了角色码，只查该角色；否则查所有顾问角色
-  const targetRoles = roleCode && ALL_ADVISOR_ROLES.includes(roleCode)
-    ? [roleCode]
-    : ALL_ADVISOR_ROLES;
+  let targetRoles = ALL_ADVISOR_ROLES;
+  if (roleCodeParam) {
+    // 支持逗号分隔多角色
+    const codes = roleCodeParam.split(",").map((c) => c.trim()).filter(Boolean);
+    if (codes.length > 0) targetRoles = codes;
+  }
 
   const users = await prisma.user.findMany({
     where: {
