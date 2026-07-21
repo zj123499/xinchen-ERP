@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, GraduationCap, Phone, Mail, MapPin, RefreshCw, FileText, DollarSign, User, MessageSquare, Clock, Calendar, Pencil, X } from "lucide-react";
+import { ArrowLeft, GraduationCap, Phone, Mail, MapPin, RefreshCw, FileText, DollarSign, User, MessageSquare, Clock, Calendar, Pencil, X, Upload, Trash2, ChevronDown } from "lucide-react";
 
 interface StudentDetail {
   id: number;
@@ -59,6 +59,59 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
   const [edit, setEdit] = useState({
     name: "", gender: "", phone: "", wechat: "", email: "", currentStatus: "", targetCountry: "", targetDegree: "", targetMajor: "", budget: "", remark: "",
   });
+
+  // 材料管理
+  const [files, setFiles] = useState<any[]>([]);
+  const [filesLoading, setFilesLoading] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadCategory, setUploadCategory] = useState("申请材料");
+  const [uploading, setUploading] = useState(false);
+  const [uploadMsg, setUploadMsg] = useState("");
+  const fileCategories = ["申请材料", "成绩单", "语言成绩", "文书", "Offer", "签证", "合同", "其他"];
+
+  async function fetchFiles() {
+    if (!student) return;
+    setFilesLoading(true);
+    try {
+      const res = await fetch(`/api/students/${student.id}/files`);
+      const data = await res.json();
+      setFiles(data.list || []);
+    } catch { setFiles([]); }
+    finally { setFilesLoading(false); }
+  }
+
+  async function handleUpload() {
+    if (!uploadFile || !student) return;
+    setUploading(true); setUploadMsg("");
+    try {
+      const form = new FormData();
+      form.append("file", uploadFile);
+      form.append("studentId", String(student.id));
+      form.append("category", uploadCategory);
+      const res = await fetch("/api/students/upload", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "上传失败");
+      setUploadMsg(`✅ 上传成功`);
+      setUploadFile(null);
+      fetchFiles();
+    } catch (e: any) { setUploadMsg(`❌ ${e.message}`); }
+    finally { setUploading(false); }
+  }
+
+  async function deleteFile(fileId: number) {
+    if (!student || !confirm("确定删除该文件？")) return;
+    await fetch(`/api/students/${student.id}/files?fileId=${fileId}`, { method: "DELETE" });
+    fetchFiles();
+  }
+
+  useEffect(() => { if (student) fetchFiles(); }, [student?.id]);
+
+  function formatSize(bytes: number): string {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  }
 
   function openEdit() {
     if (!student) return;
@@ -262,6 +315,64 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
           )}
+
+          {/* 材料管理 */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-500" />申请材料
+              </h2>
+              <button onClick={() => { setUploadFile(null); setUploadCategory("申请材料"); setUploadMsg(""); setShowUpload(!showUpload); }}
+                className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700">
+                <Upload className="w-3.5 h-3.5" />上传
+              </button>
+            </div>
+
+            {/* 上传面板 */}
+            {showUpload && (
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <select value={uploadCategory} onChange={e => setUploadCategory(e.target.value)}
+                    className="px-2 py-1 border border-gray-300 rounded text-xs outline-none">
+                    {fileCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                  onChange={e => setUploadFile(e.target.files?.[0] || null)}
+                  className="w-full text-xs text-gray-700 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-blue-50 file:text-blue-700" />
+                {uploadFile && <p className="text-xs text-gray-500 mt-1">{uploadFile.name} ({formatSize(uploadFile.size)})</p>}
+                {uploadMsg && <p className={`text-xs mt-1 ${uploadMsg.startsWith("✅") ? "text-green-600" : "text-red-500"}`}>{uploadMsg}</p>}
+                <button onClick={handleUpload} disabled={!uploadFile || uploading}
+                  className="mt-2 w-full py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50">
+                  {uploading ? "上传中..." : "确认上传"}
+                </button>
+              </div>
+            )}
+
+            {/* 文件列表 */}
+            {filesLoading ? (
+              <p className="text-xs text-gray-400 text-center py-4">加载中...</p>
+            ) : files.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-4">暂无材料文件，点击上方按钮上传</p>
+            ) : (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {files.map((f: any) => (
+                  <div key={f.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-gray-900 truncate">{f.originalName}</span>
+                        <span className="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">{f.category}</span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 mt-0.5">{f.sizeText} · {f.uploaderName} · {new Date(f.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <button onClick={() => deleteFile(f.id)}
+                      className="ml-2 p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded flex-shrink-0">
+                      <Trash2 className="w-3.5 h-3.5" /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {student.lifecycleEvents.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
