@@ -143,7 +143,11 @@ export default function OrganizationPage() {
 
   // 从部门移除员工
   async function removeEmployeeFromDept(emp: any) {
-    if (!memberDept || !emp.userId) return;
+    if (!memberDept) return;
+    if (!emp.userId) {
+      alert(`「${emp.name}」尚未绑定系统登录账号，无法从部门移除。请在员工管理中先创建登录账号。`);
+      return;
+    }
     if (!confirm(`确定将 ${emp.name} 从该部门移除吗？`)) return;
     try {
       const res = await fetch(`/api/departments/${memberDept.id}/members?userId=${emp.userId}`, { method: "DELETE" });
