@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { unlink } from "fs/promises";
+import { getStorage } from "@/lib/storage";
 
 function getContext(request: NextRequest) {
   return {
@@ -15,10 +15,7 @@ function formatSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { tenantId } = getContext(request);
   if (!tenantId) return NextResponse.json({ error: "未授权" }, { status: 401 });
   const { id } = await params;
@@ -29,8 +26,7 @@ export async function GET(
     where: { tenantId, businessType: "student_material", businessId: parseInt(id) },
     orderBy: { createdAt: "desc" },
     select: {
-      id: true, originalName: true, storagePath: true,
-      mimeType: true, size: true, createdAt: true,
+      id: true, originalName: true, storagePath: true, mimeType: true, size: true, createdAt: true,
       uploader: { select: { realName: true } },
     },
   });
@@ -48,19 +44,16 @@ export async function GET(
   });
 
   const filtered = category ? list.filter((f) => f.category === category) : list;
-  const categoryCounts: Record<string, number> = {};
-  list.forEach((f) => { categoryCounts[f.category] = (categoryCounts[f.category] || 0) + 1; });
+  const counts: Record<string, number> = {};
+  list.forEach((f) => { counts[f.category] = (counts[f.category] || 0) + 1; });
 
   return NextResponse.json({
     list: filtered, total: filtered.length, allTotal: list.length,
-    categories: Object.entries(categoryCounts).map(([n, c]) => ({ name: n, count: c })),
+    categories: Object.entries(counts).map(([n, c]) => ({ name: n, count: c })),
   });
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { tenantId } = getContext(request);
   if (!tenantId) return NextResponse.json({ error: "未授权" }, { status: 401 });
   const { id } = await params;
@@ -73,7 +66,8 @@ export async function DELETE(
   });
   if (!file) return NextResponse.json({ error: "文件不存在" }, { status: 404 });
 
-  try { await unlink(file.storagePath); } catch {}
+  const storage = getStorage();
+  await storage.remove(file.storagePath);
   await prisma.file.delete({ where: { id: fileId } });
   return NextResponse.json({ success: true });
 }
