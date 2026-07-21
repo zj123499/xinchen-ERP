@@ -28,9 +28,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   const existing = await prisma.payable.findFirst({ where: { id: parseInt(id), tenantId } });
   if (!existing) return NextResponse.json({ error: "未找到" }, { status: 404 });
 
-  const amt = amount ? parseFloat(amount) : existing.amount;
-  const paid = paidAmount !== undefined ? parseFloat(paidAmount) : existing.paidAmount;
-  const baseAmount = exchangeRate ? amt * parseFloat(exchangeRate) : existing.baseAmount;
+  const amt = amount ? parseFloat(amount) : Number(existing.amount);
+  const paid = paidAmount !== undefined ? parseFloat(paidAmount) : Number(existing.paidAmount);
+  const baseAmount = exchangeRate ? amt * parseFloat(exchangeRate) : Number(existing.baseAmount);
 
   let newStatus = status ?? existing.status;
   if (status === undefined) {

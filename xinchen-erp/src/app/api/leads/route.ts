@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     if (statusArr.length === 1) {
       where.status = statusArr[0] as Prisma.EnumLeadStatusFilter["equals"];
     } else if (statusArr.length > 1) {
-      where.status = { in: statusArr as Prisma.EnumLeadStatusFilter["equals"][] };
+      where.status = { in: statusArr as Prisma.EnumLeadStatusFilter["in"] };
     }
   }
   if (source) where.source = source;
@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         assignedTo: { select: { id: true, realName: true, username: true } },
+        documentAssignedTo: { select: { id: true, realName: true } },
         student: { select: { id: true, name: true } },
         partner: { select: { id: true, name: true } },
         site: { select: { id: true, name: true, domain: true } },

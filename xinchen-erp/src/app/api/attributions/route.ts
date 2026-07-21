@@ -30,16 +30,32 @@ export async function GET(request: NextRequest) {
       include: {
         student: { select: { id: true, name: true } },
         touchpoint: { select: { id: true, channel: true, source: true } },
-        contract: { select: { id: true, contractNo: true, totalAmount: true } },
       },
     }),
   ]);
+
+  // Attribution 无 contract 关系（仅 contractId 字段），按 contractId 手动补齐展示
+  const contractIds = Array.from(
+    new Set(list.map((a) => a.contractId).filter((x): x is number => x != null))
+  );
+  const contractMap: Record<number, { id: number; contractNo: string | null; totalAmount: unknown }> = {};
+  if (contractIds.length) {
+    const contracts = await prisma.contract.findMany({
+      where: { id: { in: contractIds }, tenantId },
+      select: { id: true, contractNo: true, totalAmount: true },
+    });
+    for (const c of contracts) contractMap[c.id] = c;
+  }
+  const listWithContract = list.map((a) => ({
+    ...a,
+    contract: a.contractId ? contractMap[a.contractId] || null : null,
+  }));
 
   return NextResponse.json({
     total,
     page,
     pageSize,
     totalPages: Math.ceil(total / pageSize),
-    list,
+    list: listWithContract,
   });
 }

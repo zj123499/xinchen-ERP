@@ -20,7 +20,8 @@ interface Employee {
   name: string;
   employeeNo: string;
   phone?: string;
-  status: string;
+  userId?: number;
+  status?: string;
   position?: { id: number; name: string } | null;
 }
 
@@ -108,7 +109,7 @@ export default function OrganizationPage() {
         userId: m.userId,
         name: m.realName,
         employeeNo: m.employeeNo,
-        position: { name: m.positionName },
+        position: m.positionName ? { id: 0, name: m.positionName } : null,
       })));
     } catch {
       setFormError("加载人员失败");

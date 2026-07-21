@@ -288,6 +288,7 @@ model User {
   visitRecords     VisitRecord[]    @relation("visit_visitor")
   assignedStudents Student[]        @relation("student_assignee")
   assignedLeads    Lead[]           @relation("lead_assignee")
+  docAssignedLeads Lead[]           @relation("lead_doc_assignee")
   followUps        FollowUp[]
   assignedOrders   Order[]          @relation("order_assignee")
   reimbursements   Reimbursement[]
@@ -783,6 +784,7 @@ model Lead {
   businessType   String?    @map("business_type") @db.VarChar(30)
   status         LeadStatus @default(NEW)
   assignedToId   Int        @map("assigned_to_id")
+  documentAssignedToId Int? @map("document_assigned_to_id")
   intentionLevel String?    @map("intention_level") @db.VarChar(20)
   targetCountry  String?    @map("target_country") @db.VarChar(50)
   targetDegree   String?    @map("target_degree") @db.VarChar(50)
@@ -793,8 +795,9 @@ model Lead {
   createdAt      DateTime   @default(now()) @map("created_at")
   updatedAt      DateTime   @updatedAt @map("updated_at")
 
-  student      Student?          @relation(fields: [studentId], references: [id])
-  assignedTo   User              @relation("lead_assignee", fields: [assignedToId], references: [id])
+  student         Student?          @relation(fields: [studentId], references: [id])
+  assignedTo      User              @relation("lead_assignee", fields: [assignedToId], references: [id])
+  documentAssignedTo User?          @relation("lead_doc_assignee", fields: [documentAssignedToId], references: [id])
   partner      Partner?          @relation(fields: [partnerId], references: [id])
   site         Site?             @relation(fields: [siteId], references: [id])
   followUps    FollowUp[]
