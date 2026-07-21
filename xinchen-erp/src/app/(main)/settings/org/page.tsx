@@ -85,21 +85,31 @@ export default function OrganizationPage() {
   async function openMembers(dept: Department) {
     setMemberDept(dept);
     setShowMembers(true);
+    setAddEmployeeId("");
     setMemberLoading(true);
     try {
-      // 获取所有员工
+      // 获取部门直接成员（UserDepartment 表）
+      const memRes = await fetch(`/api/departments/${dept.id}/members`);
+      const memData = await memRes.json();
+      const members: any[] = memData.list || [];
+
+      // 获取所有员工（用于可添加下拉）
       const allRes = await fetch("/api/employees?pageSize=1000");
       const allData = await allRes.json();
-      setAllEmployees(allData.list || []);
+      const allEmpList = allData.list || [];
 
-      // 获取该部门下的员工（通过 position.deptId 关联）
-      const posRes = await fetch(`/api/positions?deptId=${dept.id}`);
-      const posData = await posRes.json();
-      const positionIds = (posData.list || []).map((p: any) => p.id);
-      const deptEmps = (allData.list || []).filter((e: Employee) =>
-        e.position && positionIds.includes(e.position.id)
-      );
-      setDeptEmployees(deptEmps);
+      // 已加入的 userId 集合
+      const memberUserIds = new Set(members.map((m: any) => m.userId));
+      // 可添加 = 有 userId 且未加入的员工
+      setAllEmployees(allEmpList.filter((e: any) => e.userId && !memberUserIds.has(e.userId)));
+      // 部门已有成员
+      setDeptEmployees(members.map((m: any) => ({
+        id: m.employeeId || 0,
+        userId: m.userId,
+        name: m.realName,
+        employeeNo: m.employeeNo,
+        position: { name: m.positionName },
+      })));
     } catch {
       setFormError("加载人员失败");
     } finally {
@@ -107,29 +117,39 @@ export default function OrganizationPage() {
     }
   }
 
-  // 添加员工到部门（设置员工的岗位为该部门的岗位）
+  // 添加员工到部门
   async function addEmployeeToDept() {
     if (!addEmployeeId || !memberDept) return;
     try {
-      // 获取该部门的第一个岗位（如果没有则提示先创建岗位）
-      const posRes = await fetch(`/api/positions?deptId=${memberDept.id}`);
-      const posData = await posRes.json();
-      const positions = posData.list || [];
-      if (positions.length === 0) {
-        alert("该部门下还没有岗位，请先在员工信息中为该部门创建岗位");
+      const emp = allEmployees.find((e: any) => String(e.id) === addEmployeeId);
+      if (!emp?.userId) { alert("该员工尚未绑定系统账号"); return; }
+      const res = await fetch(`/api/departments/${memberDept.id}/members`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: emp.userId }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || "添加失败");
         return;
       }
-      // 默认分配第一个岗位
-      await fetch(`/api/employees/${addEmployeeId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ positionId: positions[0].id }),
-      });
       setAddEmployeeId("");
-      // 刷新
       openMembers(memberDept);
     } catch {
-      alert("添加失败");
+      alert("添加失败，请重试");
+    }
+  }
+
+  // 从部门移除员工
+  async function removeEmployeeFromDept(emp: any) {
+    if (!memberDept || !emp.userId) return;
+    if (!confirm(`确定将 ${emp.name} 从该部门移除吗？`)) return;
+    try {
+      const res = await fetch(`/api/departments/${memberDept.id}/members?userId=${emp.userId}`, { method: "DELETE" });
+      if (!res.ok) { alert("移除失败"); return; }
+      openMembers(memberDept);
+    } catch {
+      alert("移除失败，请重试");
     }
   }
 
@@ -382,7 +402,7 @@ export default function OrganizationPage() {
                         <td className="px-4 py-2 text-sm text-gray-600">{emp.position?.name || "-"}</td>
                         <td className="px-4 py-2">
                           <button
-                            onClick={() => removeEmployeeFromDept(emp.id)}
+                            onClick={() => removeEmployeeFromDept(emp)}
                             className="text-red-500 hover:bg-red-50 p-1.5 rounded"
                             title="从部门移除"
                           >
