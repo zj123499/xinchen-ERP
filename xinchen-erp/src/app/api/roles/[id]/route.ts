@@ -13,7 +13,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const { name, description, isSystem } = body;
+  const { name, description, isSystem, isAssignable } = body;
 
   const role = await prisma.role.update({
     where: { id: parseInt(id) },
@@ -21,6 +21,7 @@ export async function PUT(
       ...(name !== undefined && { name }),
       ...(description !== undefined && { description }),
       ...(isSystem !== undefined && { isSystem }),
+      ...(isAssignable !== undefined && { isAssignable }),
     },
   });
 

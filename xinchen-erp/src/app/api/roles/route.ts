@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
   }
 
   const role = await prisma.role.create({
-    data: { tenantId, name, code, description: description || null },
+    data: { tenantId, name, code, description: description || null, isAssignable: body.isAssignable || false },
   });
 
   return NextResponse.json(role, { status: 201 });

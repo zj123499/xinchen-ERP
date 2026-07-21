@@ -299,14 +299,15 @@ model User {
 }
 
 model Role {
-  id          Int      @id @default(autoincrement())
-  tenantId    Int      @map("tenant_id")
-  name        String   @db.VarChar(50)
-  code        String   @unique @db.VarChar(50)
-  description String?  @db.Text
-  isSystem    Boolean  @default(false) @map("is_system")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id           Int      @id @default(autoincrement())
+  tenantId     Int      @map("tenant_id")
+  name         String   @db.VarChar(50)
+  code         String   @unique @db.VarChar(50)
+  description  String?  @db.Text
+  isSystem     Boolean  @default(false) @map("is_system")
+  isAssignable Boolean  @default(false) @map("is_assignable")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   tenant          Tenant                     @relation(fields: [tenantId], references: [id])
   userRoles       UserRole[]

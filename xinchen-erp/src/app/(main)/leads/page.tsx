@@ -155,14 +155,8 @@ export default function LeadsPage() {
         if (list.length > 0) setSources(list);
       })
       .catch(() => {});
-    // 加载顾问列表（从字典配置中读取应该显示哪些角色的顾问）
-    fetch("/api/dicts?groupName=advisor_roles")
-      .then((r) => r.json())
-      .then((d) => {
-        const leadsConfig = (d.list || []).find((x: any) => x.dictKey === "leads");
-        const roleCode = leadsConfig?.dictValue || "";
-        return fetch(`/api/advisors${roleCode ? `?roleCode=${encodeURIComponent(roleCode)}` : ""}`);
-      })
+    // 加载顾问列表（自动按角色 isAssignable 过滤，管理员在角色管理中设置）
+    fetch("/api/advisors")
       .then((r) => r.json())
       .then((d) => setAdvisors(d.list || []))
       .catch(() => {});
