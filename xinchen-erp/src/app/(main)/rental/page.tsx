@@ -57,7 +57,7 @@ const CURRENCY_SYMBOL: Record<string, string> = {
   SGD: "S$",
 };
 
-const CITIES = ["伦敦", "曼彻斯特", "伯明翰", "爱丁堡", "悉尼", "墨尔本", "多伦多", "温哥华", "纽约", "洛杉矶", "其他"];
+const DEFAULT_CITIES = ["伦敦", "曼彻斯特", "伯明翰", "爱丁堡", "悉尼", "墨尔本", "多伦多", "温哥华", "纽约", "洛杉矶", "其他"];
 
 export default function RentalPage() {
   const [data, setData] = useState<PaginatedResponse | null>(null);
@@ -78,6 +78,7 @@ export default function RentalPage() {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [students, setStudents] = useState<StudentOption[]>([]);
+  const [cities, setCities] = useState<string[]>(DEFAULT_CITIES);
   const [deleteConfirm, setDeleteConfirm] = useState<RentalOrderItem | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -103,6 +104,10 @@ export default function RentalPage() {
   useEffect(() => {
     fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
       setStudents(d.list || []);
+    }).catch(() => {});
+    // 从数据字典加载城市列表（管理员可在字典管理中维护）
+    fetch("/api/dicts?groupName=rental_city").then(r => r.json()).then(d => {
+      if (d.list?.length) setCities(d.list.map((x: any) => x.dictValue));
     }).catch(() => {});
   }, []);
 
@@ -343,7 +348,7 @@ export default function RentalPage() {
                 <select required value={formData.city} onChange={(e) => setFormData(d => ({ ...d, city: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="">请选择城市</option>
-                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
