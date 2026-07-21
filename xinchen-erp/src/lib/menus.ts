@@ -18,6 +18,7 @@ export const MENU_TREE: MenuNode[] = [
     name: "销售管理", code: "sales", icon: "leads",
     children: [
       { name: "线索管理", code: "leads", path: "/leads", icon: "leads" },
+      { name: "跟进列表", code: "follow_list", path: "/follow-list", icon: "followup" },
       { name: "线索流转", code: "leadflow", path: "/lead-flow", icon: "leadFlow" },
       { name: "学生档案", code: "students", path: "/students", icon: "students" },
       { name: "跟进记录", code: "followup", path: "/followups", icon: "followup" },
