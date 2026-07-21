@@ -1,364 +1,496 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import {
-  Search, ChevronLeft, ChevronRight, RefreshCw,
-  MessageSquare, User, Phone, Calendar, Filter, Plus,
-  Trash2, Edit3,
+  Search, Plus, Phone, MoreHorizontal, ChevronLeft, ChevronRight,
+  Filter, RefreshCw, User, MapPin, GraduationCap, Calendar,
+  Trash2, Edit2, FileText, Send,
 } from "lucide-react";
 
-interface FollowUpItem {
-  id: number;
-  type: string;
-  content: string;
-  nextPlan?: string;
-  nextFollowUpAt?: string;
-  createdAt: string;
-  user: { id: number; realName: string };
-  student: { id: number; name: string; phone: string };
-  lead: { id: number; name: string; source: string; status: string } | null;
+interface LeadItem {
+  id: number; name: string; phone: string; wechat?: string;
+  source: string; status: string; businessType?: string;
+  targetCountry?: string; targetDegree?: string;
+  budget?: string; remark?: string; createdAt: string; updatedAt: string;
+  assignedTo: { id: number; realName: string; username: string };
+  documentAssignedTo?: { id: number; realName: string } | null;
+  student?: { id: number; name: string } | null;
+  partner?: { id: number; name: string } | null;
+  site?: { id: number; name: string; domain: string } | null;
+  _count: { followUps: number };
 }
+interface DictItem { id: number; dictKey: string; dictValue: string; sort: number; isEnabled?: boolean; }
+interface AdvisorItem { id: number; realName: string; username: string; }
 
-interface PaginatedResponse {
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-  list: FollowUpItem[];
-}
-
-interface StudentOption {
-  id: number;
-  name: string;
-  phone: string;
-}
-
-const FOLLOW_TYPE_MAP: Record<string, string> = {
-  phone: "电话",
-  wechat: "微信",
-  visit: "面谈",
-  other: "其他",
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
+  NEW: { label: "新线索", color: "bg-blue-100 text-blue-700" },
+  CONTACTED: { label: "已联系", color: "bg-yellow-100 text-yellow-700" },
+  QUALIFIED: { label: "已筛选", color: "bg-purple-100 text-purple-700" },
+  CONVERTED: { label: "已签约", color: "bg-green-100 text-green-700" },
+  DEAD: { label: "已无效", color: "bg-gray-100 text-gray-500" },
 };
+const DEFAULT_SOURCES: DictItem[] = [
+  { id: 0, dictKey: "WALK_IN", dictValue: "上门咨询", sort: 1 },
+  { id: 0, dictKey: "REFERRAL", dictValue: "转介绍", sort: 2 },
+  { id: 0, dictKey: "MEDIA", dictValue: "新媒体", sort: 3 },
+  { id: 0, dictKey: "SEARCH", dictValue: "搜索引擎", sort: 4 },
+  { id: 0, dictKey: "PARTNER", dictValue: "合作方", sort: 5 },
+  { id: 0, dictKey: "EXHIBITION", dictValue: "展会", sort: 6 },
+  { id: 0, dictKey: "OTHER", dictValue: "其他", sort: 7 },
+];
 
-const FOLLOW_TYPE_COLOR: Record<string, string> = {
-  phone: "bg-green-100 text-green-700",
-  wechat: "bg-blue-100 text-blue-700",
-  visit: "bg-purple-100 text-purple-700",
-  other: "bg-gray-100 text-gray-600",
-};
+type TabKey = "signed" | "interested" | "uninterested";
 
-const FOLLOW_TYPES = ["phone", "wechat", "visit", "other"];
+export default function LeadsPage() {
+  // ====== 分类 TAB ======
+  const [activeTab, setActiveTab] = useState<TabKey>("interested");
 
-export default function FollowUpsPage() {
-  const router = useRouter();
-  const [data, setData] = useState<PaginatedResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [keyword, setKeyword] = useState("");
-  const [searchKeyword, setSearchKeyword] = useState("");
+  // ====== 数据 ======
+  const [leads, setLeads] = useState<LeadItem[]>([]);
+  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const [typeFilter, setTypeFilter] = useState("");
-  const [showFilter, setShowFilter] = useState(false);
-  const pageSize = 20;
+  const [pageSize] = useState(20);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // Form state
+  // ====== 筛选 ======
+  const [keyword, setKeyword] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("");
+  const [sources, setSources] = useState<DictItem[]>(DEFAULT_SOURCES);
+  const [advisors, setAdvisors] = useState<AdvisorItem[]>([]);
+  const [docWriters, setDocWriters] = useState<AdvisorItem[]>([]);
+  const [partners, setPartners] = useState<{ id: number; name: string }[]>([]);
+  const [sites, setSites] = useState<{ id: number; name: string; domain: string }[]>([]);
+
+  // ====== 新增/编辑表单 ======
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<FollowUpItem | null>(null);
+  const [editingLead, setEditingLead] = useState<LeadItem | null>(null);
   const [formData, setFormData] = useState({
-    studentId: "", type: "phone", content: "", nextPlan: "", nextFollowUpAt: "",
+    name: "", phone: "", wechat: "", source: "MEDIA", sourceDetail: "",
+    businessType: "", partnerId: "", siteId: "",
+    targetCountry: "", targetDegree: "", budget: "", remark: "",
+    assignedToId: "", createStudent: true,
   });
   const [formError, setFormError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [students, setStudents] = useState<StudentOption[]>([]);
-  const [deleteConfirm, setDeleteConfirm] = useState<FollowUpItem | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
+  // ====== 文书分配弹窗 ======
+  const [docModalOpen, setDocModalOpen] = useState(false);
+  const [docTargetLead, setDocTargetLead] = useState<LeadItem | null>(null);
+  const [docWriterId, setDocWriterId] = useState("");
+
+  // ====== 加载数据 ======
+  const fetchLeads = useCallback(async () => {
+    setLoading(true); setError("");
     try {
-      const params = new URLSearchParams();
-      if (searchKeyword) params.set("keyword", searchKeyword);
-      params.set("page", String(page));
-      params.set("pageSize", String(pageSize));
-      if (typeFilter) params.set("type", typeFilter);
-      const res = await fetch(`/api/followups?${params.toString()}`);
-      if (!res.ok) throw new Error("Failed");
-      setData(await res.json());
-    } catch (err) {
-      console.error("获取跟进记录失败", err);
+      let statusParam = "";
+      if (activeTab === "signed") statusParam = "CONVERTED";
+      else if (activeTab === "interested") statusParam = "NEW,CONTACTED,QUALIFIED";
+      else if (activeTab === "uninterested") statusParam = "DEAD";
+
+      const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+      if (keyword) params.set("keyword", keyword);
+      if (sourceFilter) params.set("source", sourceFilter);
+      if (statusParam) params.set("status", statusParam);
+
+      const res = await fetch(`/api/leads?${params}`);
+      if (!res.ok) throw new Error(`请求失败(${res.status})`);
+      const data = await res.json();
+      setLeads(data.list || []);
+      setTotal(data.total || 0);
+    } catch (e: any) {
+      setError(e.message || "加载失败");
     } finally {
       setLoading(false);
     }
-  }, [searchKeyword, page, typeFilter]);
+  }, [page, pageSize, keyword, sourceFilter, activeTab]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
+  // ====== 初始化数据 ======
   useEffect(() => {
-    fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
-      setStudents(d.list || []);
+    fetch("/api/dicts?groupName=lead_source").then(r => r.json()).then(d => {
+      if (d.list?.length) setSources(d.list);
     }).catch(() => {});
+    fetch("/api/advisors").then(r => r.json()).then(d => setAdvisors(d.list || [])).catch(() => {});
+    fetch("/api/advisors?roleCode=document_application").then(r => r.json()).then(d => setDocWriters(d.list || [])).catch(() => {});
+    fetch("/api/partners?pageSize=500").then(r => r.json()).then(d => setPartners(d.list || [])).catch(() => {});
+    fetch("/api/sites?pageSize=500").then(r => r.json()).then(d => setSites(d.list || [])).catch(() => {});
   }, []);
 
-  function openNewForm() {
-    setEditingItem(null);
-    setFormData({ studentId: "", type: "phone", content: "", nextPlan: "", nextFollowUpAt: "" });
-    setFormError("");
-    setShowForm(true);
-  }
-
-  function openEditForm(item: FollowUpItem) {
-    setEditingItem(item);
-    setFormData({
-      studentId: String(item.student.id),
-      type: item.type,
-      content: item.content,
-      nextPlan: item.nextPlan || "",
-      nextFollowUpAt: item.nextFollowUpAt ? item.nextFollowUpAt.slice(0, 16) : "",
-    });
-    setFormError("");
-    setShowForm(true);
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setFormError("");
-    setSubmitting(true);
+  // ====== 状态变更 ======
+  async function changeStatus(lead: LeadItem, newStatus: string) {
     try {
-      const payload: any = {
-        studentId: formData.studentId,
-        type: formData.type,
-        content: formData.content,
-        nextPlan: formData.nextPlan || undefined,
-        nextFollowUpAt: formData.nextFollowUpAt || undefined,
-      };
-      const url = editingItem ? `/api/followups/${editingItem.id}` : "/api/followups";
-      const method = editingItem ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method,
+      const res = await fetch(`/api/leads/${lead.id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ status: newStatus }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        setFormError(err.error || "操作失败");
-        return;
-      }
-      setShowForm(false);
-      fetchData();
-    } catch {
-      setFormError("网络错误");
-    } finally {
-      setSubmitting(false);
-    }
+      if (!res.ok) throw new Error();
+      fetchLeads();
+    } catch { alert("状态更新失败"); }
   }
 
-  async function handleDelete() {
-    if (!deleteConfirm) return;
+  // ====== 文书分配 ======
+  async function assignDocWriter() {
+    if (!docTargetLead || !docWriterId) return;
     try {
-      await fetch(`/api/followups/${deleteConfirm.id}`, { method: "DELETE" });
-      setDeleteConfirm(null);
-      fetchData();
-    } catch {
-      setFormError("删除失败");
+      const res = await fetch(`/api/leads/${docTargetLead.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documentAssignedToId: parseInt(docWriterId) }),
+      });
+      if (!res.ok) throw new Error();
+      setDocModalOpen(false);
+      setDocTargetLead(null);
+      setDocWriterId("");
+      fetchLeads();
+    } catch { alert("分配失败"); }
+  }
+
+  // ====== 新增/编辑 ======
+  function openNewForm() {
+    setEditingLead(null);
+    setFormData({
+      name: "", phone: "", wechat: "", source: sources[0]?.dictKey || "MEDIA",
+      sourceDetail: "", businessType: "", partnerId: "", siteId: "",
+      targetCountry: "", targetDegree: "", budget: "", remark: "",
+      assignedToId: "", createStudent: true,
+    });
+    setFormError(""); setShowForm(true);
+  }
+  function openEditForm(lead: LeadItem) {
+    setEditingLead(lead);
+    setFormData({
+      name: lead.name, phone: lead.phone, wechat: lead.wechat || "",
+      source: lead.source, sourceDetail: "", businessType: lead.businessType || "",
+      partnerId: "", siteId: "",
+      targetCountry: lead.targetCountry || "", targetDegree: lead.targetDegree || "",
+      budget: lead.budget || "", remark: lead.remark || "",
+      assignedToId: String(lead.assignedTo.id), createStudent: false,
+    });
+    setFormError(""); setShowForm(true);
+  }
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault(); setSaving(true); setFormError("");
+    try {
+      const isEdit = !!editingLead;
+      const body: any = {
+        name: formData.name, phone: formData.phone, wechat: formData.wechat,
+        source: formData.source, sourceDetail: formData.sourceDetail,
+        businessType: formData.businessType || null,
+        partnerId: formData.partnerId || undefined, siteId: formData.siteId || undefined,
+        targetCountry: formData.targetCountry, targetDegree: formData.targetDegree,
+        budget: formData.budget, remark: formData.remark,
+        assignedToId: formData.assignedToId || undefined,
+      };
+      const url = isEdit ? `/api/leads/${editingLead!.id}` : "/api/leads";
+      const res = await fetch(url, {
+        method: isEdit ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || "保存失败"); }
+      setShowForm(false); fetchLeads();
+    } catch (e: any) { setFormError(e.message); }
+    finally { setSaving(false); }
+  }
+
+  async function deleteLead(id: number) {
+    if (!confirm("确定删除该线索？")) return;
+    try { await fetch(`/api/leads/${id}`, { method: "DELETE" }); fetchLeads(); }
+    catch { alert("删除失败"); }
+  }
+
+  const srcLabel = (key: string) => sources.find(s => s.dictKey === key)?.dictValue || key;
+  const totalPages = Math.ceil(total / pageSize);
+
+  // ====== 表格列定义 ======
+  const renderTable = () => {
+    if (loading) return <div className="p-16 text-center text-gray-400">加载中...</div>;
+    if (error) return <div className="p-16 text-center text-red-500">{error}<br/><button onClick={fetchLeads} className="mt-2 text-blue-600 underline">重试</button></div>;
+    if (leads.length === 0) {
+      return <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+        <User className="w-16 h-16 mb-4 text-gray-200" />
+        <p className="text-sm">该分类下暂无客户</p>
+      </div>;
     }
-  }
 
-  function handleSearch() {
-    setPage(1);
-    setSearchKeyword(keyword);
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter") handleSearch();
-  }
+    return (
+      <table className="w-full">
+        <thead><tr className="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+          {activeTab === "signed" && (
+            <>
+              <th className="px-4 py-3">客户</th><th className="px-4 py-3">联系方式</th>
+              <th className="px-4 py-3">签约顾问</th><th className="px-4 py-3">文书老师</th>
+              <th className="px-4 py-3">业务</th><th className="px-4 py-3">签约时间</th>
+              <th className="px-4 py-3"></th>
+            </>
+          )}
+          {activeTab === "interested" && (
+            <>
+              <th className="px-4 py-3">客户</th><th className="px-4 py-3">联系方式</th>
+              <th className="px-4 py-3">来源</th><th className="px-4 py-3">状态</th>
+              <th className="px-4 py-3">顾问</th><th className="px-4 py-3">录入时间</th>
+              <th className="px-4 py-3 w-40">操作</th>
+            </>
+          )}
+          {activeTab === "uninterested" && (
+            <>
+              <th className="px-4 py-3">客户</th><th className="px-4 py-3">联系方式</th>
+              <th className="px-4 py-3">来源</th><th className="px-4 py-3">顾问</th>
+              <th className="px-4 py-3">录入时间</th><th className="px-4 py-3"></th>
+            </>
+          )}
+        </tr></thead>
+        <tbody className="divide-y divide-gray-100">
+          {leads.map((lead) => (
+            <tr key={lead.id} className="hover:bg-gray-50">
+              {activeTab === "signed" && (
+                <>
+                  <td className="px-4 py-3"><div className="font-medium text-gray-900">{lead.name}</div>
+                    {lead.businessType && <span className="text-xs text-gray-500">{lead.businessType === "STUDY_ABROAD" ? "留学" : lead.businessType === "RENTAL" ? "租房" : "境外服务"}</span>}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600"><div>{lead.phone}</div>{lead.wechat && <div className="text-xs text-gray-400">{lead.wechat}</div>}</td>
+                  <td className="px-4 py-3 text-sm">{lead.assignedTo.realName}</td>
+                  <td className="px-4 py-3 text-sm">
+                    {lead.documentAssignedTo ? (
+                      <span className="text-green-700 bg-green-50 px-2 py-0.5 rounded text-xs">{lead.documentAssignedTo.realName}</span>
+                    ) : (
+                      <button onClick={() => { setDocTargetLead(lead); setDocWriterId(""); setDocModalOpen(true); }}
+                        className="text-xs text-blue-600 hover:underline">分配文书</button>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-500">{lead.businessType === "STUDY_ABROAD" ? "留学" : lead.businessType === "RENTAL" ? "租房" : lead.businessType === "OVERSEAS_SERVICE" ? "境外服务" : "-"}</td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{new Date(lead.updatedAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button onClick={() => openEditForm(lead)} className="text-xs text-blue-600 hover:underline mr-2">编辑</button>
+                    <button onClick={() => changeStatus(lead, "QUALIFIED")} className="text-xs text-orange-600 hover:underline mr-2">退回意向</button>
+                    <button onClick={() => deleteLead(lead.id)} className="text-xs text-red-500 hover:underline">删除</button>
+                  </td>
+                </>
+              )}
+              {activeTab === "interested" && (
+                <>
+                  <td className="px-4 py-3"><div className="font-medium text-gray-900">{lead.name}</div>
+                    {lead.student && <span className="text-xs text-blue-600">已建档</span>}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600"><div>{lead.phone}</div>{lead.wechat && <div className="text-xs text-gray-400">{lead.wechat}</div>}</td>
+                  <td className="px-4 py-3 text-xs"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{srcLabel(lead.source)}</span></td>
+                  <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded ${STATUS_MAP[lead.status]?.color || "bg-gray-100 text-gray-600"}`}>{STATUS_MAP[lead.status]?.label || lead.status}</span></td>
+                  <td className="px-4 py-3 text-sm">{lead.assignedTo.realName}</td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{new Date(lead.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1 flex-wrap">
+                      <button onClick={() => changeStatus(lead, "CONVERTED")} className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200" title="标记为已签约">签约</button>
+                      <button onClick={() => changeStatus(lead, "DEAD")} className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 hover:bg-gray-200" title="标记为无意向">无意向</button>
+                      <button onClick={() => openEditForm(lead)} className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200">编辑</button>
+                    </div>
+                  </td>
+                </>
+              )}
+              {activeTab === "uninterested" && (
+                <>
+                  <td className="px-4 py-3"><div className="font-medium text-gray-900">{lead.name}</div></td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{lead.phone}</td>
+                  <td className="px-4 py-3 text-xs"><span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{srcLabel(lead.source)}</span></td>
+                  <td className="px-4 py-3 text-sm">{lead.assignedTo.realName}</td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{new Date(lead.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button onClick={() => changeStatus(lead, "NEW")} className="text-xs text-blue-600 hover:underline mr-2">移回意向</button>
+                    <button onClick={() => deleteLead(lead.id)} className="text-xs text-red-500 hover:underline">删除</button>
+                  </td>
+                </>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-6 max-w-[1400px] mx-auto">
+      {/* ====== 页面头部 + TAB ====== */}
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">跟进记录</h1>
-          <p className="text-sm text-gray-500 mt-1">管理学生跟进记录，记录每次沟通详情</p>
+          <p className="text-sm text-gray-500 mt-1">已签约客户 · 意向客户 · 无意向客户</p>
         </div>
-        <button onClick={openNewForm} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
-          <Plus className="w-4 h-4" />新增跟进
-        </button>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={handleKeyDown}
-              placeholder="搜索学生姓名、手机号或跟进内容..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-          </div>
-          <div className="relative">
-            <button onClick={() => setShowFilter(!showFilter)}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition ${typeFilter ? "border-blue-300 bg-blue-50 text-blue-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
-              <Filter className="w-4 h-4" /> 筛选 {typeFilter && <span className="w-2 h-2 rounded-full bg-blue-500" />}
-            </button>
-            {showFilter && (
-              <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-3 min-w-[180px]">
-                <div className="text-xs font-medium text-gray-500 mb-2">跟进方式</div>
-                <div className="space-y-1">
-                  <button onClick={() => { setTypeFilter(""); setPage(1); setShowFilter(false); }}
-                    className={`w-full text-left px-2 py-1 text-sm rounded ${!typeFilter ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
-                  {Object.entries(FOLLOW_TYPE_MAP).map(([k, v]) => (
-                    <button key={k} onClick={() => { setTypeFilter(k); setPage(1); setShowFilter(false); }}
-                      className={`w-full text-left px-2 py-1 text-sm rounded ${typeFilter === k ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>{v}</button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          <button onClick={handleSearch} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">搜索</button>
-          <button onClick={() => { setKeyword(""); setSearchKeyword(""); setTypeFilter(""); setPage(1); }}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-4 h-4" /></button>
+          <button onClick={() => { setKeyword(""); setSourceFilter(""); setPage(1); }}
+            className="p-2 text-gray-400 hover:text-gray-600 rounded-lg" title="刷新"><RefreshCw className="w-4 h-4" /></button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        {loading ? (
-          <div className="flex items-center justify-center py-20"><RefreshCw className="w-6 h-6 animate-spin text-gray-400" /></div>
-        ) : !data || data.list.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
-            <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-            <p className="text-sm">暂无跟进记录</p>
-            <button onClick={openNewForm} className="mt-3 text-blue-600 text-sm hover:underline">添加第一条跟进</button>
-          </div>
-        ) : (
-          <>
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">学生</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">跟进方式</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">跟进内容</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">跟进人</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">下次跟进</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">跟进时间</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">操作</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {data.list.map((fu) => (
-                  <tr key={fu.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 cursor-pointer" onClick={() => router.push(`/students/${fu.student.id}`)}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"><User className="w-4 h-4 text-blue-600" /></div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{fu.student.name}</div>
-                          <div className="text-xs text-gray-400 flex items-center gap-0.5"><Phone className="w-3 h-3" /> {fu.student.phone}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${FOLLOW_TYPE_COLOR[fu.type] || "bg-gray-100 text-gray-600"}`}>{FOLLOW_TYPE_MAP[fu.type] || fu.type}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-700 max-w-xs truncate" title={fu.content}>{fu.content}</div>
-                      {fu.nextPlan && <div className="text-xs text-blue-600 mt-0.5 truncate max-w-xs">下一步: {fu.nextPlan}</div>}
-                    </td>
-                    <td className="px-6 py-4"><span className="text-sm text-gray-700">{fu.user.realName}</span></td>
-                    <td className="px-6 py-4">
-                      {fu.nextFollowUpAt ? <span className="text-sm text-gray-700 flex items-center gap-1"><Calendar className="w-3.5 h-3.5 text-gray-400" />{new Date(fu.nextFollowUpAt).toLocaleDateString("zh-CN")}</span> : <span className="text-sm text-gray-400">-</span>}
-                    </td>
-                    <td className="px-6 py-4"><span className="text-sm text-gray-500">{new Date(fu.createdAt).toLocaleString("zh-CN")}</span></td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => openEditForm(fu)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑"><Edit3 className="w-4 h-4" /></button>
-                        <button onClick={() => setDeleteConfirm(fu)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除"><Trash2 className="w-4 h-4" /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
-              <div className="text-sm text-gray-500">共 {data.total} 条记录，第 {data.page}/{data.totalPages} 页</div>
-              <div className="flex items-center gap-2">
-                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronLeft className="w-4 h-4" /></button>
-                {Array.from({ length: Math.min(data.totalPages, 5) }, (_, i) => {
-                  let pageNum: number;
-                  if (data.totalPages <= 5) { pageNum = i + 1; }
-                  else if (page <= 3) { pageNum = i + 1; }
-                  else if (page >= data.totalPages - 2) { pageNum = data.totalPages - 4 + i; }
-                  else { pageNum = page - 2 + i; }
-                  return (
-                    <button key={pageNum} onClick={() => setPage(pageNum)}
-                      className={`w-8 h-8 text-sm rounded transition ${pageNum === page ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-200"}`}>{pageNum}</button>
-                  );
-                })}
-                <button onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={page >= data.totalPages}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronRight className="w-4 h-4" /></button>
-              </div>
-            </div>
-          </>
-        )}
+      {/* ====== TAB 导航 ====== */}
+      <div className="flex gap-0 mb-4 border-b border-gray-200">
+        {[
+          { key: "signed" as TabKey, label: "已签约客户", icon: <FileText className="w-4 h-4" /> },
+          { key: "interested" as TabKey, label: "意向客户", icon: <User className="w-4 h-4" /> },
+          { key: "uninterested" as TabKey, label: "无意向客户", icon: <Trash2 className="w-4 h-4" /> },
+        ].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => { setActiveTab(tab.key); setPage(1); }}
+            className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition ${
+              activeTab === tab.key
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {tab.icon}{tab.label}
+            {tab.key === "signed" && <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full ml-1">{activeTab === tab.key ? total : "-"}</span>}
+            {tab.key === "interested" && <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full ml-1">{activeTab === tab.key ? total : "-"}</span>}
+            {tab.key === "uninterested" && <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full ml-1">{activeTab === tab.key ? total : "-"}</span>}
+          </button>
+        ))}
       </div>
 
-      {/* Form Modal */}
+      {/* ====== 搜索/筛选 ====== */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text" placeholder="搜索姓名/手机号..."
+            value={keyword} onChange={e => setKeyword(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") { setPage(1); fetchLeads(); } }}
+            className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+        <select value={sourceFilter} onChange={e => { setSourceFilter(e.target.value); setPage(1); }}
+          className="px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none">
+          <option value="">全部来源</option>
+          {sources.filter(s => s.isEnabled !== false).map(s => <option key={s.dictKey} value={s.dictKey}>{s.dictValue}</option>)}
+        </select>
+        <button onClick={() => { setKeyword(""); setSourceFilter(""); setPage(1); }}
+          className="text-sm text-gray-500 hover:text-gray-700">清除筛选</button>
+      </div>
+
+      {/* ====== 数据表格 ====== */}
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        {renderTable()}
+      </div>
+
+      {/* ====== 分页 ====== */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-sm text-gray-500">共 {total} 条</span>
+          <div className="flex items-center gap-2">
+            <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-2 disabled:opacity-30"><ChevronLeft className="w-4 h-4" /></button>
+            <span className="text-sm text-gray-700">{page} / {totalPages}</span>
+            <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="p-2 disabled:opacity-30"><ChevronRight className="w-4 h-4" /></button>
+          </div>
+        </div>
+      )}
+
+      {/* ====== 新增/编辑弹窗 ====== */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">{editingItem ? "编辑跟进" : "新增跟进"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowForm(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold">{editingLead ? "编辑线索" : "新增线索"}</h2>
+              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">姓名 <span className="text-red-500">*</span></label>
+                  <input required value={formData.name} onChange={e => setFormData(d => ({ ...d, name: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">手机号</label>
+                  <input value={formData.phone} onChange={e => setFormData(d => ({ ...d, phone: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">微信</label>
+                  <input value={formData.wechat} onChange={e => setFormData(d => ({ ...d, wechat: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" placeholder="微信号" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">咨询业务</label>
+                  <select value={formData.businessType} onChange={e => setFormData(d => ({ ...d, businessType: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">请选择</option>
+                    <option value="STUDY_ABROAD">留学</option>
+                    <option value="RENTAL">租房</option>
+                    <option value="OVERSEAS_SERVICE">境外服务</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">来源 <span className="text-red-500">*</span></label>
+                  <select required value={formData.source} onChange={e => setFormData(d => ({ ...d, source: e.target.value, partnerId: "", siteId: "" }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    {sources.filter(s => s.isEnabled !== false).map(s => <option key={s.dictKey} value={s.dictKey}>{s.dictValue}</option>)}
+                  </select>
+                </div>
+                {formData.source === "PARTNER" && <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">合作方</label>
+                  <select value={formData.partnerId} onChange={e => setFormData(d => ({ ...d, partnerId: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">选择合作方</option>
+                    {partners.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                </div>}
+                {(formData.source === "SITE" || formData.source === "SEARCH") && <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">站点</label>
+                  <select value={formData.siteId} onChange={e => setFormData(d => ({ ...d, siteId: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">选择站点</option>
+                    {sites.map(s => <option key={s.id} value={s.id}>{s.name} ({s.domain})</option>)}
+                  </select>
+                </div>}
+                {!["PARTNER", "SITE", "SEARCH"].includes(formData.source) && <div />}
+              </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">学生 <span className="text-red-500">*</span></label>
-                <select required value={formData.studentId} onChange={(e) => setFormData(d => ({ ...d, studentId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                  <option value="">请选择学生</option>
-                  {students.map(s => <option key={s.id} value={s.id}>{s.name} - {s.phone}</option>)}
+                <label className="block text-sm font-medium text-gray-700 mb-1">分配顾问</label>
+                <select value={formData.assignedToId} onChange={e => setFormData(d => ({ ...d, assignedToId: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">选择顾问</option>
+                  {advisors.map(a => <option key={a.id} value={a.id}>{a.realName}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">跟进方式</label>
-                <select value={formData.type} onChange={(e) => setFormData(d => ({ ...d, type: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                  {FOLLOW_TYPES.map(t => <option key={t} value={t}>{FOLLOW_TYPE_MAP[t]}</option>)}
-                </select>
+              <div className="grid grid-cols-3 gap-4">
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">意向国家</label><input value={formData.targetCountry} onChange={e => setFormData(d => ({ ...d, targetCountry: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">意向学位</label><input value={formData.targetDegree} onChange={e => setFormData(d => ({ ...d, targetDegree: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">预算</label><input value={formData.budget} onChange={e => setFormData(d => ({ ...d, budget: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none" /></div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">跟进内容 <span className="text-red-500">*</span></label>
-                <textarea required value={formData.content} onChange={(e) => setFormData(d => ({ ...d, content: e.target.value }))} rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="详细记录本次跟进内容..." />
+                <label className="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                <textarea value={formData.remark} onChange={e => setFormData(d => ({ ...d, remark: e.target.value }))}
+                  rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">下一步计划</label>
-                <textarea value={formData.nextPlan} onChange={(e) => setFormData(d => ({ ...d, nextPlan: e.target.value }))} rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="下一步跟进计划..." />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">下次跟进时间</label>
-                <input type="datetime-local" value={formData.nextFollowUpAt} onChange={(e) => setFormData(d => ({ ...d, nextFollowUpAt: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
-                <button type="submit" disabled={submitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium">
-                  {submitting ? "保存中..." : editingItem ? "保存修改" : "确认新增"}
-                </button>
+              {formError && <p className="text-red-500 text-sm">{formError}</p>}
+              <div className="flex gap-3 pt-2">
+                <button type="submit" disabled={saving} className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm disabled:opacity-50">{saving ? "保存中..." : "保存"}</button>
+                <button type="button" onClick={() => setShowForm(false)} className="py-2 px-6 border border-gray-300 rounded-lg text-gray-600 text-sm hover:bg-gray-50">取消</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Delete Confirm Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
-            <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl"><h2 className="text-lg font-semibold text-red-800">确认删除</h2></div>
-            <div className="p-6">
-              <p className="text-sm text-gray-700">确定要删除 {deleteConfirm.student.name} 的 {FOLLOW_TYPE_MAP[deleteConfirm.type] || deleteConfirm.type} 跟进记录吗？</p>
-              <div className="flex justify-end gap-3 mt-4">
-                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
-                <button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition">确认删除</button>
-              </div>
+      {/* ====== 文书分配弹窗 ====== */}
+      {docModalOpen && docTargetLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setDocModalOpen(false)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-2">分配文书老师</h3>
+            <p className="text-sm text-gray-500 mb-4">客户：{docTargetLead.name}</p>
+            <select value={docWriterId} onChange={e => setDocWriterId(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mb-4 outline-none">
+              <option value="">选择文书老师</option>
+              {docWriters.map(d => <option key={d.id} value={d.id}>{d.realName}</option>)}
+            </select>
+            <div className="flex gap-3">
+              <button onClick={assignDocWriter} disabled={!docWriterId}
+                className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50">确定</button>
+              <button onClick={() => setDocModalOpen(false)} className="py-2 px-6 border border-gray-300 rounded-lg text-sm">取消</button>
             </div>
           </div>
         </div>
