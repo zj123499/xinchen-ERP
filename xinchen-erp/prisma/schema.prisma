@@ -254,6 +254,7 @@ model Tenant {
   employeeChanges     EmployeeChange[]
   partnerAgreements   PartnerAgreement[]
   partnerCommissions  PartnerCommission[]
+  partnerContracts    PartnerContract[]
 
   @@map("tenants")
 }
@@ -776,6 +777,9 @@ model Lead {
   wechat         String?    @db.VarChar(50)
   source         String
   sourceDetail   String?    @map("source_detail") @db.VarChar(500)
+  partnerId      Int?       @map("partner_id")
+  siteId         Int?       @map("site_id")
+  businessType   String?    @map("business_type") @db.VarChar(30)
   status         LeadStatus @default(NEW)
   assignedToId   Int        @map("assigned_to_id")
   intentionLevel String?    @map("intention_level") @db.VarChar(20)
@@ -790,6 +794,8 @@ model Lead {
 
   student      Student?          @relation(fields: [studentId], references: [id])
   assignedTo   User              @relation("lead_assignee", fields: [assignedToId], references: [id])
+  partner      Partner?          @relation(fields: [partnerId], references: [id])
+  site         Site?             @relation(fields: [siteId], references: [id])
   followUps    FollowUp[]
   transferLogs LeadTransferLog[]
   appeals      LeadAppeal[]
@@ -1195,6 +1201,8 @@ model Partner {
   payables Payable[]
   agreements PartnerAgreement[]
   commissions PartnerCommission[]
+  partnerContracts PartnerContract[]
+  leads            Lead[]
 
   @@index([tenantId])
   @@map("partners")
@@ -1242,6 +1250,30 @@ model PartnerCommission {
   @@index([tenantId])
   @@index([partnerId])
   @@map("partner_commissions")
+}
+
+model PartnerContract {
+  id          Int       @id @default(autoincrement())
+  tenantId    Int       @map("tenant_id")
+  partnerId   Int       @map("partner_id")
+  contractNo  String    @unique @map("contract_no") @db.VarChar(50)
+  title       String    @db.VarChar(200)
+  signDate    DateTime? @map("sign_date")
+  startDate   DateTime? @map("start_date")
+  endDate     DateTime? @map("end_date")
+  amount      Decimal?  @db.Decimal(12, 2)
+  status      String    @default("active") @db.VarChar(20)
+  remark      String?   @db.Text
+  createdBy   Int?      @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  partner Partner @relation(fields: [partnerId], references: [id])
+
+  @@index([tenantId])
+  @@index([partnerId])
+  @@map("partner_contracts")
 }
 
 enum ChannelType {
@@ -1318,6 +1350,7 @@ model Site {
   createdAt DateTime @default(now()) @map("created_at")
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
+  leads  Lead[]
 
   @@index([tenantId])
   @@map("sites")

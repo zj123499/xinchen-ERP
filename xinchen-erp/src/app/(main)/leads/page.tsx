@@ -87,6 +87,9 @@ export default function LeadsPage() {
     wechat: "",
     source: "MEDIA",
     sourceDetail: "",
+    businessType: "",
+    partnerId: "",
+    siteId: "",
     targetCountry: "",
     targetDegree: "",
     budget: "",
@@ -97,10 +100,12 @@ export default function LeadsPage() {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // 数据字典来源 + 顾问列表
+  // 数据字典来源 + 顾问列表 + 合作方/站群联动
   const [sources, setSources] = useState<DictItem[]>(DEFAULT_SOURCES);
   const [advisors, setAdvisors] = useState<AdvisorItem[]>([]);
-  // 来源 key -> label 映射，用于列表/详情展示
+  const [partners, setPartners] = useState<{ id: number; name: string }[]>([]);
+  const [sites, setSites] = useState<{ id: number; name: string; domain: string }[]>([]);
+  // 来源 key -> label 映射
   const sourceMap: Record<string, string> = {};
   [...DEFAULT_SOURCES, ...sources].forEach((s) => {
     if (s.dictKey) sourceMap[s.dictKey] = s.dictValue;
@@ -150,27 +155,30 @@ export default function LeadsPage() {
         if (list.length > 0) setSources(list);
       })
       .catch(() => {});
-    // 加载顾问列表（仅 sales 角色用户）
+    // 加载顾问列表
     fetch("/api/advisors")
       .then((r) => r.json())
       .then((d) => setAdvisors(d.list || []))
+      .catch(() => {});
+    // 加载合作方列表（来源联动用）
+    fetch("/api/partners?pageSize=500")
+      .then((r) => r.json())
+      .then((d) => setPartners(d.list || []))
+      .catch(() => {});
+    // 加载站群列表（来源联动用）
+    fetch("/api/sites?pageSize=500")
+      .then((r) => r.json())
+      .then((d) => setSites(d.list || []))
       .catch(() => {});
   }, []);
 
   function openNewForm() {
     setEditingLead(null);
     setFormData({
-      name: "",
-      phone: "",
-      wechat: "",
-      source: sources[0]?.dictKey || "MEDIA",
-      sourceDetail: "",
-      targetCountry: "",
-      targetDegree: "",
-      budget: "",
-      remark: "",
-      assignedToId: "",
-      createStudent: true,
+      name: "", phone: "", wechat: "", source: sources[0]?.dictKey || "MEDIA",
+      sourceDetail: "", businessType: "", partnerId: "", siteId: "",
+      targetCountry: "", targetDegree: "", budget: "", remark: "",
+      assignedToId: "", createStudent: true,
     });
     setFormError("");
     setShowForm(true);
@@ -296,6 +304,24 @@ export default function LeadsPage() {
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
+          </div>
+          <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+            {[
+              { key: "", label: "全部线索" },
+              { key: "CONVERTED", label: "签约客户" },
+              { key: "NEW,CONTACTED,QUALIFIED", label: "意向客户" },
+              { key: "DEAD", label: "无意向客户" },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => { setStatusFilter(tab.key); setPage(1); }}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition ${
+                  statusFilter === tab.key
+                    ? "bg-white text-blue-700 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >{tab.label}</button>
+            ))}
           </div>
           <select
             value={statusFilter}
@@ -550,13 +576,32 @@ export default function LeadsPage() {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">咨询业务</label>
+                  <select
+                    value={formData.businessType}
+                    onChange={(e) => setFormData((d) => ({ ...d, businessType: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  >
+                    <option value="">请选择</option>
+                    <option value="STUDY_ABROAD">留学</option>
+                    <option value="RENTAL">租房</option>
+                    <option value="OVERSEAS_SERVICE">境外服务</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     线索来源 <span className="text-red-500">*</span>
                   </label>
                   <select
                     required
                     value={formData.source}
-                    onChange={(e) => setFormData((d) => ({ ...d, source: e.target.value }))}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setFormData((d) => ({ ...d, source: v, partnerId: "", siteId: "" }));
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   >
                     {sources.map((s) => (
@@ -564,6 +609,40 @@ export default function LeadsPage() {
                     ))}
                   </select>
                 </div>
+                {/* 来源=合作方时显示合作方选择 */}
+                {formData.source === "PARTNER" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">选择合作方</label>
+                    <select
+                      value={formData.partnerId}
+                      onChange={(e) => setFormData((d) => ({ ...d, partnerId: e.target.value, siteId: "" }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    >
+                      <option value="">请选择合作方</option>
+                      {partners.map((p) => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {/* 来源=站群相关时显示站点选择 */}
+                {(formData.source === "SITE" || formData.source === "SEARCH") && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">选择站点</label>
+                    <select
+                      value={formData.siteId}
+                      onChange={(e) => setFormData((d) => ({ ...d, siteId: e.target.value, partnerId: "" }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    >
+                      <option value="">请选择站点</option>
+                      {sites.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name} ({s.domain})</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {/* 其他来源无联动时不占位 */}
+                {!["PARTNER", "SITE", "SEARCH"].includes(formData.source) && <div />}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
