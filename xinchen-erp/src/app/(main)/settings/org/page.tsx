@@ -135,6 +135,7 @@ export default function OrganizationPage() {
       }
       setAddEmployeeId("");
       openMembers(memberDept);
+      fetchData();
     } catch {
       alert("添加失败，请重试");
     }
@@ -148,23 +149,9 @@ export default function OrganizationPage() {
       const res = await fetch(`/api/departments/${memberDept.id}/members?userId=${emp.userId}`, { method: "DELETE" });
       if (!res.ok) { alert("移除失败"); return; }
       openMembers(memberDept);
+      fetchData();
     } catch {
       alert("移除失败，请重试");
-    }
-  }
-
-  // 从部门移除员工（清除岗位）
-  async function removeEmployeeFromDept(empId: number) {
-    if (!memberDept) return;
-    try {
-      await fetch(`/api/employees/${empId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ positionId: null }),
-      });
-      openMembers(memberDept);
-    } catch {
-      alert("移除失败");
     }
   }
 
@@ -231,7 +218,7 @@ export default function OrganizationPage() {
             </div>
           </div>
           <span className="text-sm text-gray-400 mr-4 flex items-center gap-1">
-            <Users className="w-4 h-4" />{deptEmployees.filter(() => false).length || dept._count?.userDepts || 0}人
+            <Users className="w-4 h-4" />{dept._count?.userDepts || 0}人
           </span>
           <div className="flex items-center gap-2">
             <button onClick={() => openMembers(dept)} className="text-green-600 hover:bg-green-50 p-1.5 rounded" title="管理部门人员">
