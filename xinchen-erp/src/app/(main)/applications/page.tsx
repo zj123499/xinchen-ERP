@@ -110,7 +110,9 @@ export default function ApplicationsPage() {
     setEditingId(null);
     setForm({ studentId: "", orderId: "", institutionName: "", majorName: "", degree: "硕士", intakeYear: new Date().getFullYear() + 1, intakeMonth: 9, status: "PREPARING", remark: "" });
     setSelectedStudent(null); setSelectedOrder(null);
-    setStudentSearch(""); setStudentResults([]); setOrderResults([]);
+    setStudentSearch("");
+    setStudentResults(allStudents.length > 0 ? allStudents.slice(0, 20) : []);
+    setOrderResults([]);
     setError(""); setShowModal(true);
   };
 
@@ -219,7 +221,7 @@ export default function ApplicationsPage() {
                 {selectedStudent ? (
                   <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedStudent.name}</span><button onClick={() => { setSelectedStudent(null); setForm(f => ({ ...f, studentId: "" })); setStudentSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
                 ) : (
-                  <div className="relative"><input type="text" placeholder="搜索学生姓名..." value={studentSearch} onChange={e => searchStudents(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  <div className="relative"><input type="text" placeholder="点击选择或搜索学生..." value={studentSearch} onChange={e => searchStudents(e.target.value)} onFocus={() => { if (allStudents.length > 0 && studentResults.length === 0) setStudentResults(allStudents.slice(0, 20)); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
                     {studentResults.length > 0 && (<div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">{studentResults.map(s => (<div key={s.id} onClick={() => selectStudent(s)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm">{s.name} <span className="text-gray-400 ml-2">{s.phone}</span></div>))}</div>)}
                   </div>
                 )}
