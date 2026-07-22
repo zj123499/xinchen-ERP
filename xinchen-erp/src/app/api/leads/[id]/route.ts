@@ -80,16 +80,31 @@ export async function PUT(
     });
     studentId = student.id;
 
-    // 自动创建订单（申请管理需要学生+订单才能创建申请）
-    await prisma.order.create({
+    // 自动创建合同和订单（申请管理需要学生+订单才能创建申请）
+    const contract = await prisma.contract.create({
       data: {
         tenantId,
         studentId: student.id,
-        orderNo: `SO${new Date().getFullYear()}${String(student.id).padStart(4, "0")}`,
-        status: "PENDING",
+        contractNo: `CT${new Date().getFullYear()}${String(student.id).padStart(4, "0")}`,
+        title: `${student.name} - 留学服务合同`,
         totalAmount: existing.budget ? parseFloat(String(existing.budget)) : 0,
+        status: "APPROVED",
       },
-    }).catch(() => {});
+    }).catch(() => null);
+
+    if (contract) {
+      await prisma.order.create({
+        data: {
+          tenantId,
+          studentId: student.id,
+          contractId: contract.id,
+          orderNo: `SO${new Date().getFullYear()}${String(student.id).padStart(4, "0")}`,
+          productName: "留学申请服务",
+          amount: existing.budget ? parseFloat(String(existing.budget)) : 0,
+          status: "PENDING",
+        },
+      }).catch(() => {});
+    }
   }
 
   // 退回到意向状态时清除文书分配
