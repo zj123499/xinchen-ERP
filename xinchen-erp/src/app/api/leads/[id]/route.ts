@@ -59,6 +59,34 @@ export async function PUT(
     }
   }
 
+  // 签约时自动创建学生档案（交付管理以此为基础创建申请）
+  const isConverting = body.status === "CONVERTED" && existing.status !== "CONVERTED";
+  let studentId = existing.studentId;
+
+  if (isConverting && !studentId) {
+    const student = await prisma.student.create({
+      data: {
+        tenantId,
+        name: existing.name,
+        phone: existing.phone || null,
+        wechat: existing.wechat || null,
+        targetCountry: existing.targetCountry || null,
+        targetDegree: existing.targetDegree || null,
+        budget: existing.budget || null,
+        source: existing.source,
+        assignedToId: existing.assignedToId,
+        currentStatus: "LEAD",
+      },
+    });
+    studentId = student.id;
+  }
+
+  // 退回到意向状态时清除文书分配
+  const revertData: any = {};
+  if (body.status && body.status !== "CONVERTED") {
+    revertData.documentAssignedToId = null;
+  }
+
   const lead = await prisma.lead.update({
     where: { id: parseInt(id) },
     data: {
@@ -68,14 +96,37 @@ export async function PUT(
       source: body.source !== undefined ? body.source : undefined,
       sourceDetail: body.sourceDetail !== undefined ? body.sourceDetail : undefined,
       status: body.status !== undefined ? body.status : undefined,
+      businessType: body.businessType !== undefined ? body.businessType : undefined,
+      partnerId: body.partnerId !== undefined ? (body.partnerId ? parseInt(body.partnerId) : null) : undefined,
+      siteId: body.siteId !== undefined ? (body.siteId ? parseInt(body.siteId) : null) : undefined,
       targetCountry: body.targetCountry !== undefined ? body.targetCountry : undefined,
       targetDegree: body.targetDegree !== undefined ? body.targetDegree : undefined,
       budget: body.budget !== undefined ? (body.budget ? parseFloat(body.budget) : null) : undefined,
       remark: body.remark !== undefined ? body.remark : undefined,
       assignedToId: body.assignedToId !== undefined ? parseInt(body.assignedToId) : undefined,
+      documentAssignedToId: body.documentAssignedToId !== undefined ? (body.documentAssignedToId ? parseInt(body.documentAssignedToId) : null) : undefined,
+      studentId: studentId !== undefined ? studentId : undefined,
+      ...revertData,
     },
-    include: { assignedTo: { select: { id: true, realName: true, username: true } } },
+    include: {
+      assignedTo: { select: { id: true, realName: true, username: true } },
+      documentAssignedTo: { select: { id: true, realName: true } },
+      student: { select: { id: true, name: true } },
+    },
   });
+
+  // 签约时创建一条跟进记录
+  if (isConverting) {
+    await prisma.followUp.create({
+      data: {
+        studentId: studentId!,
+        userId: existing.assignedToId,
+        type: "system",
+        content: `客户已签约，自动创建学生档案。${studentId ? `学生ID: ${studentId}` : ""}`,
+        leadId: existing.id,
+      },
+    }).catch(() => {});
+  }
 
   return NextResponse.json(lead);
 }
