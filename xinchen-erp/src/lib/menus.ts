@@ -20,7 +20,6 @@ export const MENU_TREE: MenuNode[] = [
       { name: "线索管理", code: "leads", path: "/leads", icon: "leads" },
       { name: "跟进记录", code: "followup", path: "/followups", icon: "followup" },
       { name: "线索流转", code: "leadflow", path: "/lead-flow", icon: "leadFlow" },
-      { name: "学生档案", code: "students", path: "/students", icon: "students" },
     ],
   },
   {
@@ -33,6 +32,7 @@ export const MENU_TREE: MenuNode[] = [
   {
     name: "交付管理", code: "delivery", icon: "applications",
     children: [
+      { name: "学生档案", code: "students", path: "/students", icon: "students" },
       { name: "申请管理", code: "applications", path: "/applications", icon: "applications" },
       { name: "文书工作台", code: "copywriter", path: "/copywriter", icon: "copywriter" },
       { name: "Offer管理", code: "offers", path: "/offers", icon: "offers" },

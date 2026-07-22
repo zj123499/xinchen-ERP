@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
   const type = searchParams.get("type") || "";
+  const leadId = parseInt(searchParams.get("leadId") || "0");
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = Math.min(parseInt(searchParams.get("pageSize") || "20"), 100);
 
@@ -20,9 +21,8 @@ export async function GET(request: NextRequest) {
     student: { tenantId },
   };
 
-  if (type) {
-    where.type = type;
-  }
+  if (type) where.type = type;
+  if (leadId) where.leadId = leadId;
 
   if (keyword) {
     where.OR = [
