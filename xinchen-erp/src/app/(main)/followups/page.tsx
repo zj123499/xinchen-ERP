@@ -130,13 +130,6 @@ export default function FollowupsPage() {
     finally { setFuSaving(false); }
   }
 
-  // Student search for follow-up form
-  const searchStudents = (q: string) => {
-    setStudentSearch(q);
-    if (q.length < 2) { loadRecentStudents(); return; }
-    fetch(`/api/students?keyword=${encodeURIComponent(q)}&pageSize=20`).then(r => r.json()).then(d => setStudentResults(d.list || [])).catch(() => {});
-  };
-
   const totalPages = Math.ceil(total / pageSize);
   const bizLabel = (t?: string) => t === "STUDY_ABROAD" ? "留学" : t === "RENTAL" ? "租房" : t === "OVERSEAS_SERVICE" ? "境外服务" : "";
 
