@@ -87,7 +87,7 @@ export async function PUT(
         tenantId,
         studentId: student.id,
         contractNo: `CT${String(student.id).padStart(4, "0")}_${suffix}`,
-        title: `${student.name} - 留学服务合同`,
+        signDate: new Date(),
         totalAmount: existing.budget ? parseFloat(String(existing.budget)) : 0,
         status: "APPROVED",
       },
