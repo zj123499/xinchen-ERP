@@ -38,6 +38,9 @@ export default function FollowupsPage() {
   const [keyword, setKeyword] = useState("");
   const pageSize = 20;
 
+  // 三个 Tab 的独立计数（常显）
+  const [tabCounts, setTabCounts] = useState({ signed: 0, interested: 0, uninterested: 0 });
+
   // 文书分配
   const [docWriters, setDocWriters] = useState<AdvisorItem[]>([]);
   const [docModal, setDocModal] = useState<LeadItem | null>(null);
@@ -76,7 +79,22 @@ export default function FollowupsPage() {
     }
   }, [page, keyword, activeTab]);
 
-  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+  // 并行查询 3 个 Tab 的计数（常显，不受当前 Tab 影响）
+  const fetchTabCounts = useCallback(() => {
+    const pid = new URLSearchParams();
+    pid.set("pageSize", "1");
+    if (keyword) pid.set("keyword", keyword);
+    const baseUrl = `/api/leads?${pid.toString()}`;
+    Promise.all([
+      fetch(`${baseUrl}&status=CONVERTED`).then(r => r.json()).catch(() => ({ total: 0 })),
+      fetch(`${baseUrl}&status=NEW,CONTACTED,QUALIFIED`).then(r => r.json()).catch(() => ({ total: 0 })),
+      fetch(`${baseUrl}&status=DEAD`).then(r => r.json()).catch(() => ({ total: 0 })),
+    ]).then(([s, i, u]) => {
+      setTabCounts({ signed: s.total || 0, interested: i.total || 0, uninterested: u.total || 0 });
+    });
+  }, [keyword]);
+
+  useEffect(() => { fetchLeads(); fetchTabCounts(); }, [fetchLeads, fetchTabCounts]);
 
   // 变更状态
   async function changeStatus(lead: LeadItem, newStatus: string) {
@@ -117,9 +135,9 @@ export default function FollowupsPage() {
   const bizLabel = (t?: string) => t === "STUDY_ABROAD" ? "留学" : t === "RENTAL" ? "租房" : t === "OVERSEAS_SERVICE" ? "境外服务" : "";
 
   const tabs = [
-    { key: "signed" as TabKey, label: "已签约客户", count: activeTab === "signed" ? total : undefined, color: "text-green-600 border-green-600", bg: "bg-green-50 text-green-700" },
-    { key: "interested" as TabKey, label: "意向客户", count: activeTab === "interested" ? total : undefined, color: "text-blue-600 border-blue-600", bg: "bg-blue-50 text-blue-700" },
-    { key: "uninterested" as TabKey, label: "无意向客户", count: activeTab === "uninterested" ? total : undefined, color: "text-gray-600 border-gray-600", bg: "bg-gray-50 text-gray-500" },
+    { key: "signed" as TabKey, label: "已签约客户", count: tabCounts.signed, color: "text-green-600 border-green-600", bg: "bg-green-50 text-green-700" },
+    { key: "interested" as TabKey, label: "意向客户", count: tabCounts.interested, color: "text-blue-600 border-blue-600", bg: "bg-blue-50 text-blue-700" },
+    { key: "uninterested" as TabKey, label: "无意向客户", count: tabCounts.uninterested, color: "text-gray-600 border-gray-600", bg: "bg-gray-50 text-gray-500" },
   ];
 
   return (
@@ -144,9 +162,7 @@ export default function FollowupsPage() {
               activeTab === tab.key ? tab.color : "border-transparent text-gray-500 hover:text-gray-700"
             }`}>
             {tab.label}
-            {tab.count !== undefined && (
-              <span className={`text-xs px-2 py-0.5 rounded-full ${tab.bg}`}>{tab.count}</span>
-            )}
+            <span className={`text-xs px-2 py-0.5 rounded-full ${tab.bg}`}>{tab.count}</span>
           </button>
         ))}
       </div>

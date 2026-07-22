@@ -45,6 +45,7 @@ export default function ApplicationsPage() {
     status: "PREPARING", remark: "",
   });
   const [studentSearch, setStudentSearch] = useState("");
+  const [allStudents, setAllStudents] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [studentResults, setStudentResults] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [orderResults, setOrderResults] = useState<{ id: number; orderNo: string; productName: string }[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<{ id: number; name: string } | null>(null);
@@ -69,15 +70,22 @@ export default function ApplicationsPage() {
 
   const totalPages = Math.ceil(total / pageSize);
 
+  // 首次加载所有学生
+  useEffect(() => {
+    fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
+      if (d.list?.length) setAllStudents(d.list);
+    }).catch(() => {});
+  }, []);
+
   const searchStudents = useCallback(async (q: string) => {
     setStudentSearch(q);
-    if (q.length < 2) { setStudentResults([]); return; }
+    if (q.length < 2) { setStudentResults(allStudents.slice(0, 20)); return; }
     try {
       const res = await fetch(`/api/students?keyword=${encodeURIComponent(q)}&pageSize=10`);
       const data = await res.json();
       if (res.ok) setStudentResults(data.list || []);
     } catch (e) { console.error(e); }
-  }, []);
+  }, [allStudents]);
 
   const fetchOrders = useCallback(async (studentId: number) => {
     try {

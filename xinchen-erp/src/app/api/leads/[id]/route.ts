@@ -59,7 +59,7 @@ export async function PUT(
     }
   }
 
-  // 签约时自动创建学生档案（交付管理以此为基础创建申请）
+  // 签约时自动创建学生档案和订单（交付管理以此为基础创建申请）
   const isConverting = body.status === "CONVERTED" && existing.status !== "CONVERTED";
   let studentId = existing.studentId;
 
@@ -79,6 +79,17 @@ export async function PUT(
       },
     });
     studentId = student.id;
+
+    // 自动创建订单（申请管理需要学生+订单才能创建申请）
+    await prisma.order.create({
+      data: {
+        tenantId,
+        studentId: student.id,
+        orderNo: `SO${new Date().getFullYear()}${String(student.id).padStart(4, "0")}`,
+        status: "PENDING",
+        totalAmount: existing.budget ? parseFloat(String(existing.budget)) : 0,
+      },
+    }).catch(() => {});
   }
 
   // 退回到意向状态时清除文书分配
