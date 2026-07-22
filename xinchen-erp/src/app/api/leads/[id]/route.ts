@@ -81,11 +81,12 @@ export async function PUT(
     studentId = student.id;
 
     // 自动创建合同和订单（申请管理需要学生+订单才能创建申请）
+    const suffix = Date.now().toString(36);
     const contract = await prisma.contract.create({
       data: {
         tenantId,
         studentId: student.id,
-        contractNo: `CT${new Date().getFullYear()}${String(student.id).padStart(4, "0")}`,
+        contractNo: `CT${String(student.id).padStart(4, "0")}_${suffix}`,
         title: `${student.name} - 留学服务合同`,
         totalAmount: existing.budget ? parseFloat(String(existing.budget)) : 0,
         status: "APPROVED",
@@ -93,17 +94,22 @@ export async function PUT(
     }).catch(() => null);
 
     if (contract) {
-      await prisma.order.create({
-        data: {
-          tenantId,
-          studentId: student.id,
-          contractId: contract.id,
-          orderNo: `SO${new Date().getFullYear()}${String(student.id).padStart(4, "0")}`,
-          productName: "留学申请服务",
-          amount: existing.budget ? parseFloat(String(existing.budget)) : 0,
-          status: "PENDING",
-        },
-      }).catch(() => {});
+      try {
+        const orderNo = `SO${new Date().getFullYear()}${String(student.id).padStart(4, "0")}_${Date.now().toString(36)}`;
+        await prisma.order.create({
+          data: {
+            tenantId,
+            studentId: student.id,
+            contractId: contract.id,
+            orderNo,
+            productName: "留学申请服务",
+            amount: existing.budget ? parseFloat(String(existing.budget)) : 0,
+            status: "PENDING",
+          },
+        });
+      } catch (e: any) {
+        console.error("签约自动建订单失败:", e?.message);
+      }
     }
   }
 
