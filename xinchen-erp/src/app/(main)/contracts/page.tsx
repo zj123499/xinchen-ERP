@@ -71,7 +71,6 @@ export default function ContractsPage() {
 
   // 学生搜索
   const [studentSearch, setStudentSearch] = useState("");
-  const [allStudents, setAllStudents] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [studentResults, setStudentResults] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<{ id: number; name: string } | null>(null);
 
@@ -102,9 +101,11 @@ export default function ContractsPage() {
     }).catch(() => {});
   }, [fetchContracts]);
 
+  const loadRecentStudents = () => { fetch("/api/students?pageSize=20").then(r => r.json()).then(d => setStudentResults(d.list || [])).catch(() => {}); };
+
   // 学生搜索防抖
   useEffect(() => {
-    if (studentSearch.length < 2) { setStudentResults([]); return; }
+    if (studentSearch.length < 2) { loadRecentStudents(); return; }
     const timer = setTimeout(async () => {
       try {
         const res = await fetch(`/api/students?keyword=${encodeURIComponent(studentSearch)}&pageSize=10`);
@@ -436,7 +437,7 @@ export default function ContractsPage() {
                       type="text"
                       value={studentSearch}
                       onChange={(e) => setStudentSearch(e.target.value)}
-                      onFocus={() => { if (allStudents.length > 0 && studentResults.length === 0) setStudentResults(allStudents.slice(0, 20)); }}
+                      onFocus={() => { if (studentResults.length === 0) { loadRecentStudents(); }; }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                       placeholder="点击选择或搜索学生..."
                     />

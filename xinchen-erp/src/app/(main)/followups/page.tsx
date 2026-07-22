@@ -51,13 +51,20 @@ export default function FollowupsPage() {
   const [fuSaving, setFuSaving] = useState(false);
   const [fuMsg, setFuMsg] = useState("");
   const [studentSearch, setStudentSearch] = useState("");
-  const [allStudents, setAllStudents] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [studentResults, setStudentResults] = useState<{ id: number; name: string; phone: string }[]>([]);
+
+  const loadRecentStudents = () => {
+    fetch("/api/students?pageSize=20").then(r => r.json()).then(d => setStudentResults(d.list || [])).catch(() => {});
+  };
+  const searchStudents = (q: string) => {
+    setStudentSearch(q);
+    if (q.length < 2) { loadRecentStudents(); return; }
+    fetch(`/api/students?keyword=${encodeURIComponent(q)}&pageSize=20`).then(r => r.json()).then(d => setStudentResults(d.list || [])).catch(() => {});
+  };
 
   // Init
   useEffect(() => {
     fetch("/api/advisors?roleCode=document_application").then(r => r.json()).then(d => setDocWriters(d.list || [])).catch(() => {});
-    fetch("/api/students?pageSize=200").then(r => r.json()).then(d => { if (d.list?.length) setAllStudents(d.list); }).catch(() => {});
   }, []);
 
   const fetchLeads = useCallback(async () => {
@@ -126,7 +133,8 @@ export default function FollowupsPage() {
   // Student search for follow-up form
   const searchStudents = (q: string) => {
     setStudentSearch(q);
-    setStudentResults(q.length < 2 ? allStudents.slice(0, 20) : allStudents.filter(s => s.name.includes(q) || s.phone.includes(q)).slice(0, 20));
+    if (q.length < 2) { loadRecentStudents(); return; }
+    fetch(`/api/students?keyword=${encodeURIComponent(q)}&pageSize=20`).then(r => r.json()).then(d => setStudentResults(d.list || [])).catch(() => {});
   };
 
   const totalPages = Math.ceil(total / pageSize);
@@ -275,7 +283,7 @@ export default function FollowupsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">学生 <span className="text-red-500">*</span></label>
                 <input type="text" placeholder="点击选择或搜索学生..." value={studentSearch}
                   onChange={e => searchStudents(e.target.value)}
-                  onFocus={() => { if (allStudents.length > 0 && studentResults.length === 0) setStudentResults(allStudents.slice(0, 20)); }}
+                  onFocus={() => { if (studentResults.length === 0) loadRecentStudents(); }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" />
                 {studentResults.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-32 overflow-y-auto">

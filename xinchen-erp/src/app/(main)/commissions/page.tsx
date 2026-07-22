@@ -89,7 +89,6 @@ export default function CommissionsPage() {
 
   // 搜索学生
   const [studentSearch, setStudentSearch] = useState("");
-  const [allStudents, setAllStudents] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [studentResults, setStudentResults] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<{ id: number; name: string; phone: string } | null>(null);
   const [searchingStudent, setSearchingStudent] = useState(false);
@@ -129,9 +128,11 @@ export default function CommissionsPage() {
     }).catch(() => {});
   }, []);
 
+  const loadRecentStudents = () => { fetch("/api/students?pageSize=20").then(r => r.json()).then(d => setStudentResults(d.list || [])).catch(() => {}); };
+
   // 搜索学生
   useEffect(() => {
-    if (!studentSearch || studentSearch.length < 2) { setStudentResults([]); return; }
+    if (!studentSearch || studentSearch.length < 2) { loadRecentStudents(); return; }
     const timer = setTimeout(async () => {
       setSearchingStudent(true);
       try {
@@ -385,7 +386,7 @@ export default function CommissionsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">学生 <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <input type="text" value={studentSearch} onChange={(e) => { setStudentSearch(e.target.value); setSelectedStudent(null); setFormData((d) => ({ ...d, studentId: "" })); }}
-                    onFocus={() => { if (allStudents.length > 0 && studentResults.length === 0) setStudentResults(allStudents.slice(0, 20)); }}
+                    onFocus={() => { if (studentResults.length === 0) { loadRecentStudents(); }; }}
                     placeholder="点击选择或搜索学生..." className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
                   {studentResults.length > 0 && !selectedStudent && (
                     <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto mt-1">

@@ -45,7 +45,6 @@ export default function ApplicationsPage() {
     status: "PREPARING", remark: "",
   });
   const [studentSearch, setStudentSearch] = useState("");
-  const [allStudents, setAllStudents] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [studentResults, setStudentResults] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [orderResults, setOrderResults] = useState<{ id: number; orderNo: string; productName: string }[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<{ id: number; name: string } | null>(null);
@@ -70,22 +69,20 @@ export default function ApplicationsPage() {
 
   const totalPages = Math.ceil(total / pageSize);
 
-  // 首次加载所有学生
-  useEffect(() => {
-    fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
-      if (d.list?.length) setAllStudents(d.list);
-    }).catch(() => {});
+  // 按需加载最近学生（onFocus触发，不是初始加载）
+  const loadRecentStudents = useCallback(() => {
+    fetch("/api/students?pageSize=20").then(r => r.json()).then(d => setStudentResults(d.list || [])).catch(() => {});
   }, []);
 
   const searchStudents = useCallback(async (q: string) => {
     setStudentSearch(q);
-    if (q.length < 2) { setStudentResults([]); return; }
+    if (q.length < 2) { loadRecentStudents(); return; }
     try {
       const res = await fetch(`/api/students?keyword=${encodeURIComponent(q)}&pageSize=10`);
       const data = await res.json();
       if (res.ok) setStudentResults(data.list || []);
     } catch (e) { console.error(e); }
-  }, [allStudents]);
+  }, []);
 
   const fetchOrders = useCallback(async (studentId: number) => {
     try {
@@ -237,7 +234,7 @@ export default function ApplicationsPage() {
                 {selectedStudent ? (
                   <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedStudent.name}</span><button onClick={() => { setSelectedStudent(null); setForm(f => ({ ...f, studentId: "" })); setStudentSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
                 ) : (
-                  <div className="relative"><input type="text" placeholder="点击选择或搜索学生..." value={studentSearch} onChange={e => searchStudents(e.target.value)} onFocus={() => { if (allStudents.length > 0 && studentResults.length === 0) setStudentResults(allStudents.slice(0, 20)); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  <div className="relative"><input type="text" placeholder="点击选择或搜索学生..." value={studentSearch} onChange={e => searchStudents(e.target.value)} onFocus={() => { if (studentResults.length === 0) { loadRecentStudents(); }; }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
                     {studentResults.length > 0 && (<div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">{studentResults.map(s => (<div key={s.id} onClick={() => selectStudent(s)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm">{s.name} <span className="text-gray-400 ml-2">{s.phone}</span></div>))}</div>)}
                   </div>
                 )}
