@@ -89,6 +89,7 @@ export default function CommissionsPage() {
 
   // 搜索学生
   const [studentSearch, setStudentSearch] = useState("");
+  const [allStudents, setAllStudents] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [studentResults, setStudentResults] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<{ id: number; name: string; phone: string } | null>(null);
   const [searchingStudent, setSearchingStudent] = useState(false);
@@ -120,6 +121,9 @@ export default function CommissionsPage() {
     fetch("/api/employees?pageSize=100").then(r => r.json()).then(d => {
       setEmployees(d.list?.map((e: EmployeeOption) => ({ id: e.id, name: e.name, employeeNo: e.employeeNo })) || []);
     }).catch(() => {});
+    fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
+      if (d.list?.length) setAllStudents(d.list);
+    }).catch(() => {});
     fetch("/api/commission-rules").then(r => r.json()).then(d => {
       setRules(d.list || []);
     }).catch(() => {});
@@ -127,7 +131,7 @@ export default function CommissionsPage() {
 
   // 搜索学生
   useEffect(() => {
-    if (!studentSearch || studentSearch.length < 1) { setStudentResults([]); return; }
+    if (!studentSearch || studentSearch.length < 2) { setStudentResults(allStudents.slice(0, 20)); return; }
     const timer = setTimeout(async () => {
       setSearchingStudent(true);
       try {
@@ -148,7 +152,7 @@ export default function CommissionsPage() {
     });
     setSelectedStudent(null);
     setStudentSearch("");
-    setStudentResults([]);
+    setStudentResults(allStudents.slice(0, 20));
     setFormError("");
     setShowForm(true);
   }
@@ -381,7 +385,8 @@ export default function CommissionsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">学生 <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <input type="text" value={studentSearch} onChange={(e) => { setStudentSearch(e.target.value); setSelectedStudent(null); setFormData((d) => ({ ...d, studentId: "" })); }}
-                    placeholder="搜索学生姓名或手机号..." className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+                    onFocus={() => { if (allStudents.length > 0 && studentResults.length === 0) setStudentResults(allStudents.slice(0, 20)); }}
+                    placeholder="点击选择或搜索学生..." className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
                   {studentResults.length > 0 && !selectedStudent && (
                     <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-48 overflow-y-auto mt-1">
                       {studentResults.map((s) => (

@@ -75,6 +75,7 @@ export default function OrdersPage() {
 
   // 学生搜索
   const [studentSearch, setStudentSearch] = useState("");
+  const [allStudents, setAllStudents] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [studentResults, setStudentResults] = useState<{ id: number; name: string; phone: string }[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<{ id: number; name: string } | null>(null);
 
@@ -105,12 +106,15 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
+    fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
+      if (d.list?.length) setAllStudents(d.list);
+    }).catch(() => {});
   }, [fetchOrders]);
 
   // 学生搜索防抖
   useEffect(() => {
     if (studentSearch.length < 2) {
-      setStudentResults([]);
+      setStudentResults(allStudents.slice(0, 20));
       return;
     }
     const timer = setTimeout(async () => {
@@ -140,6 +144,7 @@ export default function OrdersPage() {
     setSelectedStudent(null);
     setSelectedContract(null);
     setStudentSearch("");
+    setStudentResults(allStudents.slice(0, 20));
     setContracts([]);
     setFormData({
       studentId: "",
@@ -473,8 +478,9 @@ export default function OrdersPage() {
                       type="text"
                       value={studentSearch}
                       onChange={(e) => setStudentSearch(e.target.value)}
+                      onFocus={() => { if (allStudents.length > 0 && studentResults.length === 0) setStudentResults(allStudents.slice(0, 20)); }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="输入学生姓名搜索..."
+                      placeholder="点击选择或搜索学生..."
                     />
                     {studentResults.length > 0 && (
                       <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
