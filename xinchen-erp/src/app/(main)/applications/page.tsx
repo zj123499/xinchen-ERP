@@ -79,7 +79,7 @@ export default function ApplicationsPage() {
 
   const searchStudents = useCallback(async (q: string) => {
     setStudentSearch(q);
-    if (q.length < 2) { setStudentResults(allStudents.slice(0, 20)); return; }
+    if (q.length < 2) { setStudentResults([]); return; }
     try {
       const res = await fetch(`/api/students?keyword=${encodeURIComponent(q)}&pageSize=10`);
       const data = await res.json();
@@ -127,7 +127,7 @@ export default function ApplicationsPage() {
     setForm({ studentId: "", orderId: "", institutionName: "", majorName: "", degree: "硕士", intakeYear: new Date().getFullYear() + 1, intakeMonth: 9, status: "PREPARING", remark: "" });
     setSelectedStudent(null); setSelectedOrder(null);
     setStudentSearch("");
-    setStudentResults(allStudents.length > 0 ? allStudents.slice(0, 20) : []);
+    setStudentResults([]);
     setOrderResults([]);
     setError(""); setShowModal(true);
   };

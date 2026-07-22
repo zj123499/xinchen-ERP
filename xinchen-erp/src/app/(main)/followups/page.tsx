@@ -148,7 +148,7 @@ export default function FollowupsPage() {
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => { setKeyword(""); setPage(1); }} className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition" title="刷新"><RefreshCw className="w-4 h-4" /></button>
-          <button onClick={() => { setShowFollowupForm(true); searchStudents(""); }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition"><Plus className="w-4 h-4" />添加跟进</button>
+          <button onClick={() => { setShowFollowupForm(true); setStudentResults([]); setStudentSearch(""); }} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition"><Plus className="w-4 h-4" />添加跟进</button>
         </div>
       </div>
 

@@ -131,7 +131,7 @@ export default function CommissionsPage() {
 
   // 搜索学生
   useEffect(() => {
-    if (!studentSearch || studentSearch.length < 2) { setStudentResults(allStudents.slice(0, 20)); return; }
+    if (!studentSearch || studentSearch.length < 2) { setStudentResults([]); return; }
     const timer = setTimeout(async () => {
       setSearchingStudent(true);
       try {
@@ -152,7 +152,7 @@ export default function CommissionsPage() {
     });
     setSelectedStudent(null);
     setStudentSearch("");
-    setStudentResults(allStudents.slice(0, 20));
+    setStudentResults([]);
     setFormError("");
     setShowForm(true);
   }

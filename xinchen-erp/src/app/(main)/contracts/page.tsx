@@ -104,10 +104,7 @@ export default function ContractsPage() {
 
   // 学生搜索防抖
   useEffect(() => {
-    if (studentSearch.length < 2) {
-      setStudentResults(allStudents.slice(0, 20));
-      return;
-    }
+    if (studentSearch.length < 2) { setStudentResults([]); return; }
     const timer = setTimeout(async () => {
       try {
         const res = await fetch(`/api/students?keyword=${encodeURIComponent(studentSearch)}&pageSize=10`);
@@ -122,7 +119,7 @@ export default function ContractsPage() {
     setEditingContract(null);
     setSelectedStudent(null);
     setStudentSearch("");
-    setStudentResults(allStudents.slice(0, 20));
+    setStudentResults([]);
     setFormData({
       studentId: "",
       contractNo: "",
