@@ -107,6 +107,30 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
 
   useEffect(() => { if (student) fetchFiles(); }, [student?.id]);
 
+  // 申请意向管理
+  const [intentions, setIntentions] = useState<any[]>([]);
+  const [intentForm, setIntentForm] = useState({ country: "", institution: "", major: "", degree: "硕士", priority: 0, remark: "" });
+  const [showIntentForm, setShowIntentForm] = useState(false);
+
+  async function fetchIntentions() {
+    if (!student) return;
+    try { const r = await fetch(`/api/students/${student.id}/intentions`); const d = await r.json(); setIntentions(d.list || []); }
+    catch { setIntentions([]); }
+  }
+  async function addIntention() {
+    if (!student || !intentForm.country) return;
+    await fetch(`/api/students/${student.id}/intentions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(intentForm) });
+    setIntentForm({ country: "", institution: "", major: "", degree: "硕士", priority: 0, remark: "" });
+    setShowIntentForm(false);
+    fetchIntentions();
+  }
+  async function deleteIntention(intentId: number) {
+    if (!student || !confirm("确定删除？")) return;
+    await fetch(`/api/students/${student.id}/intentions?intentId=${intentId}`, { method: "DELETE" });
+    fetchIntentions();
+  }
+  useEffect(() => { if (student) fetchIntentions(); }, [student?.id]);
+
   function formatSize(bytes: number): string {
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
@@ -368,6 +392,74 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
                     <button onClick={() => deleteFile(f.id)}
                       className="ml-2 p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded flex-shrink-0">
                       <Trash2 className="w-3.5 h-3.5" /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 申请意向（多国多校多专业） */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-blue-500" />申请意向
+              </h2>
+              <button onClick={() => setShowIntentForm(!showIntentForm)}
+                className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700">
+                + 添加意向
+              </button>
+            </div>
+            {showIntentForm && (
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200 space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] text-gray-500">国家 <span className="text-red-400">*</span></label>
+                    <input value={intentForm.country} onChange={e => setIntentForm(f => ({ ...f, country: e.target.value }))}
+                      className="w-full px-2 py-1 border rounded text-xs outline-none" placeholder="如：英国" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-gray-500">院校</label>
+                    <input value={intentForm.institution} onChange={e => setIntentForm(f => ({ ...f, institution: e.target.value }))}
+                      className="w-full px-2 py-1 border rounded text-xs outline-none" placeholder="如：UCL" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-gray-500">专业</label>
+                    <input value={intentForm.major} onChange={e => setIntentForm(f => ({ ...f, major: e.target.value }))}
+                      className="w-full px-2 py-1 border rounded text-xs outline-none" placeholder="如：计算机科学" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-gray-500">学位</label>
+                    <select value={intentForm.degree} onChange={e => setIntentForm(f => ({ ...f, degree: e.target.value }))}
+                      className="w-full px-2 py-1 border rounded text-xs outline-none">
+                      <option value="本科">本科</option><option value="硕士">硕士</option><option value="博士">博士</option><option value="预科">预科</option><option value="其他">其他</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={addIntention} disabled={!intentForm.country}
+                    className="flex-1 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50">保存</button>
+                  <button onClick={() => setShowIntentForm(false)} className="py-1 px-3 border rounded text-xs">取消</button>
+                </div>
+              </div>
+            )}
+            {intentions.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-4">暂无申请意向，点击上方按钮添加</p>
+            ) : (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {intentions.map((it: any) => (
+                  <div key={it.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-medium">{it.country}</span>
+                        {it.institution && <span className="text-xs text-gray-500">· {it.institution}</span>}
+                        {it.major && <span className="text-xs text-gray-500">· {it.major}</span>}
+                        <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">{it.degree || "硕士"}</span>
+                      </div>
+                    </div>
+                    <button onClick={() => deleteIntention(it.id)}
+                      className="ml-2 p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded flex-shrink-0">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 ))}
               </div>

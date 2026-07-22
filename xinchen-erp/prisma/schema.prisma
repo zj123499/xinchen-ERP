@@ -255,6 +255,7 @@ model Tenant {
   partnerAgreements   PartnerAgreement[]
   partnerCommissions  PartnerCommission[]
   partnerContracts    PartnerContract[]
+  studentIntentions   StudentIntention[]
 
   @@map("tenants")
 }
@@ -762,12 +763,34 @@ model Student {
   riskRecords         RiskRecord[]
   aiConversations      AiConversation[]
   partnerCommissions   PartnerCommission[]
+  intentions           StudentIntention[]
 
   @@index([tenantId])
   @@index([assignedToId])
   @@index([phone])
   @@index([wechat])
   @@map("students")
+}
+
+model StudentIntention {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  studentId   Int      @map("student_id")
+  country     String?  @db.VarChar(100)
+  institution String?  @db.VarChar(200)
+  major       String?  @db.VarChar(200)
+  degree      String?  @db.VarChar(50)
+  priority    Int      @default(0)
+  remark      String?  @db.Text
+  createdBy   Int?     @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@index([tenantId, studentId])
+  @@map("student_intentions")
 }
 
 model Lead {

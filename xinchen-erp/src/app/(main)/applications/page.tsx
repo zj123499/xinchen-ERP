@@ -95,6 +95,8 @@ export default function ApplicationsPage() {
     } catch (e) { console.error(e); }
   }, []);
 
+  const [intentions, setIntentions] = useState<any[]>([]);
+
   const selectStudent = (s: { id: number; name: string }) => {
     setSelectedStudent(s);
     setForm(f => ({ ...f, studentId: String(s.id) }));
@@ -104,6 +106,20 @@ export default function ApplicationsPage() {
     setSelectedOrder(null);
     setForm(f => ({ ...f, orderId: "" }));
     fetchOrders(s.id);
+    // 加载该学生的申请意向，自动预填院校/专业
+    fetch(`/api/students/${s.id}/intentions`).then(r => r.json()).then(d => {
+      const items = d.list || [];
+      setIntentions(items);
+      if (items.length > 0) {
+        const first = items[0];
+        setForm(f => ({
+          ...f,
+          institutionName: f.institutionName || first.institution || "",
+          majorName: f.majorName || first.major || "",
+          degree: f.degree || first.degree || "硕士",
+        }));
+      }
+    }).catch(() => {});
   };
 
   const openCreate = () => {
@@ -226,6 +242,25 @@ export default function ApplicationsPage() {
                   </div>
                 )}
               </div>
+              {intentions.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">申请意向（点击快速填充）</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {intentions.map((it: any, idx: number) => (
+                      <button key={it.id} onClick={() => setForm(f => ({
+                        ...f,
+                        institutionName: it.institution || f.institutionName,
+                        majorName: it.major || f.majorName,
+                        degree: it.degree || f.degree,
+                      }))}
+                        className={`text-xs px-2 py-1 rounded border transition ${idx === 0 ? "border-blue-300 bg-blue-50 text-blue-700" : "border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-300"}`}
+                        title={`${it.country} · ${it.institution || "—"} · ${it.major || "—"}`}>
+                        {it.country}{it.institution ? ` · ${it.institution}` : ""}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div><label className="block text-sm font-medium text-gray-700 mb-1">订单 <span className="text-red-500">*</span></label>
                 {selectedOrder ? (
                   <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedOrder.orderNo}</span><button onClick={() => { setSelectedOrder(null); setForm(f => ({ ...f, orderId: "" })); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
