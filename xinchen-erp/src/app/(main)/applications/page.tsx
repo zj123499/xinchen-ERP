@@ -14,7 +14,7 @@ interface ApplicationItem {
   status: string;
   createdAt: string;
   student: { id: number; name: string; phone: string };
-  contract: { id: number; contractNo: string };
+  contract: { id: number; contractNo: string } | null;
   _count: { offers: number; visas: number };
 }
 
@@ -201,7 +201,7 @@ export default function ApplicationsPage() {
                 <td className="px-4 py-3 text-sm text-gray-700">{item.institutionName}</td>
                 <td className="px-4 py-3 text-sm text-gray-700">{item.majorName}</td>
                 <td className="px-4 py-3 text-sm text-gray-500">{item.degree} / {item.intakeYear}.{String(item.intakeMonth).padStart(2, "0")}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">{item.contract.contractNo}</td>
+                <td className="px-4 py-3 text-sm text-gray-700">{item.contract?.contractNo || "-"}</td>
                 <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[item.status]?.color || "bg-gray-100 text-gray-800"}`}>{STATUS_MAP[item.status]?.label || item.status}</span></td>
                 <td className="px-4 py-3"><div className="flex items-center gap-2 text-xs text-gray-500">{item._count.offers > 0 && <span className="text-green-600">Offer×{item._count.offers}</span>}{item._count.visas > 0 && <span className="text-blue-600">签证×{item._count.visas}</span>}</div></td>
                 <td className="px-4 py-3 text-right"><div className="flex items-center justify-end gap-1">
