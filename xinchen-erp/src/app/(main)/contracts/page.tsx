@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search, Plus, FileText, MoreHorizontal, Trash2, ChevronLeft, ChevronRight,
-  RefreshCw, User, Calendar, DollarSign,
+  RefreshCw, User, Calendar, DollarSign, Upload, X, Lock,
 } from "lucide-react";
 
 interface ContractItem {
@@ -58,6 +58,16 @@ export default function ContractsPage() {
   const [deleteTarget, setDeleteTarget] = useState<ContractItem | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // 上传文件
+  const [uploadTarget, setUploadTarget] = useState<ContractItem | null>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadMsg, setUploadMsg] = useState("");
+  // 查看文件列表
+  const [fileListTarget, setFileListTarget] = useState<ContractItem | null>(null);
+  const [fileList, setFileList] = useState<any[]>([]);
+  const [fileListLoading, setFileListLoading] = useState(false);
+
   async function handleDelete() {
     if (!deleteTarget) return;
     setDeleting(true);
@@ -68,6 +78,33 @@ export default function ContractsPage() {
       fetchContracts();
     } catch { alert("网络错误"); }
     finally { setDeleting(false); }
+  }
+
+  async function fetchFileList(contractId: number) {
+    setFileListLoading(true);
+    try {
+      const res = await fetch(`/api/contracts/${contractId}/files`);
+      const d = await res.json();
+      setFileList(d.list || []);
+    } catch { setFileList([]); }
+    finally { setFileListLoading(false); }
+  }
+
+  async function handleUpload() {
+    if (!uploadTarget || !uploadFile) return;
+    setUploading(true); setUploadMsg("");
+    try {
+      const form = new FormData();
+      form.append("file", uploadFile);
+      form.append("contractId", String(uploadTarget.id));
+      const res = await fetch("/api/contracts/upload", { method: "POST", body: form });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "上传失败");
+      setUploadMsg(`✅ ${d.originalName} 上传成功`);
+      setUploadFile(null);
+    } catch (e: any) {
+      setUploadMsg(`❌ ${e.message}`);
+    } finally { setUploading(false); }
   }
   const [formData, setFormData] = useState({
     studentId: "",
@@ -348,6 +385,20 @@ export default function ContractsPage() {
                       </td>
                       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                         <button
+                          onClick={() => { setUploadTarget(contract); setUploadFile(null); setUploadMsg(""); }}
+                          className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition"
+                          title="上传合同文件"
+                        >
+                          <Upload className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => { setFileListTarget(contract); fetchFileList(contract.id); }}
+                          className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition"
+                          title="查看合同文件"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => openEditForm(contract)}
                           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition"
                           title="编辑"
@@ -435,12 +486,20 @@ export default function ContractsPage() {
                 </div>
               )}
 
-              {/* 学生选择 */}
+              {/* 学生选择/绑定 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   关联学生 <span className="text-red-500">*</span>
                 </label>
-                {selectedStudent ? (
+                {editingContract ? (
+                  // 编辑模式：合同已绑定学生，不可更换
+                  <div className="flex items-center gap-2 p-3 bg-gray-100 border border-gray-200 rounded-lg">
+                    <User className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-700">{selectedStudent?.name}</span>
+                    <span className="ml-auto text-xs text-gray-500 flex items-center gap-1"><Lock className="w-3 h-3" />已绑定，不可更换</span>
+                  </div>
+                ) : selectedStudent ? (
+                  // 新建模式：可以更换
                   <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <User className="w-4 h-4 text-blue-600" />
                     <span className="text-sm font-medium text-blue-900">{selectedStudent.name}</span>
@@ -453,6 +512,7 @@ export default function ContractsPage() {
                     </button>
                   </div>
                 ) : (
+                  // 新建模式：选择学生
                   <div className="relative">
                     <input
                       type="text"
@@ -591,6 +651,76 @@ export default function ContractsPage() {
               </button>
               <button onClick={() => setDeleteTarget(null)}
                 className="py-2 px-6 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 上传合同文件弹窗 */}
+      {uploadTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+            <div className="flex items-center justify-between px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold">上传合同 - {uploadTarget.contractNo}</h2>
+              <button onClick={() => setUploadTarget(null)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-gray-500 mb-4">支持 PDF、图片、Word、Excel，最大 20MB</p>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx"
+                onChange={e => setUploadFile(e.target.files?.[0] || null)}
+                className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
+              {uploadFile && <p className="text-sm text-gray-600 mt-2">已选择: {uploadFile.name}</p>}
+              {uploadMsg && <p className={`text-sm mt-3 ${uploadMsg.startsWith("✅") ? "text-green-600" : "text-red-500"}`}>{uploadMsg}</p>}
+              <div className="flex gap-3 mt-4">
+                <button onClick={handleUpload} disabled={!uploadFile || uploading}
+                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50">
+                  <Upload className="w-4 h-4" />{uploading ? "上传中..." : "上传"}
+                </button>
+                <button onClick={() => setUploadTarget(null)} className="py-2 px-6 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 查看合同文件列表弹窗 */}
+      {fileListTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold">合同文件 - {fileListTarget.contractNo}</h2>
+              <button onClick={() => setFileListTarget(null)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6">
+              {fileListLoading ? (
+                <p className="text-gray-400 text-sm text-center py-8">加载中...</p>
+              ) : fileList.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <FileText className="w-12 h-12 mx-auto mb-2 text-gray-200" />
+                  <p className="text-sm">暂无合同文件</p>
+                  <p className="text-xs mt-1">点击上传按钮添加文件</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {fileList.map((f: any) => (
+                    <div key={f.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{f.originalName}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {f.sizeText} · {f.uploaderName} · {new Date(f.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <button onClick={async () => {
+                        if (!confirm("确定删除该文件？")) return;
+                        await fetch(`/api/contracts/${fileListTarget.id}/files?fileId=${f.id}`, { method: "DELETE" });
+                        fetchFileList(fileListTarget.id);
+                      }} className="ml-2 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded" title="删除">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

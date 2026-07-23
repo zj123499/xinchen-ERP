@@ -94,6 +94,7 @@ export async function PUT(
   if (body.currency !== undefined) data.currency = body.currency;
   if (body.status !== undefined) data.status = body.status;
   if (body.content !== undefined) data.content = body.content;
+  if (body.attachmentUrl !== undefined) data.attachmentUrl = body.attachmentUrl || null;
   if (body.remark !== undefined) data.remark = body.remark;
 
   const contract = await prisma.contract.update({
