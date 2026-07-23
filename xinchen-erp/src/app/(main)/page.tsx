@@ -176,6 +176,14 @@ export default function DashboardPage() {
 
   if (!data) return null;
 
+  // 权限控制
+  const perm = data.permissions || { leads: true, students: true, contracts: true, payments: true, applications: true, visits: true, reports: true, settings: true };
+  const hasFinance = perm.payments;
+  const hasContracts = perm.contracts;
+  const hasLeads = perm.leads;
+  const hasStudents = perm.students;
+  const hasVisits = perm.visits;
+
   // 安全访问嵌套对象，防止 undefined 导致崩溃
   const ov = data.overview || {};
   const fin = data.finance || {};
@@ -194,13 +202,13 @@ export default function DashboardPage() {
   const recentPayments = data.recentPayments || [];
 
   const stats = [
-    { label: "今日新增线索", value: String(data.todayNewLeads || 0), icon: Users, color: "blue", sub: `共${data.totalLeads || 0}条` },
-    { label: "待跟进线索", value: String(data.pendingFollowLeads || 0), icon: Clock, color: "orange" },
-    { label: "本月签约", value: String(data.monthContracts || 0), icon: FileText, color: "green", sub: `共${ov.totalContracts || 0}份` },
-    { label: "本月收款", value: formatCurrency(fin.monthPaymentAmount), icon: DollarSign, color: "purple", sub: `利润${formatCurrency(fin.monthProfit)}` },
-    { label: "今日待回访", value: String(data.todayVisits || 0), icon: PhoneCall, color: "pink" },
-    { label: "本年业绩完成率", value: `${data.yearCompletionRate || 0}%`, icon: TrendingUp, color: "indigo", sub: `${formatCompact(fin.yearPaymentAmount)}/${formatCompact(fin.yearContractAmount)}` },
-  ];
+    { label: "今日新增线索", value: String(data.todayNewLeads || 0), icon: Users, color: "blue", sub: `共${data.totalLeads || 0}条`, need: hasLeads },
+    { label: "待跟进线索", value: String(data.pendingFollowLeads || 0), icon: Clock, color: "orange", need: hasLeads },
+    { label: "本月签约", value: String(data.monthContracts || 0), icon: FileText, color: "green", sub: `共${ov.totalContracts || 0}份`, need: hasContracts },
+    { label: "本月收款", value: formatCurrency(fin.monthPaymentAmount), icon: DollarSign, color: "purple", sub: `利润${formatCurrency(fin.monthProfit)}`, need: hasFinance },
+    { label: "今日待回访", value: String(data.todayVisits || 0), icon: PhoneCall, color: "pink", need: hasVisits },
+    { label: "本年业绩完成率", value: `${data.yearCompletionRate || 0}%`, icon: TrendingUp, color: "indigo", sub: `${formatCompact(fin.yearPaymentAmount)}/${formatCompact(fin.yearContractAmount)}`, need: hasFinance },
+  ].filter(s => s.need);
 
   const overviewStats = [
     { label: "学生总数", value: String(data.totalStudents || 0), icon: GraduationCap, color: "cyan" },
@@ -275,6 +283,7 @@ export default function DashboardPage() {
       </div>
 
       {/* 财务概览 */}
+      {hasFinance ? (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">本月财务</h2>
@@ -321,8 +330,14 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      ) : (
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 text-center">
+        <p className="text-sm text-gray-400">无财务数据权限，如需查看请联系管理员</p>
+      </div>
+      )}
 
       {/* 线索分析 */}
+      {hasLeads && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">线索来源分布</h3>
@@ -355,21 +370,28 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      )}
 
       {/* 收款 & 合同趋势 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {hasFinance && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">本年月度收款趋势</h3>
           <BarChart data={paymentsByMonth} color="purple" height={150} />
         </div>
+        )}
+        {hasContracts && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">本年合同签约趋势</h3>
           <BarChart data={contractsByMonth.map((c) => ({ label: c.month, value: c.count }))} color="green" height={150} />
         </div>
+        )}
       </div>
 
       {/* 收款类型 & 业务线 */}
+      {(hasFinance || hasContracts) && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {hasFinance && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">收款类型分布（本年）</h3>
           <div className="space-y-3">
@@ -381,6 +403,8 @@ export default function DashboardPage() {
             }
           </div>
         </div>
+        )}
+        {hasContracts && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">合同业务线分布（本年）</h3>
           <div className="space-y-3">
@@ -392,9 +416,12 @@ export default function DashboardPage() {
             }
           </div>
         </div>
+        )}
       </div>
+      )}
 
       {/* 学生分析 */}
+      {hasStudents && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">学生目标国家分布</h3>
@@ -417,9 +444,12 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      )}
 
       {/* 院校申请 & 佣金 */}
+      {(perm.applications || hasFinance) && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {perm.applications && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">申请院校 TOP10</h3>
           <div className="space-y-3">
@@ -430,6 +460,8 @@ export default function DashboardPage() {
             }
           </div>
         </div>
+        )}
+        {hasFinance && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">佣金状态分布</h3>
           <div className="space-y-3">
@@ -441,10 +473,14 @@ export default function DashboardPage() {
             }
           </div>
         </div>
+        )}
       </div>
+      )}
 
       {/* 最近动态 */}
+      {(hasLeads || hasFinance) && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {hasLeads && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">最近线索</h3>
           {recentLeads.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -464,6 +500,8 @@ export default function DashboardPage() {
             </div>
           }
         </div>
+        )}
+        {hasFinance && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">最近收款</h3>
           {recentPayments.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -480,7 +518,9 @@ export default function DashboardPage() {
             </div>
           }
         </div>
+        )}
       </div>
+      )}
 
       {/* 快捷操作 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
