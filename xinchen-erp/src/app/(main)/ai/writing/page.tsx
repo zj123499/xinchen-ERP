@@ -28,8 +28,8 @@ export default function AIWritingPage() {
   const [histories, setHistories] = useState<HistoryItem[]>([]);
 
   useEffect(() => {
-    fetch("/api/students?pageSize=50").then((r) => r.json()).then((d) => setStudents(d.data || [])).catch(() => {});
-    fetch("/api/copywriter-tasks?pageSize=50").then((r) => r.json()).then((d) => setTasks(d.data || d || [])).catch(() => {});
+    fetch("/api/students?pageSize=50").then((r) => r.json()).then((d) => setStudents(d.list || d.data || [])).catch(() => {});
+    fetch("/api/copywriter-tasks?pageSize=50").then((r) => r.json()).then((d) => setTasks(d.list || d.data || [])).catch(() => {});
     loadHistory();
   }, []);
 
