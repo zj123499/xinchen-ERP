@@ -994,7 +994,7 @@ model Application {
   id              Int               @id @default(autoincrement())
   tenantId        Int               @map("tenant_id")
   studentId       Int               @map("student_id")
-  contractId      Int?              @map("order_id")
+  contractId      Int?              @map("contract_id")
   institutionName String            @map("institution_name") @db.VarChar(200)
   majorName       String            @map("major_name") @db.VarChar(200)
   degree          String            @db.VarChar(50)
