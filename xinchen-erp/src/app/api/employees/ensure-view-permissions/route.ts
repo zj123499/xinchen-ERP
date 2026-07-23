@@ -22,14 +22,7 @@ const ROLE_VIEW_MAP: Record<string, string[]> = {
   academic_advisor: ["students:view", "applications:view", "contracts:view", "visits:view"],
   document_application: ["students:view", "applications:view", "visits:view"],
   finance: ["payments:view", "contracts:view", "reports:view"],
-};
-
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-    roles: (request.headers.get("x-user-roles") || "").split(",").filter(Boolean),
-  };
+};;
 }
 
 export async function GET(request: NextRequest) {

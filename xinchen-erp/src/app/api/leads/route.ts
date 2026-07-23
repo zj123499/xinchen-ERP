@@ -7,15 +7,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import { requirePermission, isAdmin } from "@/lib/permission";
-
-function getContext(request: NextRequest) {
-  const roles = (request.headers.get("x-user-roles") || "").split(",").filter(Boolean);
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-    roles,
-  };
+import { requirePermission, isAdmin } from "@/lib/permission";;
 }
 
 export async function GET(request: NextRequest) {

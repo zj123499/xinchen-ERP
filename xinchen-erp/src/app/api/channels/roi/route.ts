@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { ChannelType, AttributionModel } from "@prisma/client";
-
-function getContext(request: NextRequest) {
-  return { tenantId: parseInt(request.headers.get("x-tenant-id") || "0") };
+import { ChannelType, AttributionModel } from "@prisma/client";;
+import { getContext } from "@/lib/context";
 }
 
 const CHANNEL_LABELS: Record<string, string> = {

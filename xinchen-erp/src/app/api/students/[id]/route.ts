@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { recordOperation } from "@/lib/operation-log";
-import { requirePermission } from "@/lib/permission";
-
-function getContext(request: NextRequest) {
-  return { tenantId: parseInt(request.headers.get("x-tenant-id") || "0") };
+import { requirePermission } from "@/lib/permission";;
 }
 
 export async function GET(

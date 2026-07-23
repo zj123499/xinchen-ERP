@@ -5,12 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-
-function getContext(request: NextRequest) {
-  return {
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
+import { prisma } from "@/lib/prisma";;
+import { getContext } from "@/lib/context";
 }
 
 async function authorize(roleId: number, tenantId: number) {

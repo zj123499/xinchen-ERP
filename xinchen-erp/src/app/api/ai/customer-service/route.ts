@@ -9,13 +9,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { callAi } from "@/lib/ai-gateway";
-
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
+import { callAi } from "@/lib/ai-gateway";;
+import { getContext } from "@/lib/context";
 }
 
 // 关键词重叠打分，挑最相关 FAQ

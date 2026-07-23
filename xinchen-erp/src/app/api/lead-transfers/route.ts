@@ -7,13 +7,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { submitApproval } from "@/lib/approvalBusiness";
-
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
+import { submitApproval } from "@/lib/approvalBusiness";;
+import { getContext } from "@/lib/context";
 }
 
 export async function GET(request: NextRequest) {

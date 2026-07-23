@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getStorage } from "@/lib/storage";
-
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
+import { getStorage } from "@/lib/storage";;
+import { getContext } from "@/lib/context";
 }
 
 function formatSize(bytes: number): string {
