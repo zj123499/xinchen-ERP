@@ -208,7 +208,7 @@ export default function StudentsPage() {
               <Field label="姓名 *"><input className={ipt} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="必填" /></Field>
               <Field label="性别">
                 <select className={ipt} value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
-                  <option value="">未填写</option><option value="MALE">男</option><option value="FEMALE">女</option>
+                  <option value="">未填写</option>{genders.map((g) => <option key={g.dictKey} value={g.dictKey}>{g.dictValue}</option>)}
                 </select>
               </Field>
               <Field label="手机号"><input className={ipt} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></Field>

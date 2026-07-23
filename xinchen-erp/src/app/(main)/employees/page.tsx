@@ -6,6 +6,7 @@ import {
   Search, Plus, ChevronLeft, ChevronRight, RefreshCw, RotateCw, Shield,
   User, Phone, Mail, Calendar, MoreHorizontal, Trash2, Key, UserPlus,
 } from "lucide-react";
+import { useDict, getDictLabel } from "@/lib/useDict";
 
 interface EmployeeItem {
   id: number;
@@ -32,10 +33,7 @@ interface PaginatedResponse {
   list: EmployeeItem[];
 }
 
-const GENDER_MAP: Record<string, string> = {
-  MALE: "男",
-  FEMALE: "女",
-};
+const GENDER_FALLBACK = [{ dictKey: "MALE", dictValue: "男" }, { dictKey: "FEMALE", dictValue: "女" }];
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   active: { label: "在职", color: "bg-green-100 text-green-700" },
@@ -43,6 +41,7 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 };
 
 export default function EmployeesPage() {
+  const genders = useDict("gender", GENDER_FALLBACK);
   const router = useRouter();
   const [data, setData] = useState<PaginatedResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -380,7 +379,7 @@ export default function EmployeesPage() {
                         </div>
                         <div>
                           <div className="text-sm font-medium text-gray-900">{emp.name}</div>
-                          {emp.gender && <div className="text-xs text-gray-400">{GENDER_MAP[emp.gender] || emp.gender}</div>}
+                          {emp.gender && <div className="text-xs text-gray-400">{getDictLabel(genders, emp.gender)}</div>}
                         </div>
                       </div>
                     </td>
@@ -496,8 +495,7 @@ export default function EmployeesPage() {
                   <select value={formData.gender} onChange={(e) => setFormData((d) => ({ ...d, gender: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     <option value="">请选择</option>
-                    <option value="MALE">男</option>
-                    <option value="FEMALE">女</option>
+                    {genders.map((g) => <option key={g.dictKey} value={g.dictKey}>{g.dictValue}</option>)}
                   </select>
                 </div>
               </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Trash2, RefreshCw, PhoneCall } from "lucide-react";
+import { useDict } from "@/lib/useDict";
 
 interface VisitItem { id: number; visitDate: string; channel: string | null; result: string; summary: string | null; nextPlan: string | null; student: { name: string }; visitor: { realName: string }; }
 interface StudentItem { id: number; name: string; }
@@ -14,6 +15,7 @@ const RESULT_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 export default function ServiceVisitsPage() {
+  const visitTypes = useDict("visit_type", [{ dictKey: "PHONE", dictValue: "电话" },{ dictKey: "WECHAT", dictValue: "微信" },{ dictKey: "FACE_TO_FACE", dictValue: "面谈" },{ dictKey: "VIDEO", dictValue: "视频" }]);
   const [data, setData] = useState<VisitItem[]>([]);
   const [students, setStudents] = useState<StudentItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,7 @@ export default function ServiceVisitsPage() {
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">回访日期</label><input value={form.visitDate} onChange={(e) => setForm({ ...form, visitDate: e.target.value })} type="date" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">渠道</label>
                   <select value={form.channel} onChange={(e) => setForm({ ...form, channel: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
-                    <option value="PHONE">电话</option><option value="WECHAT">微信</option><option value="FACE_TO_FACE">面谈</option><option value="VIDEO">视频</option></select></div>
+                    {visitTypes.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}</select></div>
               </div>
               <div><label className="block text-sm font-medium text-gray-700 mb-1">结果</label>
                 <select value={form.result} onChange={(e) => setForm({ ...form, result: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">

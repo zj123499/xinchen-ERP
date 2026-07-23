@@ -501,7 +501,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
               <EField label="姓名 *"><input className={eIpt} value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></EField>
               <EField label="性别">
                 <select className={eIpt} value={edit.gender} onChange={(e) => setEdit({ ...edit, gender: e.target.value })}>
-                  <option value="">未填写</option><option value="MALE">男</option><option value="FEMALE">女</option>
+                  <option value="">未填写</option>{genders.map((g) => <option key={g.dictKey} value={g.dictKey}>{g.dictValue}</option>)}
                 </select>
               </EField>
               <EField label="手机号"><input className={eIpt} value={edit.phone} onChange={(e) => setEdit({ ...edit, phone: e.target.value })} /></EField>
