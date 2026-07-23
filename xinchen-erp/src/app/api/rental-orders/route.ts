@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
       include: {
         student: { select: { id: true, name: true, phone: true } },
         tenant: { select: { id: true, name: true } },
+        partner: { select: { id: true, name: true } },
       },
     }),
   ]);
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const { tenantId } = getContext(request);
   const body = await request.json();
-  const { studentId, city, address, moveInDate, moveOutDate, monthlyRent, currency, status } = body;
+  const { studentId, city, address, moveInDate, moveOutDate, monthlyRent, currency, paymentMethod, partnerId, status } = body;
 
   if (!studentId || !city || !moveInDate || monthlyRent === undefined) {
     return NextResponse.json({ error: "学生、城市、入住日期和月租金为必填项" }, { status: 400 });
@@ -67,11 +68,14 @@ export async function POST(request: NextRequest) {
       moveOutDate: moveOutDate ? new Date(moveOutDate) : null,
       monthlyRent: parseFloat(monthlyRent),
       currency: currency || "CNY",
+      paymentMethod: paymentMethod || null,
+      partnerId: partnerId ? parseInt(partnerId) : null,
       status: status || "active",
     },
     include: {
       student: { select: { id: true, name: true, phone: true } },
       tenant: { select: { id: true, name: true } },
+      partner: { select: { id: true, name: true } },
     },
   });
 

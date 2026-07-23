@@ -1183,14 +1183,17 @@ model RentalOrder {
   address     String?   @db.Text
   moveInDate  DateTime  @map("move_in_date")
   moveOutDate DateTime? @map("move_out_date")
-  monthlyRent Decimal   @map("monthly_rent") @db.Decimal(10, 2)
-  currency    Currency  @default(CNY)
-  status      String    @default("active") @db.VarChar(20)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  monthlyRent  Decimal   @map("monthly_rent") @db.Decimal(10, 2)
+  currency     Currency  @default(CNY)
+  paymentMethod String?  @map("payment_method") @db.VarChar(20)
+  partnerId    Int?      @map("partner_id")
+  status       String    @default("active") @db.VarChar(20)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  tenant  Tenant  @relation(fields: [tenantId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  student Student  @relation(fields: [studentId], references: [id])
+  partner Partner? @relation(fields: [partnerId], references: [id])
 
   @@index([tenantId])
   @@map("rental_orders")
@@ -1233,6 +1236,7 @@ model Partner {
   commissions PartnerCommission[]
   partnerContracts PartnerContract[]
   leads            Lead[]
+  rentalOrders     RentalOrder[]
 
   @@index([tenantId])
   @@map("partners")

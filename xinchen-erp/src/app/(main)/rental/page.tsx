@@ -16,9 +16,12 @@ interface RentalOrderItem {
   moveOutDate: string | null;
   monthlyRent: string;
   currency: string;
+  paymentMethod: string | null;
+  partnerId: number | null;
   status: string;
   createdAt: string;
   student: { id: number; name: string; phone: string };
+  partner?: { id: number; name: string } | null;
 }
 
 interface PaginatedResponse {
@@ -59,6 +62,12 @@ const CURRENCY_SYMBOL: Record<string, string> = {
 
 const DEFAULT_CITIES = ["伦敦", "曼彻斯特", "伯明翰", "爱丁堡", "悉尼", "墨尔本", "多伦多", "温哥华", "纽约", "洛杉矶", "其他"];
 
+const PAYMENT_METHODS: Record<string, string> = {
+  yearly: "年付",
+  half_yearly: "半年付",
+  quarterly: "三个月",
+};
+
 export default function RentalPage() {
   const [data, setData] = useState<PaginatedResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,11 +82,12 @@ export default function RentalPage() {
   const [editingItem, setEditingItem] = useState<RentalOrderItem | null>(null);
   const [formData, setFormData] = useState({
     studentId: "", city: "", address: "", moveInDate: "", moveOutDate: "",
-    monthlyRent: "", currency: "CNY", status: "active",
+    monthlyRent: "", currency: "CNY", paymentMethod: "", partnerId: "", status: "active",
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [students, setStudents] = useState<StudentOption[]>([]);
+  const [partners, setPartners] = useState<{ id: number; name: string }[]>([]);
   const [cities, setCities] = useState<string[]>(DEFAULT_CITIES);
   const [deleteConfirm, setDeleteConfirm] = useState<RentalOrderItem | null>(null);
 
@@ -105,6 +115,10 @@ export default function RentalPage() {
     fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
       setStudents(d.list || []);
     }).catch(() => {});
+    // 加载租房业务合作方列表
+    fetch("/api/partners?type=RENTAL&pageSize=500").then(r => r.json()).then(d => {
+      setPartners(d.list || []);
+    }).catch(() => {});
     // 从数据字典加载城市列表（管理员可在字典管理中维护）
     fetch("/api/dicts?groupName=rental_city").then(r => r.json()).then(d => {
       if (d.list?.length) setCities(d.list.map((x: any) => x.dictValue));
@@ -113,7 +127,7 @@ export default function RentalPage() {
 
   function openNewForm() {
     setEditingItem(null);
-    setFormData({ studentId: "", city: "", address: "", moveInDate: "", moveOutDate: "", monthlyRent: "", currency: "CNY", status: "active" });
+    setFormData({ studentId: "", city: "", address: "", moveInDate: "", moveOutDate: "", monthlyRent: "", currency: "CNY", paymentMethod: "", partnerId: "", status: "active" });
     setFormError("");
     setShowForm(true);
   }
@@ -128,6 +142,8 @@ export default function RentalPage() {
       moveOutDate: item.moveOutDate ? item.moveOutDate.slice(0, 10) : "",
       monthlyRent: String(item.monthlyRent),
       currency: item.currency,
+      paymentMethod: item.paymentMethod || "",
+      partnerId: item.partnerId ? String(item.partnerId) : "",
       status: item.status,
     });
     setFormError("");
@@ -147,6 +163,8 @@ export default function RentalPage() {
         moveOutDate: formData.moveOutDate || undefined,
         monthlyRent: formData.monthlyRent,
         currency: formData.currency,
+        paymentMethod: formData.paymentMethod || undefined,
+        partnerId: formData.partnerId || undefined,
         status: formData.status,
       };
       const url = editingItem ? `/api/rental-orders/${editingItem.id}` : "/api/rental-orders";
@@ -254,6 +272,8 @@ export default function RentalPage() {
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">入住日期</th>
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">退租日期</th>
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">月租金</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">支付方式</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">合作方</th>
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">状态</th>
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">操作</th>
                 </tr>
@@ -286,6 +306,12 @@ export default function RentalPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5 text-gray-400" /><span className="text-sm font-medium text-gray-900">{CURRENCY_SYMBOL[order.currency] || order.currency}{order.monthlyRent}</span></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-700">{order.paymentMethod ? PAYMENT_METHODS[order.paymentMethod] || order.paymentMethod : "-"}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-700">{order.partner?.name || "-"}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[order.status] || "bg-gray-100 text-gray-600"}`}>{STATUS_MAP[order.status] || order.status}</span>
@@ -379,6 +405,24 @@ export default function RentalPage() {
                   <select value={formData.currency} onChange={(e) => setFormData(d => ({ ...d, currency: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     {Object.entries(CURRENCY_SYMBOL).map(([k, v]) => <option key={k} value={k}>{v} {k}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">支付方式</label>
+                  <select value={formData.paymentMethod} onChange={(e) => setFormData(d => ({ ...d, paymentMethod: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="">请选择</option>
+                    {Object.entries(PAYMENT_METHODS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">合作方</label>
+                  <select value={formData.partnerId} onChange={(e) => setFormData(d => ({ ...d, partnerId: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="">请选择</option>
+                    {partners.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
               </div>

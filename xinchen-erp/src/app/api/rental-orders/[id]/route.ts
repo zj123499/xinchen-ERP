@@ -34,7 +34,7 @@ export async function PUT(
   const { tenantId } = getContext(request);
   const { id } = await params;
   const body = await request.json();
-  const { studentId, city, address, moveInDate, moveOutDate, monthlyRent, currency, status } = body;
+  const { studentId, city, address, moveInDate, moveOutDate, monthlyRent, currency, paymentMethod, partnerId, status } = body;
 
   const existing = await prisma.rentalOrder.findFirst({
     where: { id: parseInt(id), tenantId },
@@ -49,6 +49,8 @@ export async function PUT(
   if (moveOutDate !== undefined) updateData.moveOutDate = moveOutDate ? new Date(moveOutDate) : null;
   if (monthlyRent !== undefined) updateData.monthlyRent = parseFloat(monthlyRent);
   if (currency) updateData.currency = currency;
+  if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod || null;
+  if (partnerId !== undefined) updateData.partnerId = partnerId ? parseInt(partnerId) : null;
   if (status) updateData.status = status;
 
   const order = await prisma.rentalOrder.update({
@@ -57,6 +59,7 @@ export async function PUT(
     include: {
       student: { select: { id: true, name: true, phone: true } },
       tenant: { select: { id: true, name: true } },
+      partner: { select: { id: true, name: true } },
     },
   });
 
