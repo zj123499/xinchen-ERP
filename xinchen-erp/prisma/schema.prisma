@@ -201,6 +201,7 @@ model Tenant {
   users               User[]
   roles               Role[]
   dicts               Dict[]
+  dictGroups          DictGroup[]
   configs             SystemConfig[]
   depts               Department[]
   positions           Position[]
@@ -400,6 +401,20 @@ model UserRole {
 
   @@unique([userId, roleId])
   @@map("user_roles")
+}
+
+model DictGroup {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int      @map("tenant_id")
+  name      String   @db.VarChar(50)
+  sort      Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("dict_groups")
 }
 
 model Dict {

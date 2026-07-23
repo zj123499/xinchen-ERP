@@ -21,19 +21,22 @@ export async function GET(request: NextRequest) {
   const where: any = { tenantId };
   if (groupName) where.groupName = groupName;
 
-  const dicts = await prisma.dict.findMany({
-    where,
-    orderBy: [{ groupName: "asc" }, { sort: "asc" }],
-  });
+  const [dicts, groups] = await Promise.all([
+    prisma.dict.findMany({ where, orderBy: [{ groupName: "asc" }, { sort: "asc" }] }),
+    prisma.dictGroup.findMany({ where: { tenantId }, orderBy: { sort: "asc" } }),
+  ]);
 
-  // 按 groupName 分组返回
+  // 按 groupName 分组
   const grouped: Record<string, any[]> = {};
+  // 先确保所有已知分组都存在（即使为空）
+  groups.forEach((g) => { grouped[g.name] = []; });
+  // 填入实际数据
   dicts.forEach((d) => {
     if (!grouped[d.groupName]) grouped[d.groupName] = [];
     grouped[d.groupName].push(d);
   });
 
-  return NextResponse.json({ list: dicts, grouped });
+  return NextResponse.json({ list: dicts, grouped, groups });
 }
 
 export async function POST(request: NextRequest) {
@@ -58,6 +61,13 @@ export async function POST(request: NextRequest) {
       isEnabled: isEnabled !== false,
     },
   });
+
+  // 自动创建分组（如果不存在）
+  await prisma.dictGroup.upsert({
+    where: { tenantId_name: { tenantId, name: groupName } },
+    update: {},
+    create: { tenantId, name: groupName },
+  }).catch(() => {});
 
   return NextResponse.json(dict, { status: 201 });
 }

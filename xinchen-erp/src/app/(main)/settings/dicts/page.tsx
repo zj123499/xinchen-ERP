@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Database, Plus, Edit2, Trash2, RefreshCw, ChevronDown, ChevronRight } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Database, Plus, Edit2, Trash2, RefreshCw, ChevronDown, ChevronRight, GripVertical, FolderPlus, X } from "lucide-react";
 
 interface DictItem {
   id: number;
@@ -12,16 +12,32 @@ interface DictItem {
   isEnabled: boolean;
 }
 
+interface DictGroupItem {
+  id: number;
+  name: string;
+  sort: number;
+}
+
 export default function DictsPage() {
   const [data, setData] = useState<DictItem[]>([]);
   const [grouped, setGrouped] = useState<Record<string, DictItem[]>>({});
+  const [groups, setGroups] = useState<DictGroupItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<DictItem | null>(null);
-  const [formData, setFormData] = useState({ groupName: "", dictKey: "", dictValue: "", sort: 0, isEnabled: true });
+  const [formData, setFormData] = useState({ groupName: "", dictKey: "", dictValue: "", isEnabled: true });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // 新建分组
+  const [showGroupForm, setShowGroupForm] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+
+  // 拖拽
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
+  const [dragGroup, setDragGroup] = useState("");
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -31,7 +47,7 @@ export default function DictsPage() {
       const result = await res.json();
       setData(result.list || []);
       setGrouped(result.grouped || {});
-      // 自动展开所有分组
+      setGroups(result.groups || []);
       setExpanded(new Set(Object.keys(result.grouped || {})));
     } catch {
       setFormError("加载失败");
@@ -48,14 +64,14 @@ export default function DictsPage() {
 
   function openNewForm(groupName?: string) {
     setEditing(null);
-    setFormData({ groupName: groupName || "", dictKey: "", dictValue: "", sort: 0, isEnabled: true });
+    setFormData({ groupName: groupName || "", dictKey: "", dictValue: "", isEnabled: true });
     setFormError("");
     setShowForm(true);
   }
 
   function openEditForm(item: DictItem) {
     setEditing(item);
-    setFormData({ groupName: item.groupName, dictKey: item.dictKey, dictValue: item.dictValue, sort: item.sort, isEnabled: item.isEnabled });
+    setFormData({ groupName: item.groupName, dictKey: item.dictKey, dictValue: item.dictValue, isEnabled: item.isEnabled });
     setFormError("");
     setShowForm(true);
   }
@@ -69,7 +85,7 @@ export default function DictsPage() {
       const method = editing ? "PUT" : "POST";
       const res = await fetch(url, {
         method, headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, sort: parseInt(String(formData.sort)) || 0 }),
+        body: JSON.stringify(formData),
       });
       if (!res.ok) { const d = await res.json(); setFormError(d.error || "操作失败"); return; }
       setShowForm(false);
@@ -86,6 +102,71 @@ export default function DictsPage() {
     } catch { alert("网络错误"); }
   }
 
+  async function handleDeleteGroup(name: string) {
+    if (!confirm(`确定删除分组「${name}」？\n注意：仅可删除无数据的分组。`)) return;
+    const g = groups.find(gr => gr.name === name);
+    if (!g) return;
+    try {
+      const res = await fetch(`/api/dicts/groups?id=${g.id}`, { method: "DELETE" });
+      if (!res.ok) { const d = await res.json(); alert(d.error || "删除失败"); return; }
+      fetchData();
+    } catch { alert("网络错误"); }
+  }
+
+  async function handleCreateGroup() {
+    if (!newGroupName.trim()) return;
+    try {
+      const res = await fetch("/api/dicts/groups", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newGroupName.trim() }),
+      });
+      if (!res.ok) { const d = await res.json(); alert(d.error || "创建失败"); return; }
+      setNewGroupName("");
+      setShowGroupForm(false);
+      fetchData();
+    } catch { alert("网络错误"); }
+  }
+
+  // 拖拽排序
+  function handleDragStart(e: React.DragEvent, index: number, group: string) {
+    dragItem.current = index;
+    setDragGroup(group);
+    (e.target as HTMLElement).classList.add("opacity-50");
+  }
+
+  function handleDragEnd(e: React.DragEvent) {
+    (e.target as HTMLElement).classList.remove("opacity-50");
+    dragItem.current = null;
+    dragOverItem.current = null;
+  }
+
+  function handleDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault();
+    dragOverItem.current = index;
+  }
+
+  async function handleDrop(group: string) {
+    if (dragItem.current === null || dragOverItem.current === null) return;
+    if (dragItem.current === dragOverItem.current) return;
+
+    const items = [...(grouped[group] || [])];
+    const dragged = items[dragItem.current];
+    items.splice(dragItem.current, 1);
+    items.splice(dragOverItem.current, 0, dragged);
+
+    // 乐观更新
+    setGrouped(prev => ({ ...prev, [group]: items }));
+
+    // 提交排序
+    const ids = items.map(i => i.id);
+    await fetch("/api/dicts/reorder", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    }).catch(() => {});
+    dragItem.current = null;
+    dragOverItem.current = null;
+  }
+
   const groupNames = Object.keys(grouped);
 
   return (
@@ -93,9 +174,12 @@ export default function DictsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">数据字典</h1>
-          <p className="text-sm text-gray-500 mt-1">管理系统中的枚举值和基础数据字典</p>
+          <p className="text-sm text-gray-500 mt-1">管理系统中的枚举值和基础数据字典，拖拽排序</p>
         </div>
         <div className="flex gap-2">
+          <button onClick={() => setShowGroupForm(true)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+            <FolderPlus className="w-4 h-4" />新建分组
+          </button>
           <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />刷新
           </button>
@@ -125,35 +209,54 @@ export default function DictsPage() {
                     <Database className="w-4 h-4 text-blue-500 mr-2" />
                     <span className="font-medium text-gray-900">{group}</span>
                     <span className="ml-2 text-xs text-gray-400">({items.length})</span>
-                    <button onClick={(e) => { e.stopPropagation(); openNewForm(group); }} className="ml-auto text-blue-600 hover:bg-blue-100 p-1.5 rounded">
+                    <button onClick={(e) => { e.stopPropagation(); openNewForm(group); }} className="ml-auto text-blue-600 hover:bg-blue-100 p-1.5 rounded mr-1" title="添加字典项">
                       <Plus className="w-4 h-4" />
                     </button>
+                    {items.length === 0 && (
+                      <button onClick={(e) => { e.stopPropagation(); handleDeleteGroup(group); }} className="text-red-400 hover:bg-red-50 p-1.5 rounded" title="删除空分组">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                   {isExpanded && (
                     <table className="w-full">
                       <tbody className="divide-y divide-gray-100">
-                        {items.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50">
-                            <td className="px-8 py-2.5 text-sm text-gray-600">{item.dictKey}</td>
-                            <td className="px-4 py-2.5 text-sm text-gray-900">{item.dictValue}</td>
-                            <td className="px-4 py-2.5 text-sm text-gray-400">排序: {item.sort}</td>
-                            <td className="px-4 py-2.5">
-                              {item.isEnabled ? (
-                                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">启用</span>
-                              ) : (
-                                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">禁用</span>
-                              )}
-                            </td>
-                            <td className="px-4 py-2.5 text-right">
-                              <button onClick={() => openEditForm(item)} className="text-gray-500 hover:bg-gray-100 p-1.5 rounded mr-1">
-                                <Edit2 className="w-4 h-4" />
-                              </button>
-                              <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </td>
+                        {items.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="px-8 py-6 text-center text-sm text-gray-400">此分组暂无数据，点击右侧 + 添加</td>
                           </tr>
-                        ))}
+                        ) : (
+                          items.map((item, index) => (
+                            <tr key={item.id} className="hover:bg-gray-50 transition"
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, index, group)}
+                              onDragEnd={handleDragEnd}
+                              onDragOver={(e) => handleDragOver(e, index)}
+                              onDrop={() => handleDrop(group)}
+                            >
+                              <td className="px-4 py-2.5 w-8">
+                                <GripVertical className="w-4 h-4 text-gray-300 cursor-grab active:cursor-grabbing" />
+                              </td>
+                              <td className="px-2 py-2.5 text-sm text-gray-600">{item.dictKey}</td>
+                              <td className="px-4 py-2.5 text-sm text-gray-900">{item.dictValue}</td>
+                              <td className="px-4 py-2.5">
+                                {item.isEnabled ? (
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">启用</span>
+                                ) : (
+                                  <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">禁用</span>
+                                )}
+                              </td>
+                              <td className="px-4 py-2.5 text-right">
+                                <button onClick={() => openEditForm(item)} className="text-gray-500 hover:bg-gray-100 p-1.5 rounded mr-1">
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   )}
@@ -164,6 +267,7 @@ export default function DictsPage() {
         )}
       </div>
 
+      {/* 新建/编辑表单 */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
@@ -185,24 +289,37 @@ export default function DictsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">字典值 *</label>
                 <input type="text" value={formData.dictValue} onChange={(e) => setFormData({ ...formData, dictValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required placeholder="如：上门咨询" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">排序</label>
-                  <input type="number" value={formData.sort} onChange={(e) => setFormData({ ...formData, sort: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
-                  <select value={formData.isEnabled ? "true" : "false"} onChange={(e) => setFormData({ ...formData, isEnabled: e.target.value === "true" })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    <option value="true">启用</option>
-                    <option value="false">禁用</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                <select value={formData.isEnabled ? "true" : "false"} onChange={(e) => setFormData({ ...formData, isEnabled: e.target.value === "true" })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                  <option value="true">启用</option>
+                  <option value="false">禁用</option>
+                </select>
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
                 <button type="submit" disabled={submitting} className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 新建分组弹窗 */}
+      {showGroupForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold">新建字典分组</h2>
+              <button onClick={() => setShowGroupForm(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+            </div>
+            <input type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none mb-4"
+              placeholder="输入分组名称" autoFocus onKeyDown={(e) => e.key === "Enter" && handleCreateGroup()} />
+            <div className="flex gap-3">
+              <button onClick={handleCreateGroup} disabled={!newGroupName.trim()} className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">创建</button>
+              <button onClick={() => setShowGroupForm(false)} className="py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+            </div>
           </div>
         </div>
       )}
