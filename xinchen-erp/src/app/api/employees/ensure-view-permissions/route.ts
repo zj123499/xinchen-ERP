@@ -2,14 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/permission";
 
+// 跟进表单权限（拥有 leads:view 的角色即可看到）
+const FOLLOWUP_FORM_CODES = ["followup_pending", "followup_interested", "followup_signed", "followup_uninterested"];
+
+// 所有需要被追踪的权限码
+const ALL_TRACKED_CODES = [
+  ...FOLLOWUP_FORM_CODES,
+  "leads:view", "students:view", "contracts:view", "payments:view", "applications:view", "visits:view", "reports:view",
+];
+
 const ROLE_VIEW_MAP: Record<string, string[]> = {
   general_manager: ["leads:view", "students:view", "contracts:view", "payments:view", "applications:view", "visits:view", "reports:view"],
   operations_director: ["leads:view", "students:view", "contracts:view", "payments:view", "applications:view", "visits:view", "reports:view"],
-  marketing_specialist: ["leads:view", "students:view", "contracts:view", "visits:view"],
-  network_operator: ["leads:view", "students:view", "contracts:view", "visits:view"],
-  live_streamer: ["leads:view", "visits:view"],
-  newmedia_manager: ["leads:view", "students:view", "visits:view", "reports:view"],
-  newmedia_operator: ["leads:view", "visits:view"],
+  marketing_specialist: ["leads:view", "students:view", "contracts:view", "visits:view", ...FOLLOWUP_FORM_CODES],
+  network_operator: ["leads:view", "students:view", "contracts:view", "visits:view", ...FOLLOWUP_FORM_CODES],
+  live_streamer: ["leads:view", "visits:view", ...FOLLOWUP_FORM_CODES],
+  newmedia_manager: ["leads:view", "students:view", "visits:view", "reports:view", ...FOLLOWUP_FORM_CODES],
+  newmedia_operator: ["leads:view", "visits:view", ...FOLLOWUP_FORM_CODES],
   academic_advisor: ["students:view", "applications:view", "contracts:view", "visits:view"],
   document_application: ["students:view", "applications:view", "visits:view"],
   finance: ["payments:view", "contracts:view", "reports:view"],
@@ -29,7 +38,7 @@ export async function GET(request: NextRequest) {
 
   const allRoles = await prisma.role.findMany({ where: { tenantId }, orderBy: { id: "asc" } });
   const perms = await prisma.permission.findMany({
-    where: { code: { in: ["leads:view", "students:view", "contracts:view", "payments:view", "applications:view", "visits:view", "reports:view"] } },
+    where: { code: { in: ALL_TRACKED_CODES } },
     select: { id: true, code: true },
   });
   const permMap = new Map(perms.map((p) => [p.code, p.id]));
@@ -61,10 +70,19 @@ export async function POST(request: NextRequest) {
   if (!isAdmin(roles)) return NextResponse.json({ error: "only admin" }, { status: 403 });
 
   const perms = await prisma.permission.findMany({
-    where: { code: { in: ["leads:view", "students:view", "contracts:view", "payments:view", "applications:view", "visits:view", "reports:view"] } },
+    where: { code: { in: ALL_TRACKED_CODES } },
     select: { id: true, code: true },
   });
   const permMap = new Map(perms.map((p) => [p.code, p.id]));
+
+  // 确保缺失的 Permission 记录存在
+  for (const code of ALL_TRACKED_CODES) {
+    if (!permMap.has(code)) {
+      const p = await prisma.permission.create({ data: { code, name: code } });
+      permMap.set(code, p.id);
+    }
+  }
+
   const allRoles = await prisma.role.findMany({ where: { tenantId, code: { not: "admin" } } });
 
   let added = 0, skipped = 0;

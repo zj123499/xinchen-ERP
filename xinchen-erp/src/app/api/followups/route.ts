@@ -83,5 +83,13 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  // 同步更新线索的最后跟进时间
+  if (leadId) {
+    await prisma.lead.update({
+      where: { id: parseInt(leadId) },
+      data: { lastFollowUpAt: new Date() },
+    }).catch(() => {});
+  }
+
   return NextResponse.json(followUp, { status: 201 });
 }

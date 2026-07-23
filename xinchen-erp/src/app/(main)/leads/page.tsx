@@ -96,6 +96,7 @@ export default function LeadsPage() {
     remark: "",
     assignedToId: "",
     createStudent: true,
+    status: "NEW",
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -178,7 +179,7 @@ export default function LeadsPage() {
       name: "", phone: "", wechat: "", source: sources[0]?.dictKey || "MEDIA",
       sourceDetail: "", businessType: "", partnerId: "", siteId: "",
       targetCountry: "", targetDegree: "", budget: "", remark: "",
-      assignedToId: "", createStudent: true,
+      assignedToId: "", createStudent: true, status: "NEW",
     });
     setFormError("");
     setShowForm(true);
@@ -564,7 +565,20 @@ export default function LeadsPage() {
                 </div>
               </div>
 
+              {/* 学生状态 */}
               <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">学生状态</label>
+                  <select
+                    value={formData.status || "NEW"}
+                    onChange={(e) => setFormData((d) => ({ ...d, status: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  >
+                    <option value="NEW">待跟进</option>
+                    <option value="CONTACTED">有意向</option>
+                    <option value="DEAD">无意向</option>
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">微信</label>
                   <input
@@ -586,6 +600,7 @@ export default function LeadsPage() {
                     <option value="STUDY_ABROAD">留学</option>
                     <option value="RENTAL">租房</option>
                     <option value="OVERSEAS_SERVICE">境外服务</option>
+                    <option value="PARTNER">合作</option>
                   </select>
                 </div>
               </div>
