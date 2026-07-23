@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { AttributionModel } from "@prisma/client";;
-import { getContext } from "@/lib/context";
+import { AttributionModel } from "@prisma/client";
+
+function getContext(request: NextRequest) {
+  return { tenantId: parseInt(request.headers.get("x-tenant-id") || "0") };
 }
 
 const VALID_MODELS: AttributionModel[] = ["FIRST_TOUCH", "LAST_TOUCH", "LINEAR", "TIME_DECAY"];

@@ -4,8 +4,12 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";;
-import { getContext } from "@/lib/context";
+import { prisma } from "@/lib/prisma";
+
+function getContext(request: NextRequest) {
+  return {
+    userId: parseInt(request.headers.get("x-user-id") || "0"),
+  };
 }
 
 export async function PUT(request: NextRequest) {

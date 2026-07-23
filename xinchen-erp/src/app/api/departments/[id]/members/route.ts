@@ -6,7 +6,14 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isAdmin } from "@/lib/permission";;
+import { isAdmin } from "@/lib/permission";
+
+function getContext(request: NextRequest) {
+  return {
+    userId: parseInt(request.headers.get("x-user-id") || "0"),
+    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
+    roles: (request.headers.get("x-user-roles") || "").split(",").filter(Boolean),
+  };
 }
 
 export async function GET(

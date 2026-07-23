@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";;
-import { getContext } from "@/lib/context";
+import { prisma } from "@/lib/prisma";
+
+function getContext(request: NextRequest) {
+  return {
+    userId: parseInt(request.headers.get("x-user-id") || "0"),
+    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
+  };
 }
 
 const PARTNER_TYPE_MAP: Record<string, string> = {

@@ -8,8 +8,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { syncDingtalkOrganization } from "@/lib/dingtalk/sync";
-import { getAppKey, getAppSecret, clearTokenCache } from "@/lib/dingtalk/auth";;
-import { getContext } from "@/lib/context";
+import { getAppKey, getAppSecret, clearTokenCache } from "@/lib/dingtalk/auth";
+
+function getContext(request: NextRequest) {
+  return {
+    userId: parseInt(request.headers.get("x-user-id") || "0"),
+    tenantId: parseInt(request.headers.get("x-tenant-id") || "1"),
+    roles: (request.headers.get("x-user-roles") || "").split(","),
+  };
 }
 
 /**

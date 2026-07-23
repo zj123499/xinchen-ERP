@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { resolveAccountUsername } from "@/lib/employee-account";;
-import { getContext } from "@/lib/context";
+import { resolveAccountUsername } from "@/lib/employee-account";
+
+function getContext(request: NextRequest) {
+  return {
+    userId: parseInt(request.headers.get("x-user-id") || "0"),
+    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
+  };
 }
 
 /**

@@ -5,13 +5,15 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getContext as _getContext, type Ctx } from "@/lib/context";
 
 /** 超级管理员角色 code，拥有全部权限，跳过一切校验 */
 export const ADMIN_ROLE_CODE = "admin";
 
-export { _getContext as getAuthContext };
-export type AuthContext = Ctx;
+export interface AuthContext {
+  userId: number;
+  tenantId: number;
+  roles: string[]; // 角色 code 列表
+}
 
 /** 模块 view 权限合集（看板/BI 数据过滤用） */
 export const VIEW_PERMISSIONS = [
@@ -38,6 +40,15 @@ export interface ViewPermissionSet {
   settings: boolean;
   /** 原始已拥有的权限 code 集合 */
   granted: Set<string>;
+}
+
+export function getAuthContext(request: NextRequest): AuthContext {
+  const roleStr = request.headers.get("x-user-roles") || "";
+  return {
+    userId: parseInt(request.headers.get("x-user-id") || "0"),
+    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
+    roles: roleStr.split(",").map((r) => r.trim()).filter(Boolean),
+  };
 }
 
 export function isAdmin(roles: string[]): boolean {
