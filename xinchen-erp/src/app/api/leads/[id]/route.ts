@@ -80,7 +80,7 @@ export async function PUT(
     });
     studentId = student.id;
 
-    // 自动创建合同和订单（申请管理需要学生+订单才能创建申请）
+    // 自动创建合同和申请记录
     const suffix = Date.now().toString(36);
     const contract = await prisma.contract.create({
       data: {
@@ -94,21 +94,33 @@ export async function PUT(
     }).catch(() => null);
 
     if (contract) {
-      try {
-        const orderNo = `SO${new Date().getFullYear()}${String(student.id).padStart(4, "0")}_${Date.now().toString(36)}`;
-        await prisma.order.create({
+      // 按学生意向逐条创建申请
+      const intentions = await prisma.studentIntention.findMany({
+        where: { studentId: student.id },
+        orderBy: { priority: "asc" },
+      });
+      const nextYear = new Date().getFullYear() + 1;
+      if (intentions.length > 0) {
+        for (const it of intentions) {
+          await prisma.application.create({
+            data: {
+              tenantId, studentId: student.id, contractId: contract.id,
+              institutionName: it.institution || "待确认",
+              majorName: it.major || "待确认",
+              degree: it.degree || "硕士", intakeYear: nextYear, intakeMonth: 9,
+              status: "PREPARING",
+            },
+          }).catch(() => {});
+        }
+      } else {
+        await prisma.application.create({
           data: {
-            tenantId,
-            studentId: student.id,
-            contractId: contract.id,
-            orderNo,
-            productName: "留学申请服务",
-            amount: existing.budget ? parseFloat(String(existing.budget)) : 0,
-            status: "PENDING",
+            tenantId, studentId: student.id, contractId: contract.id,
+            institutionName: "待确认", majorName: "待确认",
+            degree: existing.targetDegree || "硕士", intakeYear: nextYear, intakeMonth: 9,
+            status: "PREPARING",
           },
-        });
-      } catch (e: any) {
-        console.error("签约自动建订单失败:", e?.message);
+        }).catch(() => {});
       }
     }
   }

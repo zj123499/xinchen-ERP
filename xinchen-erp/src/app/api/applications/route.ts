@@ -1,7 +1,7 @@
 /**
  * 申请管理 API
  * GET  /api/applications - 申请列表
- * POST /api/applications - 新增申请
+ * POST /api/applications - 新增申请（绑合同而非订单）
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   const keyword = url.searchParams.get("keyword") || "";
   const status = url.searchParams.get("status") || "";
   const studentId = url.searchParams.get("studentId") || "";
-  const orderId = url.searchParams.get("orderId") || "";
+  const contractId = url.searchParams.get("contractId") || "";
 
   const where: Prisma.ApplicationWhereInput = { tenantId };
   if (keyword) {
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
   }
   if (status) where.status = status as Prisma.EnumApplicationStatusFilter["equals"];
   if (studentId) where.studentId = parseInt(studentId);
-  if (orderId) where.orderId = parseInt(orderId);
+  if (contractId) where.contractId = parseInt(contractId);
 
   const [total, list] = await Promise.all([
     prisma.application.count({ where }),
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         student: { select: { id: true, name: true, phone: true } },
-        order: { select: { id: true, orderNo: true, productName: true } },
+        contract: { select: { id: true, contractNo: true } },
         _count: { select: { offers: true, visas: true, materials: true } },
       },
       orderBy: { updatedAt: "desc" },
@@ -63,20 +63,20 @@ export async function POST(request: NextRequest) {
   if (denied) return denied;
   const { tenantId } = getContext(request);
   const body = await request.json();
-  const { studentId, orderId, institutionName, majorName, degree, intakeYear, intakeMonth, status, remark } = body;
-  if (!studentId || !orderId || !institutionName || !majorName) {
-    return NextResponse.json({ error: "学生、订单、院校和专业为必填项" }, { status: 400 });
+  const { studentId, contractId, institutionName, majorName, degree, intakeYear, intakeMonth, status, remark } = body;
+  if (!studentId || !contractId || !institutionName || !majorName) {
+    return NextResponse.json({ error: "学生、合同、院校和专业为必填项" }, { status: 400 });
   }
   const application = await prisma.application.create({
     data: {
-      tenantId, studentId: parseInt(studentId), orderId: parseInt(orderId),
+      tenantId, studentId: parseInt(studentId), contractId: parseInt(contractId),
       institutionName, majorName, degree: degree || "硕士",
       intakeYear: intakeYear || new Date().getFullYear() + 1, intakeMonth: intakeMonth || 9,
       status: status || "PREPARING", remark: remark || null,
     },
     include: {
       student: { select: { id: true, name: true, phone: true } },
-      order: { select: { id: true, orderNo: true, productName: true } },
+      contract: { select: { id: true, contractNo: true } },
     },
   });
   return NextResponse.json(application, { status: 201 });

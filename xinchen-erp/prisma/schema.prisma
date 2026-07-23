@@ -912,6 +912,7 @@ model Contract {
   student        Student         @relation(fields: [studentId], references: [id])
   businessLine   BusinessLine?   @relation(fields: [businessLineId], references: [id])
   orders         Order[]
+  applications   Application[]
   refunds        Refund[]
   approvalRecord ApprovalRecord? @relation("ContractApproval", fields: [approvalRecordId], references: [id])
 
@@ -942,7 +943,6 @@ model Order {
   student      Student       @relation(fields: [studentId], references: [id])
   contract     Contract      @relation(fields: [contractId], references: [id])
   assignedTo   User?         @relation("order_assignee", fields: [assignedToId], references: [id])
-  applications Application[]
   payments     Payment[]
   incomes      Income[]
   receivables  Receivable[]
@@ -974,7 +974,7 @@ model Application {
   id              Int               @id @default(autoincrement())
   tenantId        Int               @map("tenant_id")
   studentId       Int               @map("student_id")
-  orderId         Int               @map("order_id")
+  contractId      Int               @map("contract_id")
   institutionName String            @map("institution_name") @db.VarChar(200)
   majorName       String            @map("major_name") @db.VarChar(200)
   degree          String            @db.VarChar(50)
@@ -989,7 +989,7 @@ model Application {
 
   tenant          Tenant                @relation(fields: [tenantId], references: [id])
   student         Student               @relation(fields: [studentId], references: [id])
-  order           Order                 @relation(fields: [orderId], references: [id])
+  contract        Contract              @relation(fields: [contractId], references: [id])
   materials       ApplicationMaterial[]
   offers          Offer[]
   visas           Visa[]

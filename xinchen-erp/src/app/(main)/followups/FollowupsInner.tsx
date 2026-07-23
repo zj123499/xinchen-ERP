@@ -100,19 +100,6 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
     if (!docTarget || !docWriterId) return;
     const did = parseInt(docWriterId);
     await fetch(`/api/leads/${docTarget.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ documentAssignedToId: did }) });
-    if (docTarget.student?.id) {
-      const r = await fetch(`/api/students/${docTarget.student.id}/intentions`); const d = await r.json();
-      const intents: IntentionItem[] = d.list || [];
-      let created = 0;
-      for (const it of intents) {
-        if (!it.institution) continue;
-        const or = await fetch(`/api/orders?studentId=${docTarget.student.id}&pageSize=1`); const od = await or.json();
-        const oid = od.list?.[0]?.id; if (!oid) continue;
-        await fetch("/api/applications", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ studentId: docTarget.student.id, orderId: oid, institutionName: it.institution, majorName: it.major || "", degree: it.degree || "硕士", status: "PREPARING" }) });
-        created++;
-      }
-      if (created > 0) alert(`已自动创建 ${created} 个申请记录并流转到交付管理`);
-    }
     setDocTarget(null); setDocWriterId(""); fetchLeads();
   }
   async function submitFollowup() {
@@ -282,7 +269,7 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
       </div>
 
       {/* 弹窗：文书分配 */}
-      {docTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6"><h3 className="text-lg font-semibold mb-2">分配文书 - {docTarget.name}</h3><p className="text-xs text-gray-500 mb-4">分配后将自动根据申请意向创建申请并流转到交付管理</p><select value={docWriterId} onChange={e => setDocWriterId(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm mb-4 outline-none"><option value="">选择文书老师</option>{docWriters.map(d => <option key={d.id} value={d.id}>{d.realName}</option>)}</select><div className="flex gap-3"><button onClick={assignDocWriter} disabled={!docWriterId} className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50">确定分配并流转</button><button onClick={() => setDocTarget(null)} className="py-2 px-6 border rounded-lg text-sm">取消</button></div></div></div>)}
+      {docTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6"><h3 className="text-lg font-semibold mb-2">分配文书 - {docTarget.name}</h3><p className="text-xs text-gray-500 mb-4">签约时已自动创建申请记录并流转到交付管理，此处仅分配文书老师</p><select value={docWriterId} onChange={e => setDocWriterId(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm mb-4 outline-none"><option value="">选择文书老师</option>{docWriters.map(d => <option key={d.id} value={d.id}>{d.realName}</option>)}</select><div className="flex gap-3"><button onClick={assignDocWriter} disabled={!docWriterId} className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50">确定分配并流转</button><button onClick={() => setDocTarget(null)} className="py-2 px-6 border rounded-lg text-sm">取消</button></div></div></div>)}
 
       {/* 弹窗：添加跟进 */}
       {fuTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6"><h3 className="text-lg font-semibold mb-4">添加跟进 - {fuTarget.name}</h3><select value={fuType} onChange={e => setFuType(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm mb-3 outline-none"><option value="电话">电话</option><option value="微信">微信</option><option value="面谈">面谈</option><option value="邮件">邮件</option><option value="其他">其他</option></select><textarea value={fuContent} onChange={e => setFuContent(e.target.value)} rows={4} placeholder="跟进内容..." className="w-full px-3 py-2 border rounded-lg text-sm outline-none mb-3" /><div><label className="block text-sm font-medium text-gray-700 mb-1">下次跟进时间</label><input type="datetime-local" value={fuNextDate} onChange={e => setFuNextDate(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm outline-none mb-3" /></div><div className="flex gap-3"><button onClick={submitFollowup} disabled={!fuContent || fuSaving} className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50">{fuSaving ? "保存中..." : "保存"}</button><button onClick={() => setFuTarget(null)} className="py-2 px-6 border rounded-lg text-sm">取消</button></div></div></div>)}
