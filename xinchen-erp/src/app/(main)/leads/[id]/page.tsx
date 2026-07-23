@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Phone, MessageSquare, User, MapPin, Calendar,
   Clock, Edit, Trash2, Send, RefreshCw, GraduationCap,
 } from "lucide-react";
+import { useDict, getDictLabel } from "@/lib/useDict";
 
 interface LeadDetail {
   id: number;
@@ -80,14 +81,10 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
   DEAD: { label: "已无效", color: "bg-gray-100 text-gray-800" },
 };
 
-const FOLLOW_TYPE_MAP: Record<string, string> = {
-  phone: "电话",
-  wechat: "微信",
-  visit: "面谈",
-  other: "其他",
-};
+const FOLLOW_FALLBACK = [{ dictKey: "phone", dictValue: "电话" },{ dictKey: "wechat", dictValue: "微信" },{ dictKey: "visit", dictValue: "面谈" },{ dictKey: "other", dictValue: "其他" }];
 
 export default function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const followTypes = useDict("follow_type", FOLLOW_FALLBACK);
   const { id } = use(params);
   const router = useRouter();
   const [lead, setLead] = useState<LeadDetail | null>(null);
@@ -383,7 +380,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                           {fu.user.realName}
                         </span>
                         <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
-                          {FOLLOW_TYPE_MAP[fu.type] || fu.type}
+                          {getDictLabel(followTypes, fu.type)}
                         </span>
                         <span className="text-xs text-gray-400">
                           {new Date(fu.createdAt).toLocaleString("zh-CN")}
@@ -589,10 +586,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">跟进方式</label>
                 <select value={followUpType} onChange={(e) => setFollowUpType(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                  <option value="phone">电话</option>
-                  <option value="wechat">微信</option>
-                  <option value="visit">面谈</option>
-                  <option value="other">其他</option>
+                  {followTypes.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
                 </select>
               </div>
               <div>

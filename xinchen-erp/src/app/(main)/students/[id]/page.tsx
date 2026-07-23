@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import { useDict, getDictLabel } from "@/lib/useDict";
 import { ArrowLeft, GraduationCap, Phone, Mail, MapPin, RefreshCw, FileText, DollarSign, User, MessageSquare, Clock, Calendar, Pencil, X, Upload, Trash2, ChevronDown } from "lucide-react";
 
 interface StudentDetail {
@@ -46,9 +47,11 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
   ALUMNI: { label: "已毕业", color: "bg-gray-100 text-gray-800" },
 };
 
-const FOLLOW_TYPE_MAP: Record<string, string> = { phone: "电话", wechat: "微信", visit: "面谈", other: "其他" };
+const FT_FALLBACK = [{ dictKey: "phone", dictValue: "电话" },{ dictKey: "wechat", dictValue: "微信" },{ dictKey: "visit", dictValue: "面谈" },{ dictKey: "other", dictValue: "其他" }];
 
 export default function StudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const followTypes = useDict("follow_type", FT_FALLBACK);
+  const genders = useDict("gender", [{ dictKey: "MALE", dictValue: "男" }, { dictKey: "FEMALE", dictValue: "女" }]);
   const { id } = use(params);
   const router = useRouter();
   const [student, setStudent] = useState<StudentDetail | null>(null);
@@ -251,7 +254,7 @@ export default function StudentDetailPage({ params }: { params: Promise<{ id: st
                     <div className="ml-4">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-medium text-gray-900">{fu.user.realName}</span>
-                        <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{FOLLOW_TYPE_MAP[fu.type] || fu.type}</span>
+                        <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{getDictLabel(followTypes, fu.type)}</span>
                         <span className="text-xs text-gray-400">{new Date(fu.createdAt).toLocaleString("zh-CN")}</span>
                       </div>
                       <p className="text-sm text-gray-700 whitespace-pre-wrap">{fu.content}</p>

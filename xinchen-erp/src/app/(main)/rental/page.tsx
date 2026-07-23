@@ -6,6 +6,7 @@ import {
   Home, User, Phone, Calendar, Filter, Plus,
   Trash2, Edit3, MapPin, DollarSign,
 } from "lucide-react";
+import { useDict, getDictLabel } from "@/lib/useDict";
 
 interface RentalOrderItem {
   id: number;
@@ -62,13 +63,10 @@ const CURRENCY_SYMBOL: Record<string, string> = {
 
 const DEFAULT_CITIES = ["伦敦", "曼彻斯特", "伯明翰", "爱丁堡", "悉尼", "墨尔本", "多伦多", "温哥华", "纽约", "洛杉矶", "其他"];
 
-const PAYMENT_METHODS: Record<string, string> = {
-  yearly: "年付",
-  half_yearly: "半年付",
-  quarterly: "三个月",
-};
+const PM_FALLBACK = [{ dictKey: "yearly", dictValue: "年付" },{ dictKey: "half_yearly", dictValue: "半年付" },{ dictKey: "quarterly", dictValue: "三个月" }];
 
 export default function RentalPage() {
+  const paymentMethods = useDict("rental_payment_method", PM_FALLBACK);
   const [data, setData] = useState<PaginatedResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
@@ -308,7 +306,7 @@ export default function RentalPage() {
                       <div className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5 text-gray-400" /><span className="text-sm font-medium text-gray-900">{CURRENCY_SYMBOL[order.currency] || order.currency}{order.monthlyRent}</span></div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-700">{order.paymentMethod ? PAYMENT_METHODS[order.paymentMethod] || order.paymentMethod : "-"}</span>
+                      <span className="text-sm text-gray-700">{order.paymentMethod ? getDictLabel(paymentMethods, order.paymentMethod) : "-"}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm text-gray-700">{order.partner?.name || "-"}</span>
@@ -414,7 +412,7 @@ export default function RentalPage() {
                   <select value={formData.paymentMethod} onChange={(e) => setFormData(d => ({ ...d, paymentMethod: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     <option value="">请选择</option>
-                    {Object.entries(PAYMENT_METHODS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    {paymentMethods.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
                   </select>
                 </div>
                 <div>

@@ -6,6 +6,7 @@ import {
   Trash2, Edit3, Phone, Video, MessageCircle, Users,
   Smile, Meh, Frown, Angry, Star,
 } from "lucide-react";
+import { useDict, getDictLabel } from "@/lib/useDict";
 
 interface VisitRecordItem {
   id: number;
@@ -38,12 +39,7 @@ interface PaginatedResponse {
 
 interface StudentOption { id: number; name: string; phone: string; }
 
-const VISIT_TYPE_MAP: Record<string, { label: string; icon: any; color: string }> = {
-  PHONE: { label: "电话", icon: Phone, color: "bg-green-100 text-green-700" },
-  WECHAT: { label: "微信", icon: MessageCircle, color: "bg-blue-100 text-blue-700" },
-  FACE_TO_FACE: { label: "面谈", icon: Users, color: "bg-purple-100 text-purple-700" },
-  VIDEO: { label: "视频", icon: Video, color: "bg-orange-100 text-orange-700" },
-};
+const VT_FALLBACK = [{ dictKey: "PHONE", dictValue: "电话" },{ dictKey: "WECHAT", dictValue: "微信" },{ dictKey: "FACE_TO_FACE", dictValue: "面谈" },{ dictKey: "VIDEO", dictValue: "视频" }];
 
 const MOOD_MAP: Record<string, { label: string; color: string }> = {
   SATISFIED: { label: "满意", color: "text-green-500" },
@@ -52,12 +48,11 @@ const MOOD_MAP: Record<string, { label: string; color: string }> = {
   DISSATISFIED: { label: "不满意", color: "text-red-500" },
 };
 
-const UPSELL_TYPE_MAP: Record<string, string> = {
-  UPGRADE: "升级", RENEWAL: "续费", FAMILY: "家庭",
-  WORK_VISA: "工签", IMMIGRATION: "移民", OTHER_SERVICE: "其他服务",
-};
+const UT_FALLBACK = [{ dictKey: "UPGRADE", dictValue: "升级" },{ dictKey: "RENEWAL", dictValue: "续费" },{ dictKey: "FAMILY", dictValue: "家庭" },{ dictKey: "WORK_VISA", dictValue: "工签" },{ dictKey: "IMMIGRATION", dictValue: "移民" },{ dictKey: "OTHER_SERVICE", dictValue: "其他服务" }];
 
 export default function VisitRecordsPage() {
+  const visitTypes = useDict("visit_type", VT_FALLBACK);
+  const upsellTypes = useDict("upsell_type", UT_FALLBACK);
   const [data, setData] = useState<PaginatedResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [visitTypeFilter, setVisitTypeFilter] = useState("");
@@ -182,7 +177,8 @@ export default function VisitRecordsPage() {
 
   function handleSearch() { setPage(1); setSearchKeyword(keyword); }
 
-  const vt = VISIT_TYPE_MAP;
+  const vtMap: Record<string, string> = {};
+  visitTypes.forEach(t => { vtMap[t.dictKey] = t.dictValue; });
 
   return (
     <div className="p-6">
@@ -201,7 +197,7 @@ export default function VisitRecordsPage() {
           <select value={visitTypeFilter} onChange={(e) => { setVisitTypeFilter(e.target.value); setPage(1); }}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部方式</option>
-            {Object.entries(VISIT_TYPE_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+            {visitTypes.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
           </select>
           <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="搜索学生姓名、回访摘要..." className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none flex-1 max-w-xs" />
@@ -317,7 +313,7 @@ export default function VisitRecordsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">回访方式 <span className="text-red-500">*</span></label>
                   <select required value={formData.visitType} onChange={e => setFormData(d => ({ ...d, visitType: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                    {Object.entries(VISIT_TYPE_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                    {visitTypes.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
                   </select>
                 </div>
               </div>
@@ -371,7 +367,7 @@ export default function VisitRecordsPage() {
                     <select value={formData.upsellType} onChange={e => setFormData(d => ({ ...d, upsellType: e.target.value }))}
                       className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                       <option value="">选择类型</option>
-                      {Object.entries(UPSELL_TYPE_MAP).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                      {upsellTypes.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
                     </select>
                     <input type="text" value={formData.upsellDetail} onChange={e => setFormData(d => ({ ...d, upsellDetail: e.target.value }))}
                       className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="需求详情" />

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, RefreshCw, ChevronLeft, ChevronRight, GraduationCap, Phone, FileText, ClipboardCheck, Plus, X } from "lucide-react";
+import { useDict } from "@/lib/useDict";
 
 interface StudentItem {
   id: number;
@@ -30,6 +31,7 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 };
 
 export default function StudentsPage() {
+  const genders = useDict("gender", [{ dictKey: "MALE", dictValue: "男" }, { dictKey: "FEMALE", dictValue: "女" }]);
   const router = useRouter();
   const [data, setData] = useState<{ total: number; list: StudentItem[] } | null>(null);
   const [loading, setLoading] = useState(true);

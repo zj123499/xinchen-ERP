@@ -7,6 +7,7 @@ import {
   Filter, RefreshCw, User, MapPin, GraduationCap, Calendar, MessageSquare,
   Trash2, Edit2,
 } from "lucide-react";
+import { useDict, getDictLabel } from "@/lib/useDict";
 
 interface LeadItem {
   id: number;
@@ -104,6 +105,10 @@ export default function LeadsPage() {
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // 解耦下拉框 → 数据字典
+  const bizTypes = useDict("business_type");
+  const studentStatuses = useDict("student_status");
 
   // 数据字典来源 + 顾问列表 + 合作方/站群联动
   const [sources, setSources] = useState<DictItem[]>(DEFAULT_SOURCES);
@@ -585,9 +590,7 @@ export default function LeadsPage() {
                     onChange={(e) => setFormData((d) => ({ ...d, status: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   >
-                    <option value="NEW">待跟进</option>
-                    <option value="CONTACTED">有意向</option>
-                    <option value="DEAD">无意向</option>
+                    {studentStatuses.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
                   </select>
                 </div>
                 <div>
@@ -608,10 +611,7 @@ export default function LeadsPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   >
                     <option value="">请选择</option>
-                    <option value="STUDY_ABROAD">留学</option>
-                    <option value="RENTAL">租房</option>
-                    <option value="OVERSEAS_SERVICE">境外服务</option>
-                    <option value="PARTNER">合作</option>
+                    {bizTypes.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
                   </select>
                 </div>
               </div>
