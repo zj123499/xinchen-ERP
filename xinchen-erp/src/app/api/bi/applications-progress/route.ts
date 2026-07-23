@@ -77,13 +77,14 @@ export async function GET(request: NextRequest) {
       include: {
         student: { select: { name: true, targetCountry: true, nationality: true } },
         visas: { select: { status: true } },
-        order: { select: { status: true, orderNo: true } },
+        contract: { select: { status: true } },
       },
     });
 
     const items = apps.map((a) => {
       const visaStatuses = a.visas.map((v) => v.status);
-      const step = calcStep(a.status, visaStatuses, a.order.status);
+      const contractStatus = a.contract?.status || "PENDING";
+      const step = calcStep(a.status, visaStatuses, contractStatus);
       return {
         id: a.id,
         studentName: a.student.name,
@@ -92,9 +93,9 @@ export async function GET(request: NextRequest) {
         major: a.majorName,
         degree: a.degree,
         status: a.status,
-        orderStatus: a.order.status,
+        orderStatus: contractStatus,
         currentStep: step,
-        isClosed: a.order.status === "COMPLETED",
+        isClosed: contractStatus === "COMPLETED",
         updatedAt: a.updatedAt,
       };
     });

@@ -41,6 +41,9 @@ export const MENU_TREE: MenuNode[] = [
     children: [
       { name: "回访记录", code: "visit_records", path: "/visit-records", icon: "visits" },
       { name: "回访计划", code: "visit_plans", path: "/visit-plans", icon: "visitPlan" },
+      { name: "满意度调查", code: "surveys", path: "/success/surveys", icon: "success" },
+      { name: "投诉管理", code: "complaints", path: "/success/complaints", icon: "success" },
+      { name: "转介绍", code: "referrals", path: "/success/referrals", icon: "success" },
     ],
   },
   {
@@ -95,15 +98,6 @@ export const MENU_TREE: MenuNode[] = [
       { name: "审批流配置", code: "approval_flows", path: "/approval/flows", icon: "approval" },
       { name: "待我审批", code: "approval_pending", path: "/approval/records?scope=pending", icon: "approval" },
       { name: "我发起的", code: "approval_mine", path: "/approval/records?scope=mine", icon: "approval" },
-    ],
-  },
-  {
-    name: "客户成功", code: "success", icon: "success",
-    children: [
-      { name: "满意度调查", code: "surveys", path: "/success/surveys", icon: "success" },
-      { name: "服务回访", code: "service_visits", path: "/success/visits", icon: "success" },
-      { name: "投诉管理", code: "complaints", path: "/success/complaints", icon: "success" },
-      { name: "转介绍", code: "referrals", path: "/success/referrals", icon: "success" },
     ],
   },
   {

@@ -977,7 +977,7 @@ model Application {
   id              Int               @id @default(autoincrement())
   tenantId        Int               @map("tenant_id")
   studentId       Int               @map("student_id")
-  contractId      Int               @map("contract_id")
+  contractId      Int?              @map("order_id")
   institutionName String            @map("institution_name") @db.VarChar(200)
   majorName       String            @map("major_name") @db.VarChar(200)
   degree          String            @db.VarChar(50)
@@ -992,7 +992,7 @@ model Application {
 
   tenant          Tenant                @relation(fields: [tenantId], references: [id])
   student         Student               @relation(fields: [studentId], references: [id])
-  contract        Contract              @relation(fields: [contractId], references: [id])
+  contract        Contract?             @relation(fields: [contractId], references: [id])
   materials       ApplicationMaterial[]
   offers          Offer[]
   visas           Visa[]
