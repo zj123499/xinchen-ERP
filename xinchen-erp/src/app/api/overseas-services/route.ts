@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const { tenantId } = getContext(request);
   const body = await request.json();
-  const { studentId, serviceType, status, detail } = body;
+  const { studentId, serviceType, status, detail, startDate, endDate } = body;
 
   if (!studentId || !serviceType) {
     return NextResponse.json({ error: "学生和服务类型为必填项" }, { status: 400 });
@@ -63,6 +63,8 @@ export async function POST(request: NextRequest) {
       studentId: parseInt(studentId),
       serviceType,
       status: status || "pending",
+      startDate: startDate ? new Date(startDate) : null,
+      endDate: endDate ? new Date(endDate) : null,
       detail: detail || null,
     },
     include: {

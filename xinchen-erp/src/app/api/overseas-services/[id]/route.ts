@@ -34,7 +34,7 @@ export async function PUT(
   const { tenantId } = getContext(request);
   const { id } = await params;
   const body = await request.json();
-  const { studentId, serviceType, status, detail } = body;
+  const { studentId, serviceType, status, detail, startDate, endDate } = body;
 
   const existing = await prisma.overseasService.findFirst({
     where: { id: parseInt(id), tenantId },
@@ -45,6 +45,8 @@ export async function PUT(
   if (studentId) updateData.studentId = parseInt(studentId);
   if (serviceType) updateData.serviceType = serviceType;
   if (status) updateData.status = status;
+  if (startDate !== undefined) updateData.startDate = startDate ? new Date(startDate) : null;
+  if (endDate !== undefined) updateData.endDate = endDate ? new Date(endDate) : null;
   if (detail !== undefined) updateData.detail = detail;
 
   const service = await prisma.overseasService.update({

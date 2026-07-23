@@ -13,6 +13,8 @@ interface OverseasServiceItem {
   serviceType: string;
   status: string;
   detail: any;
+  startDate: string | null;
+  endDate: string | null;
   createdAt: string;
   student: { id: number; name: string; phone: string };
 }
@@ -31,27 +33,12 @@ interface StudentOption {
   phone: string;
 }
 
-const SERVICE_TYPE_MAP: Record<string, string> = {
-  visa_assist: "签证协助",
-  airport_pickup: "机场接机",
-  accommodation: "住宿安排",
-  bank_account: "银行开户",
-  sim_card: "手机卡办理",
-  police_registration: "警局注册",
-  insurance: "保险办理",
-  other: "其他",
-};
-
-const SERVICE_TYPE_COLOR: Record<string, string> = {
-  visa_assist: "bg-blue-100 text-blue-700",
-  airport_pickup: "bg-green-100 text-green-700",
-  accommodation: "bg-purple-100 text-purple-700",
-  bank_account: "bg-yellow-100 text-yellow-700",
-  sim_card: "bg-cyan-100 text-cyan-700",
-  police_registration: "bg-red-100 text-red-700",
-  insurance: "bg-indigo-100 text-indigo-700",
-  other: "bg-gray-100 text-gray-600",
-};
+const TYPE_COLORS = [
+  "bg-blue-100 text-blue-700", "bg-green-100 text-green-700", "bg-purple-100 text-purple-700",
+  "bg-yellow-100 text-yellow-700", "bg-cyan-100 text-cyan-700", "bg-red-100 text-red-700",
+  "bg-indigo-100 text-indigo-700", "bg-orange-100 text-orange-700", "bg-pink-100 text-pink-700",
+  "bg-teal-100 text-teal-700",
+];
 
 const STATUS_MAP: Record<string, string> = {
   pending: "待处理",
@@ -66,8 +53,6 @@ const STATUS_COLOR: Record<string, string> = {
   completed: "bg-green-100 text-green-700",
   cancelled: "bg-gray-100 text-gray-600",
 };
-
-const SERVICE_TYPES = Object.keys(SERVICE_TYPE_MAP);
 
 export default function OverseasServicesPage() {
   const [data, setData] = useState<PaginatedResponse | null>(null);
@@ -84,10 +69,12 @@ export default function OverseasServicesPage() {
   const [editingItem, setEditingItem] = useState<OverseasServiceItem | null>(null);
   const [formData, setFormData] = useState({
     studentId: "", serviceType: "", status: "pending", detail: "",
+    startDate: "", endDate: "",
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [students, setStudents] = useState<StudentOption[]>([]);
+  const [serviceTypes, setServiceTypes] = useState<{ dictKey: string; dictValue: string }[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<OverseasServiceItem | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -115,11 +102,19 @@ export default function OverseasServicesPage() {
     fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
       setStudents(d.list || []);
     }).catch(() => {});
+    // 从数据字典加载服务类型
+    fetch("/api/dicts?groupName=overseas_service_type").then(r => r.json()).then(d => {
+      setServiceTypes(d.list || []);
+    }).catch(() => {});
   }, []);
+
+  function getTypeLabel(key: string) {
+    return serviceTypes.find(t => t.dictKey === key)?.dictValue || key;
+  }
 
   function openNewForm() {
     setEditingItem(null);
-    setFormData({ studentId: "", serviceType: "", status: "pending", detail: "" });
+    setFormData({ studentId: "", serviceType: "", status: "pending", detail: "", startDate: "", endDate: "" });
     setFormError("");
     setShowForm(true);
   }
@@ -131,6 +126,8 @@ export default function OverseasServicesPage() {
       serviceType: item.serviceType,
       status: item.status,
       detail: item.detail ? (typeof item.detail === "string" ? item.detail : JSON.stringify(item.detail, null, 2)) : "",
+      startDate: item.startDate ? item.startDate.slice(0, 10) : "",
+      endDate: item.endDate ? item.endDate.slice(0, 10) : "",
     });
     setFormError("");
     setShowForm(true);
@@ -154,6 +151,8 @@ export default function OverseasServicesPage() {
         serviceType: formData.serviceType,
         status: formData.status,
         detail: detailParsed,
+        startDate: formData.startDate || undefined,
+        endDate: formData.endDate || undefined,
       };
       const url = editingItem ? `/api/overseas-services/${editingItem.id}` : "/api/overseas-services";
       const method = editingItem ? "PUT" : "POST";
@@ -238,9 +237,9 @@ export default function OverseasServicesPage() {
                 <div className="space-y-1 mb-3">
                   <button onClick={() => { setTypeFilter(""); setPage(1); }}
                     className={`w-full text-left px-2 py-1 text-sm rounded ${!typeFilter ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
-                  {SERVICE_TYPES.map(k => (
-                    <button key={k} onClick={() => { setTypeFilter(k); setPage(1); }}
-                      className={`w-full text-left px-2 py-1 text-sm rounded ${typeFilter === k ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>{SERVICE_TYPE_MAP[k]}</button>
+                  {serviceTypes.map(t => (
+                    <button key={t.dictKey} onClick={() => { setTypeFilter(t.dictKey); setPage(1); }}
+                      className={`w-full text-left px-2 py-1 text-sm rounded ${typeFilter === t.dictKey ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>{t.dictValue}</button>
                   ))}
                 </div>
                 <div className="text-xs font-medium text-gray-500 mb-2">状态</div>
@@ -277,9 +276,10 @@ export default function OverseasServicesPage() {
                 <tr className="border-b border-gray-200 bg-gray-50">
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">学生</th>
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">服务类型</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">开始服务</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">结束服务</th>
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">详情</th>
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">状态</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">创建时间</th>
                   <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">操作</th>
                 </tr>
               </thead>
@@ -296,14 +296,20 @@ export default function OverseasServicesPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${SERVICE_TYPE_COLOR[svc.serviceType] || "bg-gray-100 text-gray-600"}`}>
-                        {SERVICE_TYPE_MAP[svc.serviceType] || svc.serviceType}
+                      <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_COLORS[serviceTypes.findIndex(t => t.dictKey === svc.serviceType) % TYPE_COLORS.length] || "bg-gray-100 text-gray-600"}`}>
+                        {getTypeLabel(svc.serviceType)}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-gray-400" /><span className="text-sm text-gray-700">{svc.startDate ? new Date(svc.startDate).toLocaleDateString("zh-CN") : "-"}</span></div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-gray-400" /><span className="text-sm text-gray-700">{svc.endDate ? new Date(svc.endDate).toLocaleDateString("zh-CN") : "-"}</span></div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
                         <FileText className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 max-w-[250px] truncate" title={renderDetail(svc.detail)}>{renderDetail(svc.detail)}</span>
+                        <span className="text-sm text-gray-700 max-w-[200px] truncate" title={renderDetail(svc.detail)}>{renderDetail(svc.detail)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -311,7 +317,6 @@ export default function OverseasServicesPage() {
                         {STATUS_MAP[svc.status] || svc.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4"><span className="text-sm text-gray-500">{new Date(svc.createdAt).toLocaleString("zh-CN")}</span></td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
                         <button onClick={() => openEditForm(svc)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑"><Edit3 className="w-4 h-4" /></button>
@@ -370,8 +375,20 @@ export default function OverseasServicesPage() {
                 <select required value={formData.serviceType} onChange={(e) => setFormData(d => ({ ...d, serviceType: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="">请选择服务类型</option>
-                  {SERVICE_TYPES.map(t => <option key={t} value={t}>{SERVICE_TYPE_MAP[t]}</option>)}
+                  {serviceTypes.map(t => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
                 </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">开始服务时间</label>
+                  <input type="date" value={formData.startDate} onChange={(e) => setFormData(d => ({ ...d, startDate: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">结束服务时间</label>
+                  <input type="date" value={formData.endDate} onChange={(e) => setFormData(d => ({ ...d, endDate: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
@@ -403,7 +420,7 @@ export default function OverseasServicesPage() {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
             <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl"><h2 className="text-lg font-semibold text-red-800">确认删除</h2></div>
             <div className="p-6">
-              <p className="text-sm text-gray-700">确定要删除 {deleteConfirm.student.name} 的 {SERVICE_TYPE_MAP[deleteConfirm.serviceType] || deleteConfirm.serviceType} 服务记录吗？</p>
+              <p className="text-sm text-gray-700">确定要删除 {deleteConfirm.student.name} 的 {getTypeLabel(deleteConfirm.serviceType)} 服务记录吗？</p>
               <div className="flex justify-end gap-3 mt-4">
                 <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition">确认删除</button>
