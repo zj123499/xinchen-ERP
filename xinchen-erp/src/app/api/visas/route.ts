@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
           select: {
             id: true, institutionName: true, majorName: true,
             student: { select: { id: true, name: true, phone: true } },
-            order: { select: { id: true, orderNo: true } },
+            contract: { select: { id: true, contractNo: true } },
           },
         },
       },

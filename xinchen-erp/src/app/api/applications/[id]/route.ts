@@ -29,7 +29,7 @@ export async function GET(
     where: { id: parseInt(id), tenantId },
     include: {
       student: { select: { id: true, name: true, phone: true, wechat: true } },
-      order: { select: { id: true, orderNo: true, productName: true, amount: true } },
+      contract: { select: { id: true, contractNo: true } },
       offers: {
         orderBy: { offerDate: "desc" },
         select: { id: true, institutionName: true, majorName: true, offerType: true, status: true, offerDate: true, deadline: true },
@@ -61,7 +61,7 @@ export async function PUT(
   const { tenantId } = getContext(request);
   const { id } = await params;
   const body = await request.json();
-  const { studentId, orderId, institutionName, majorName, degree, intakeYear, intakeMonth, status, submittedAt, resultAt, remark } = body;
+  const { studentId, contractId, institutionName, majorName, degree, intakeYear, intakeMonth, status, submittedAt, resultAt, remark } = body;
 
   const existing = await prisma.application.findFirst({
     where: { id: parseInt(id), tenantId },
@@ -74,7 +74,7 @@ export async function PUT(
     where: { id: parseInt(id) },
     data: {
       studentId: studentId ? parseInt(studentId) : undefined,
-      orderId: orderId ? parseInt(orderId) : undefined,
+      contractId: contractId ? parseInt(contractId) : undefined,
       institutionName: institutionName || undefined,
       majorName: majorName || undefined,
       degree: degree || undefined,
@@ -87,7 +87,7 @@ export async function PUT(
     },
     include: {
       student: { select: { id: true, name: true, phone: true } },
-      order: { select: { id: true, orderNo: true, productName: true } },
+      contract: { select: { id: true, contractNo: true } },
     },
   });
 

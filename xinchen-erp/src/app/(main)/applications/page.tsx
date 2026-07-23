@@ -137,7 +137,7 @@ export default function ApplicationsPage() {
       if (res.ok) {
         setEditingId(id);
         setForm({ studentId: String(data.studentId), contractId: String(data.contractId), institutionName: data.institutionName, majorName: data.majorName, degree: data.degree, intakeYear: data.intakeYear, intakeMonth: data.intakeMonth, status: data.status, remark: data.remark || "" });
-        setSelectedStudent(data.student); setSelectedContract(data.order);
+        setSelectedStudent(data.student); setSelectedContract(data.contract);
         setStudentSearch(data.student?.name || ""); setShowModal(true);
       }
     } catch (e) { console.error(e); }

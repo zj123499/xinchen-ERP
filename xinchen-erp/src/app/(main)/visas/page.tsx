@@ -17,7 +17,7 @@ interface VisaItem {
     institutionName: string;
     majorName: string;
     student: { id: number; name: string; phone: string };
-    order: { id: number; orderNo: string };
+    contract: { id: number; contractNo: string };
   };
 }
 

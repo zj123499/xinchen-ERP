@@ -17,7 +17,7 @@ interface ApplicationDetail {
   remark: string | null;
   createdAt: string;
   student: { id: number; name: string; phone: string; wechat: string | null };
-  order: { id: number; orderNo: string; productName: string; amount: number };
+  contract: { id: number; contractNo: string };
   offers: { id: number; institutionName: string; majorName: string; offerType: string; status: string; offerDate: string; deadline: string | null }[];
   visas: { id: number; visaType: string; status: string; submittedAt: string | null; resultAt: string | null; visaNumber: string | null; expiryDate: string | null }[];
   materials: { id: number; name: string; type: string; status: string; dueDate: string | null }[];
@@ -110,9 +110,8 @@ export default function ApplicationDetailPage() {
           <p className="text-xs text-gray-400 mt-1">{data.student.phone}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-xs text-gray-400 mb-1">订单</p>
-          <p className="text-sm font-semibold text-blue-600 cursor-pointer hover:underline" onClick={() => router.push(`/orders/${data.order.id}`)}>{data.order.orderNo}</p>
-          <p className="text-xs text-gray-400 mt-1">{data.order.productName}</p>
+          <p className="text-xs text-gray-400 mb-1">合同</p>
+          <p className="text-sm font-semibold text-gray-900">{data.contract ? data.contract.contractNo : "-"}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-xs text-gray-400 mb-1">学位 / 入学季</p>
@@ -120,8 +119,8 @@ export default function ApplicationDetailPage() {
           <p className="text-xs text-gray-400 mt-1">{data.intakeYear}.{String(data.intakeMonth).padStart(2, "0")}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-xs text-gray-400 mb-1">订单金额</p>
-          <p className="text-sm font-semibold text-gray-900">¥{Number(data.order.amount)?.toLocaleString()}</p>
+          <p className="text-xs text-gray-400 mb-1">状态</p>
+          <p className="text-sm font-semibold text-gray-900">{STATUS_MAP[data.status]?.label || data.status}</p>
         </div>
       </div>
 
