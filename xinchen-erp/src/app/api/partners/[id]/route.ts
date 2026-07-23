@@ -31,7 +31,7 @@ export async function PUT(
   const body = await request.json();
   const {
     name, type, country, contactName, contactPhone,
-    contactEmail, commissionRate, status,
+    contactEmail, contractUrl, commissionRate, status,
   } = body;
 
   const existing = await prisma.partner.findFirst({
@@ -48,6 +48,7 @@ export async function PUT(
       contactName: contactName !== undefined ? contactName : existing.contactName,
       contactPhone: contactPhone !== undefined ? contactPhone : existing.contactPhone,
       contactEmail: contactEmail !== undefined ? contactEmail : existing.contactEmail,
+      contractUrl: contractUrl !== undefined ? (contractUrl || null) : existing.contractUrl,
       commissionRate: commissionRate !== undefined ? (commissionRate ? parseFloat(commissionRate) : null) : existing.commissionRate,
       status: status !== undefined ? status : existing.status,
     },

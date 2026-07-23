@@ -227,6 +227,7 @@ model Tenant {
   rentalOrders        RentalOrder[]
   overseasServices    OverseasService[]
   partners            Partner[]
+  partnerSchools      PartnerSchool[]
   sites               Site[]
   mediaAccounts       MediaAccount[]
   auditLogs           AuditLog[]
@@ -1227,21 +1228,42 @@ model Partner {
   contactName    String?  @map("contact_name") @db.VarChar(50)
   contactPhone   String?  @map("contact_phone") @db.VarChar(20)
   contactEmail   String?  @map("contact_email") @db.VarChar(100)
+  contractUrl    String?  @map("contract_url") @db.VarChar(500)
   commissionRate Decimal? @map("commission_rate") @db.Decimal(5, 2)
   status         Boolean  @default(true)
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-  payables Payable[]
-  agreements PartnerAgreement[]
-  commissions PartnerCommission[]
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
+  payables         Payable[]
+  agreements       PartnerAgreement[]
+  commissions      PartnerCommission[]
   partnerContracts PartnerContract[]
   leads            Lead[]
   rentalOrders     RentalOrder[]
 
   @@index([tenantId])
   @@map("partners")
+}
+
+model PartnerSchool {
+  id               Int      @id @default(autoincrement())
+  tenantId         Int      @map("tenant_id")
+  name             String   @db.VarChar(200)
+  country          String?  @db.VarChar(50)
+  city             String?  @db.VarChar(100)
+  contactName      String?  @map("contact_name") @db.VarChar(50)
+  contactEmail     String?  @map("contact_email") @db.VarChar(100)
+  responsiblePerson String? @map("responsible_person") @db.VarChar(50)
+  contractUrl      String?  @map("contract_url") @db.VarChar(500)
+  status           Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("partner_schools")
 }
 
 model PartnerAgreement {

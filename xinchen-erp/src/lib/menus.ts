@@ -65,11 +65,17 @@ export const MENU_TREE: MenuNode[] = [
     ],
   },
   {
+    name: "合作方管理", code: "partners_mgmt", icon: "partners",
+    children: [
+      { name: "合作院校", code: "partner_schools", path: "/partner-schools", icon: "partners" },
+      { name: "合作方", code: "partners", path: "/partners", icon: "partners" },
+    ],
+  },
+  {
     name: "扩展业务", code: "extended", icon: "rental",
     children: [
       { name: "租房管理", code: "rental", path: "/rental", icon: "rental" },
       { name: "境外服务", code: "overseas", path: "/overseas-services", icon: "overseas" },
-      { name: "合作方", code: "partners", path: "/partners", icon: "partners" },
     ],
   },
   {

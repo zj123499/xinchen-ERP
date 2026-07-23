@@ -28,23 +28,11 @@ interface PaginatedResponse {
   list: PartnerItem[];
 }
 
-const PARTNER_TYPE_MAP: Record<string, string> = {
-  SCHOOL: "院校",
-  AGENCY: "中介机构",
-  LANGUAGE_SCHOOL: "语言学校",
-  RENTAL: "租房合作",
-  SERVICE: "境外服务",
-  OTHER: "其他",
-};
-
-const TYPE_COLOR_MAP: Record<string, string> = {
-  SCHOOL: "bg-purple-100 text-purple-700",
-  AGENCY: "bg-blue-100 text-blue-700",
-  LANGUAGE_SCHOOL: "bg-teal-100 text-teal-700",
-  RENTAL: "bg-orange-100 text-orange-700",
-  SERVICE: "bg-green-100 text-green-700",
-  OTHER: "bg-gray-100 text-gray-600",
-};
+const TYPE_COLORS = [
+  "bg-blue-100 text-blue-700", "bg-green-100 text-green-700", "bg-purple-100 text-purple-700",
+  "bg-orange-100 text-orange-700", "bg-cyan-100 text-cyan-700", "bg-red-100 text-red-700",
+  "bg-indigo-100 text-indigo-700", "bg-teal-100 text-teal-700",
+];
 
 export default function PartnersPage() {
   const router = useRouter();
@@ -58,9 +46,11 @@ export default function PartnersPage() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingPartner, setEditingPartner] = useState<PartnerItem | null>(null);
+  const [partnerTypes, setPartnerTypes] = useState<{ dictKey: string; dictValue: string }[]>([]);
   const [formData, setFormData] = useState({
-    name: "", type: "SCHOOL", country: "",
-    contactName: "", contactPhone: "", contactEmail: "", commissionRate: "",
+    name: "", type: "", country: "",
+    contactName: "", contactPhone: "", contactEmail: "",
+    contractUrl: "", commissionRate: "",
   });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -132,9 +122,15 @@ export default function PartnersPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  useEffect(() => {
+    fetch("/api/dicts?groupName=partner_type&pageSize=100").then(r => r.json()).then(d => {
+      setPartnerTypes(d.list || []);
+    }).catch(() => {});
+  }, []);
+
   function openNewForm() {
     setEditingPartner(null);
-    setFormData({ name: "", type: "SCHOOL", country: "", contactName: "", contactPhone: "", contactEmail: "", commissionRate: "" });
+    setFormData({ name: "", type: partnerTypes[0]?.dictKey || "", country: "", contactName: "", contactPhone: "", contactEmail: "", contractUrl: "", commissionRate: "" });
     setFormError("");
     setShowForm(true);
   }
@@ -148,6 +144,7 @@ export default function PartnersPage() {
       contactName: p.contactName || "",
       contactPhone: p.contactPhone || "",
       contactEmail: p.contactEmail || "",
+      contractUrl: (p as any).contractUrl || "",
       commissionRate: p.commissionRate != null ? String(p.commissionRate) : "",
     });
     setFormError("");
@@ -215,8 +212,8 @@ export default function PartnersPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">合作方管理</h1>
-          <p className="text-sm text-gray-500 mt-1">管理院校、中介、境外服务等合作方信息</p>
+          <h1 className="text-2xl font-bold text-gray-900">合作方</h1>
+          <p className="text-sm text-gray-500 mt-1">管理中介、境外服务、租房服务等合作方信息</p>
         </div>
         <button onClick={openNewForm} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
           <Plus className="w-4 h-4" />新增合作方
@@ -233,7 +230,7 @@ export default function PartnersPage() {
           <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部类型</option>
-            {Object.entries(PARTNER_TYPE_MAP).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            {partnerTypes.map(t => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
           </select>
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
@@ -282,8 +279,8 @@ export default function PartnersPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_COLOR_MAP[p.type] || "bg-gray-100 text-gray-600"}`}>
-                        {PARTNER_TYPE_MAP[p.type] || p.type}
+                      <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_COLORS[partnerTypes.findIndex(t => t.dictKey === p.type) % TYPE_COLORS.length] || "bg-gray-100 text-gray-600"}`}>
+                        {partnerTypes.find(t => t.dictKey === p.type)?.dictValue || p.type}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -363,10 +360,11 @@ export default function PartnersPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">类型 <span className="text-red-500">*</span></label>
-                  <select required value={formData.type} onChange={(e) => setFormData((d) => ({ ...d, type: e.target.value }))}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">合作类型</label>
+                  <select value={formData.type} onChange={(e) => setFormData((d) => ({ ...d, type: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                    {Object.entries(PARTNER_TYPE_MAP).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    <option value="">请选择</option>
+                    {partnerTypes.map(t => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
                   </select>
                 </div>
               </div>
@@ -398,6 +396,11 @@ export default function PartnersPage() {
                   <input type="number" step="0.01" min="0" max="100" value={formData.commissionRate} onChange={(e) => setFormData((d) => ({ ...d, commissionRate: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="如：15" />
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">合同链接</label>
+                <input type="text" value={formData.contractUrl} onChange={(e) => setFormData((d) => ({ ...d, contractUrl: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="上传后自动填入" />
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
