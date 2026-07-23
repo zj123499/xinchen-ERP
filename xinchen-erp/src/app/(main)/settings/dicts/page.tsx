@@ -46,9 +46,12 @@ export default function DictsPage() {
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
   const [dragGroup, setDragGroup] = useState("");
+  const isInitialLoad = useRef(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    const scrollTop = containerRef.current?.parentElement?.scrollTop || window.scrollY;
     try {
       const res = await fetch("/api/dicts");
       if (!res.ok) throw new Error();
@@ -56,11 +59,22 @@ export default function DictsPage() {
       setData(result.list || []);
       setGrouped(result.grouped || {});
       setGroups(result.groups || []);
-      setExpanded(new Set(Object.keys(result.grouped || {})));
+      // 仅首次加载自动展开全部，后续保留当前展开状态
+      if (isInitialLoad.current) {
+        setExpanded(new Set(Object.keys(result.grouped || {})));
+        isInitialLoad.current = false;
+      }
     } catch {
       setFormError("加载失败");
     } finally {
       setLoading(false);
+      // 恢复滚动位置
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollTop);
+        if (containerRef.current?.parentElement) {
+          containerRef.current.parentElement.scrollTop = scrollTop;
+        }
+      });
     }
   }, []);
 
@@ -194,7 +208,7 @@ export default function DictsPage() {
   const groupNames = groups.map(g => g.name).filter(n => grouped[n] !== undefined);
 
   return (
-    <div>
+    <div ref={containerRef}>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">数据字典</h1>
