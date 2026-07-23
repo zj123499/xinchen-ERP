@@ -25,13 +25,7 @@ export const MENU_TREE: MenuNode[] = [
       { name: "线索流转", code: "leadflow", path: "/lead-flow", icon: "leadFlow" },
     ],
   },
-  {
-    name: "合同订单", code: "contracts", icon: "contracts",
-    children: [
-      { name: "合同管理", code: "contracts_list", path: "/contracts", icon: "contracts" },
-      { name: "订单管理", code: "orders", path: "/orders", icon: "orders" },
-    ],
-  },
+  { name: "合同管理", code: "contracts", path: "/contracts", icon: "contracts" },
   {
     name: "交付管理", code: "delivery", icon: "applications",
     children: [
