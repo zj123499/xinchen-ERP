@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Search, Plus, FileText, MoreHorizontal, ChevronLeft, ChevronRight,
+  Search, Plus, FileText, MoreHorizontal, Trash2, ChevronLeft, ChevronRight,
   RefreshCw, User, Calendar, DollarSign,
 } from "lucide-react";
 
@@ -55,6 +55,20 @@ export default function ContractsPage() {
   // 新增/编辑弹窗
   const [showForm, setShowForm] = useState(false);
   const [editingContract, setEditingContract] = useState<ContractItem | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ContractItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const r = await fetch(`/api/contracts/${deleteTarget.id}`, { method: "DELETE" });
+      if (!r.ok) { const d = await r.json().catch(() => ({})); alert(d.error || "删除失败"); return; }
+      setDeleteTarget(null);
+      fetchContracts();
+    } catch { alert("网络错误"); }
+    finally { setDeleting(false); }
+  }
   const [formData, setFormData] = useState({
     studentId: "",
     contractNo: "",
@@ -340,6 +354,13 @@ export default function ContractsPage() {
                         >
                           <MoreHorizontal className="w-4 h-4" />
                         </button>
+                        <button
+                          onClick={() => setDeleteTarget(contract)}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition"
+                          title="删除"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -553,6 +574,24 @@ export default function ContractsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* 删除确认弹窗 */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-lg font-semibold mb-2">确认删除</h3>
+            <p className="text-sm text-gray-600 mb-1">合同编号：{deleteTarget.contractNo}</p>
+            <p className="text-sm text-gray-500 mb-4">删除后不可恢复，请确认。</p>
+            <div className="flex gap-3">
+              <button onClick={handleDelete} disabled={deleting}
+                className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 disabled:opacity-50">
+                {deleting ? "删除中..." : "确认删除"}
+              </button>
+              <button onClick={() => setDeleteTarget(null)}
+                className="py-2 px-6 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</button>
+            </div>
           </div>
         </div>
       )}

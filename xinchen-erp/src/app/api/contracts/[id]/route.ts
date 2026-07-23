@@ -86,7 +86,7 @@ export async function PUT(
   }
 
   const data: Record<string, unknown> = {};
-  if (body.studentId !== undefined) data.studentId = parseInt(body.studentId);
+  // 禁止更换客户（合同与客户绑定后不可修改）
   if (body.contractNo !== undefined) data.contractNo = body.contractNo;
   if (body.businessLineId !== undefined) data.businessLineId = body.businessLineId ? parseInt(body.businessLineId) : null;
   if (body.signDate !== undefined) data.signDate = new Date(body.signDate);
@@ -112,7 +112,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const denied = await requirePermission(request, "contracts:update");
+  const denied = await requirePermission(request, "contracts:delete");
   if (denied) return denied;
   const { tenantId } = getContext(request);
   const { id } = await params;
@@ -125,14 +125,14 @@ export async function DELETE(
     return NextResponse.json({ error: "合同不存在" }, { status: 404 });
   }
 
-  // 检查是否有关联订单
-  const orderCount = await prisma.order.count({
+  // 检查是否有关联申请
+  const appCount = await prisma.application.count({
     where: { contractId: parseInt(id) },
   });
 
-  if (orderCount > 0) {
+  if (appCount > 0) {
     return NextResponse.json(
-      { error: "该合同下存在订单，请先删除相关订单" },
+      { error: "该合同下存在申请记录，请先删除相关申请" },
       { status: 400 }
     );
   }

@@ -8,20 +8,21 @@ const FOLLOWUP_FORM_CODES = ["followup_pending", "followup_interested", "followu
 // 所有需要被追踪的权限码
 const ALL_TRACKED_CODES = [
   ...FOLLOWUP_FORM_CODES,
-  "leads:view", "students:view", "contracts:view", "payments:view", "applications:view", "visits:view", "reports:view",
+  "leads:view", "leads:create", "students:view", "contracts:view", "contracts:delete", "contracts:delete", "contracts:update", "contracts:create",
+  "payments:view", "applications:view", "visits:view", "reports:view",
 ];
 
 const ROLE_VIEW_MAP: Record<string, string[]> = {
-  general_manager: ["leads:view", "students:view", "contracts:view", "payments:view", "applications:view", "visits:view", "reports:view"],
-  operations_director: ["leads:view", "students:view", "contracts:view", "payments:view", "applications:view", "visits:view", "reports:view"],
-  marketing_specialist: ["leads:view", "students:view", "contracts:view", "visits:view", ...FOLLOWUP_FORM_CODES],
-  network_operator: ["leads:view", "students:view", "contracts:view", "visits:view", ...FOLLOWUP_FORM_CODES],
+  general_manager: ["leads:view", "students:view", "contracts:view", "contracts:delete", "payments:view", "applications:view", "visits:view", "reports:view"],
+  operations_director: ["leads:view", "students:view", "contracts:view", "contracts:delete", "payments:view", "applications:view", "visits:view", "reports:view"],
+  marketing_specialist: ["leads:view", "students:view", "contracts:view", "contracts:delete", "visits:view", ...FOLLOWUP_FORM_CODES],
+  network_operator: ["leads:view", "students:view", "contracts:view", "contracts:delete", "visits:view", ...FOLLOWUP_FORM_CODES],
   live_streamer: ["leads:view", "visits:view", ...FOLLOWUP_FORM_CODES],
   newmedia_manager: ["leads:view", "students:view", "visits:view", "reports:view", ...FOLLOWUP_FORM_CODES],
   newmedia_operator: ["leads:view", "visits:view", ...FOLLOWUP_FORM_CODES],
-  academic_advisor: ["students:view", "applications:view", "contracts:view", "visits:view"],
+  academic_advisor: ["students:view", "applications:view", "contracts:view", "contracts:delete", "visits:view"],
   document_application: ["students:view", "applications:view", "visits:view"],
-  finance: ["payments:view", "contracts:view", "reports:view"],
+  finance: ["payments:view", "contracts:view", "contracts:delete", "reports:view"],
 };
 
 function getContext(request: NextRequest) {
