@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
         student: { select: { id: true, name: true } },
         partner: { select: { id: true, name: true } },
         site: { select: { id: true, name: true, domain: true } },
+        mediaAccount: { select: { id: true, platform: true, accountName: true } },
         _count: { select: { followUps: true } },
       },
       orderBy: { updatedAt: "desc" },
@@ -84,9 +85,9 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const {
     name, phone, wechat, source, sourceDetail, businessType,
-    partnerId, siteId,
+    partnerId, siteId, mediaAccountId, intendedMajor,
     targetCountry, targetDegree, budget, remark, extData,
-    assignedToId, createStudent,
+    assignedToId, createStudent, status,
   } = body;
 
   if (!name || !source) {
@@ -142,6 +143,9 @@ export async function POST(request: NextRequest) {
       businessType: businessType || null,
       partnerId: partnerId ? parseInt(partnerId) : null,
       siteId: siteId ? parseInt(siteId) : null,
+      mediaAccountId: mediaAccountId ? parseInt(mediaAccountId) : null,
+      intendedMajor: intendedMajor || null,
+      status: status || "NEW",
       targetCountry: targetCountry || null, targetDegree: targetDegree || null,
       budget: budget ? parseFloat(budget) : null,
       remark: remark || null, extData: extData || null,

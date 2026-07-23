@@ -804,6 +804,8 @@ model Lead {
   sourceDetail   String?    @map("source_detail") @db.VarChar(500)
   partnerId      Int?       @map("partner_id")
   siteId         Int?       @map("site_id")
+  mediaAccountId Int?       @map("media_account_id")
+  intendedMajor  String?    @map("intended_major") @db.VarChar(200)
   businessType   String?    @map("business_type") @db.VarChar(30)
   status         LeadStatus @default(NEW)
   assignedToId   Int        @map("assigned_to_id")
@@ -823,6 +825,7 @@ model Lead {
   documentAssignedTo User?          @relation("lead_doc_assignee", fields: [documentAssignedToId], references: [id])
   partner      Partner?          @relation(fields: [partnerId], references: [id])
   site         Site?             @relation(fields: [siteId], references: [id])
+  mediaAccount MediaAccount?     @relation(fields: [mediaAccountId], references: [id])
   followUps    FollowUp[]
   transferLogs LeadTransferLog[]
   appeals      LeadAppeal[]
@@ -1394,6 +1397,7 @@ model MediaAccount {
   createdAt   DateTime @default(now()) @map("created_at")
 
   tenant       Tenant             @relation(fields: [tenantId], references: [id])
+  leads        Lead[]
   performances MediaPerformance[]
 
   @@index([tenantId])

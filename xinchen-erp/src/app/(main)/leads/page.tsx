@@ -53,8 +53,10 @@ interface PaginatedResponse {
 const DEFAULT_SOURCES: DictItem[] = [
   { id: 0, dictKey: "WALK_IN", dictValue: "上门咨询", sort: 0 },
   { id: 0, dictKey: "REFERRAL", dictValue: "转介绍", sort: 1 },
-  { id: 0, dictKey: "MEDIA", dictValue: "新媒体", sort: 2 },
-  { id: 0, dictKey: "SEARCH", dictValue: "搜索引擎", sort: 3 },
+  { id: 0, dictKey: "MEDIA_XHS", dictValue: "新媒体-小红书", sort: 2 },
+  { id: 0, dictKey: "MEDIA_SPH", dictValue: "新媒体-视频号", sort: 3 },
+  { id: 0, dictKey: "MEDIA_DY", dictValue: "新媒体-抖音", sort: 4 },
+  { id: 0, dictKey: "SEARCH", dictValue: "搜索引擎", sort: 5 },
   { id: 0, dictKey: "PARTNER", dictValue: "合作方", sort: 4 },
   { id: 0, dictKey: "EXHIBITION", dictValue: "展会", sort: 5 },
   { id: 0, dictKey: "OTHER", dictValue: "其他", sort: 6 },
@@ -85,11 +87,13 @@ export default function LeadsPage() {
     name: "",
     phone: "",
     wechat: "",
-    source: "MEDIA",
+    source: "MEDIA_XHS",
     sourceDetail: "",
     businessType: "",
     partnerId: "",
     siteId: "",
+    mediaAccountId: "",
+    intendedMajor: "",
     targetCountry: "",
     targetDegree: "",
     budget: "",
@@ -106,6 +110,7 @@ export default function LeadsPage() {
   const [advisors, setAdvisors] = useState<AdvisorItem[]>([]);
   const [partners, setPartners] = useState<{ id: number; name: string }[]>([]);
   const [sites, setSites] = useState<{ id: number; name: string; domain: string }[]>([]);
+  const [mediaAccounts, setMediaAccounts] = useState<{ id: number; platform: string; accountName: string }[]>([]);
   // 来源 key -> label 映射
   const sourceMap: Record<string, string> = {};
   [...DEFAULT_SOURCES, ...sources].forEach((s) => {
@@ -171,13 +176,19 @@ export default function LeadsPage() {
       .then((r) => r.json())
       .then((d) => setSites(d.list || []))
       .catch(() => {});
+    // 加载新媒体账号列表（来源联动用）
+    fetch("/api/media-accounts?pageSize=500")
+      .then((r) => r.json())
+      .then((d) => setMediaAccounts(d.list || []))
+      .catch(() => {});
   }, []);
 
   function openNewForm() {
     setEditingLead(null);
     setFormData({
-      name: "", phone: "", wechat: "", source: sources[0]?.dictKey || "MEDIA",
+      name: "", phone: "", wechat: "", source: sources[0]?.dictKey || "MEDIA_XHS",
       sourceDetail: "", businessType: "", partnerId: "", siteId: "",
+      mediaAccountId: "", intendedMajor: "",
       targetCountry: "", targetDegree: "", budget: "", remark: "",
       assignedToId: "", createStudent: true, status: "NEW",
     });
@@ -656,8 +667,29 @@ export default function LeadsPage() {
                     </select>
                   </div>
                 )}
+                {/* 来源=新媒体时显示账号选择 */}
+                {["MEDIA_XHS", "MEDIA_SPH", "MEDIA_DY"].includes(formData.source) && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">选择来源账号</label>
+                    <select
+                      value={formData.mediaAccountId}
+                      onChange={(e) => setFormData((d) => ({ ...d, mediaAccountId: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    >
+                      <option value="">请选择账号</option>
+                      {mediaAccounts.filter(a => {
+                        if (formData.source === "MEDIA_XHS") return a.platform === "小红书";
+                        if (formData.source === "MEDIA_SPH") return a.platform === "视频号";
+                        if (formData.source === "MEDIA_DY") return a.platform === "抖音";
+                        return false;
+                      }).map((a) => (
+                        <option key={a.id} value={a.id}>{a.accountName} ({a.platform})</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 {/* 其他来源无联动时不占位 */}
-                {!["PARTNER", "SITE", "SEARCH"].includes(formData.source) && <div />}
+                {!["PARTNER", "SITE", "SEARCH", "MEDIA_XHS", "MEDIA_SPH", "MEDIA_DY"].includes(formData.source) && <div />}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -708,6 +740,16 @@ export default function LeadsPage() {
                     onChange={(e) => setFormData((d) => ({ ...d, targetDegree: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                     placeholder="如：硕士"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">意向专业</label>
+                  <input
+                    type="text"
+                    value={formData.intendedMajor}
+                    onChange={(e) => setFormData((d) => ({ ...d, intendedMajor: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    placeholder="如：计算机科学"
                   />
                 </div>
               </div>
