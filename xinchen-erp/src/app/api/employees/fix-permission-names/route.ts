@@ -22,6 +22,13 @@ const PERM_NAME_MAP: Record<string, { name: string; groupName: string }> = {
   "visits:view": { name: "查看回访", groupName: "回访管理" },
   "reports:view": { name: "查看报表", groupName: "报表管理" },
   "settings:manage": { name: "系统设置", groupName: "系统管理" },
+  // 工作台子权限
+  "dashboard:leads": { name: "线索分析", groupName: "工作台" },
+  "dashboard:contracts": { name: "合同签约", groupName: "工作台" },
+  "dashboard:finance": { name: "财务概览", groupName: "工作台" },
+  "dashboard:students": { name: "学生分析", groupName: "工作台" },
+  "dashboard:applications": { name: "院校申请", groupName: "工作台" },
+  "dashboard:visits": { name: "回访概览", groupName: "工作台" },
 };
 
 export async function POST(request: NextRequest) {

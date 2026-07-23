@@ -5,24 +5,28 @@ import { isAdmin } from "@/lib/permission";
 // 跟进表单权限（拥有 leads:view 的角色即可看到）
 const FOLLOWUP_FORM_CODES = ["followup_pending", "followup_interested", "followup_signed", "followup_uninterested"];
 
+// 工作台子权限
+const DASHBOARD_CODES = ["dashboard:leads", "dashboard:contracts", "dashboard:finance", "dashboard:students", "dashboard:applications", "dashboard:visits"];
+
 // 所有需要被追踪的权限码
 const ALL_TRACKED_CODES = [
   ...FOLLOWUP_FORM_CODES,
-  "leads:view", "leads:create", "students:view", "contracts:view", "contracts:delete", "contracts:delete", "contracts:update", "contracts:create",
+  ...DASHBOARD_CODES,
+  "leads:view", "leads:create", "students:view", "contracts:view", "contracts:delete", "contracts:update", "contracts:create",
   "payments:view", "applications:view", "visits:view", "reports:view",
 ];
 
 const ROLE_VIEW_MAP: Record<string, string[]> = {
-  general_manager: ["leads:view", "students:view", "contracts:view", "contracts:delete", "payments:view", "applications:view", "visits:view", "reports:view"],
-  operations_director: ["leads:view", "students:view", "contracts:view", "contracts:delete", "payments:view", "applications:view", "visits:view", "reports:view"],
-  marketing_specialist: ["leads:view", "students:view", "contracts:view", "contracts:delete", "visits:view", ...FOLLOWUP_FORM_CODES],
-  network_operator: ["leads:view", "students:view", "contracts:view", "contracts:delete", "visits:view", ...FOLLOWUP_FORM_CODES],
-  live_streamer: ["leads:view", "visits:view", ...FOLLOWUP_FORM_CODES],
-  newmedia_manager: ["leads:view", "students:view", "visits:view", "reports:view", ...FOLLOWUP_FORM_CODES],
-  newmedia_operator: ["leads:view", "visits:view", ...FOLLOWUP_FORM_CODES],
-  academic_advisor: ["students:view", "applications:view", "contracts:view", "contracts:delete", "visits:view"],
-  document_application: ["students:view", "applications:view", "visits:view"],
-  finance: ["payments:view", "contracts:view", "contracts:delete", "reports:view"],
+  general_manager: ["leads:view", "students:view", "contracts:view", "contracts:delete", "payments:view", "applications:view", "visits:view", "reports:view", ...DASHBOARD_CODES],
+  operations_director: ["leads:view", "students:view", "contracts:view", "contracts:delete", "payments:view", "applications:view", "visits:view", "reports:view", ...DASHBOARD_CODES],
+  marketing_specialist: ["leads:view", "students:view", "contracts:view", "contracts:delete", "visits:view", ...FOLLOWUP_FORM_CODES, "dashboard:leads", "dashboard:contracts", "dashboard:visits"],
+  network_operator: ["leads:view", "students:view", "contracts:view", "contracts:delete", "visits:view", ...FOLLOWUP_FORM_CODES, "dashboard:leads", "dashboard:contracts", "dashboard:visits"],
+  live_streamer: ["leads:view", "visits:view", ...FOLLOWUP_FORM_CODES, "dashboard:leads", "dashboard:visits"],
+  newmedia_manager: ["leads:view", "students:view", "visits:view", "reports:view", ...FOLLOWUP_FORM_CODES, "dashboard:leads", "dashboard:visits"],
+  newmedia_operator: ["leads:view", "visits:view", ...FOLLOWUP_FORM_CODES, "dashboard:leads", "dashboard:visits"],
+  academic_advisor: ["students:view", "applications:view", "contracts:view", "contracts:delete", "visits:view", "dashboard:students", "dashboard:applications", "dashboard:contracts", "dashboard:visits"],
+  document_application: ["students:view", "applications:view", "visits:view", "dashboard:students", "dashboard:applications", "dashboard:visits"],
+  finance: ["payments:view", "contracts:view", "contracts:delete", "reports:view", "dashboard:finance", "dashboard:contracts"],
 };
 
 function getContext(request: NextRequest) {

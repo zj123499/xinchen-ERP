@@ -38,6 +38,15 @@ export interface ViewPermissionSet {
   reports: boolean;
   /** 是否拥有平台管理权限（settings:manage） */
   settings: boolean;
+  /** 工作台子权限（精细控制每个模块的可见性） */
+  dashboard: {
+    leads: boolean;
+    contracts: boolean;
+    finance: boolean;
+    students: boolean;
+    applications: boolean;
+    visits: boolean;
+  };
   /** 原始已拥有的权限 code 集合 */
   granted: Set<string>;
 }
@@ -90,6 +99,7 @@ export async function getViewPermissions(
       visits: true,
       reports: true,
       settings: true,
+      dashboard: { leads: true, contracts: true, finance: true, students: true, applications: true, visits: true },
       granted: new Set(VIEW_PERMISSIONS),
     };
   }
@@ -98,12 +108,13 @@ export async function getViewPermissions(
     return {
       leads: false, students: false, contracts: false, payments: false,
       applications: false, visits: false, reports: false, settings: false,
+      dashboard: { leads: false, contracts: false, finance: false, students: false, applications: false, visits: false },
       granted: new Set(),
     };
   }
 
-  // 检查所有 view 权限 + settings:manage
-  const codes = [...VIEW_PERMISSIONS, "settings:manage"];
+  // 检查所有 view 权限 + settings:manage + dashboard 子权限
+  const codes = [...VIEW_PERMISSIONS, "settings:manage", "dashboard:leads", "dashboard:contracts", "dashboard:finance", "dashboard:students", "dashboard:applications", "dashboard:visits"];
   const rows = await prisma.rolePermission.findMany({
     where: {
       permission: { code: { in: codes } },
@@ -123,6 +134,14 @@ export async function getViewPermissions(
     visits: granted.has("visits:view"),
     reports: granted.has("reports:view"),
     settings: granted.has("settings:manage"),
+    dashboard: {
+      leads: granted.has("dashboard:leads"),
+      contracts: granted.has("dashboard:contracts"),
+      finance: granted.has("dashboard:finance"),
+      students: granted.has("dashboard:students"),
+      applications: granted.has("dashboard:applications"),
+      visits: granted.has("dashboard:visits"),
+    },
     granted,
   };
 }

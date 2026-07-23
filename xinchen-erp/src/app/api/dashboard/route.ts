@@ -227,6 +227,7 @@ export async function GET(request: NextRequest) {
         visits: perm.visits,
         reports: perm.reports,
         settings: perm.settings,
+        dashboard: perm.dashboard,
       },
       // 核心指标
       todayNewLeads: todayLeads,

@@ -176,13 +176,15 @@ export default function DashboardPage() {
 
   if (!data) return null;
 
-  // 权限控制
-  const perm = data.permissions || { leads: true, students: true, contracts: true, payments: true, applications: true, visits: true, reports: true, settings: true };
-  const hasFinance = perm.payments;
-  const hasContracts = perm.contracts;
-  const hasLeads = perm.leads;
-  const hasStudents = perm.students;
-  const hasVisits = perm.visits;
+  // 权限控制：工作台使用独立的 dashboard 子权限
+  const perm = data.permissions || { leads: true, students: true, contracts: true, payments: true, applications: true, visits: true, reports: true, settings: true, dashboard: { leads: true, contracts: true, finance: true, students: true, applications: true, visits: true } };
+  const dash = perm.dashboard;
+  const hasFinance = dash.finance;
+  const hasContracts = dash.contracts;
+  const hasLeads = dash.leads;
+  const hasStudents = dash.students;
+  const hasVisits = dash.visits;
+  const hasApplications = dash.applications;
 
   // 安全访问嵌套对象，防止 undefined 导致崩溃
   const ov = data.overview || {};
@@ -447,9 +449,9 @@ export default function DashboardPage() {
       )}
 
       {/* 院校申请 & 佣金 */}
-      {(perm.applications || hasFinance) && (
+      {(hasApplications || hasFinance) && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {perm.applications && (
+        {hasApplications && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">申请院校 TOP10</h3>
           <div className="space-y-3">
