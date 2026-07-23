@@ -15,6 +15,7 @@ interface DictItem {
 interface DictGroupItem {
   id: number;
   name: string;
+  label?: string | null;
   sort: number;
 }
 
@@ -30,9 +31,16 @@ export default function DictsPage() {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // 新建分组
+  // 新建/编辑分组
   const [showGroupForm, setShowGroupForm] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<DictGroupItem | null>(null);
   const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupLabel, setNewGroupLabel] = useState("");
+
+  function getGroupDisplay(name: string) {
+    const g = groups.find(gr => gr.name === name);
+    return g?.label || name;
+  }
 
   // 拖拽
   const dragItem = useRef<number | null>(null);
@@ -113,15 +121,31 @@ export default function DictsPage() {
     } catch { alert("网络错误"); }
   }
 
-  async function handleCreateGroup() {
+  function openGroupForm(group?: DictGroupItem) {
+    setEditingGroup(group || null);
+    setNewGroupName(group?.name || "");
+    setNewGroupLabel(group?.label || "");
+    setShowGroupForm(true);
+  }
+
+  async function handleSaveGroup() {
     if (!newGroupName.trim()) return;
     try {
-      const res = await fetch("/api/dicts/groups", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newGroupName.trim() }),
-      });
-      if (!res.ok) { const d = await res.json(); alert(d.error || "创建失败"); return; }
+      if (editingGroup) {
+        const res = await fetch(`/api/dicts/groups?id=${editingGroup.id}`, {
+          method: "PUT", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ label: newGroupLabel.trim() || null }),
+        });
+        if (!res.ok) { const d = await res.json(); alert(d.error || "保存失败"); return; }
+      } else {
+        const res = await fetch("/api/dicts/groups", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: newGroupName.trim(), label: newGroupLabel.trim() || newGroupName.trim() }),
+        });
+        if (!res.ok) { const d = await res.json(); alert(d.error || "创建失败"); return; }
+      }
       setNewGroupName("");
+      setNewGroupLabel("");
       setShowGroupForm(false);
       fetchData();
     } catch { alert("网络错误"); }
@@ -167,7 +191,7 @@ export default function DictsPage() {
     dragOverItem.current = null;
   }
 
-  const groupNames = Object.keys(grouped);
+  const groupNames = groups.map(g => g.name).filter(n => grouped[n] !== undefined);
 
   return (
     <div>
@@ -177,7 +201,7 @@ export default function DictsPage() {
           <p className="text-sm text-gray-500 mt-1">管理系统中的枚举值和基础数据字典，拖拽排序</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setShowGroupForm(true)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+          <button onClick={() => openGroupForm()} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
             <FolderPlus className="w-4 h-4" />新建分组
           </button>
           <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
@@ -207,9 +231,13 @@ export default function DictsPage() {
                   <div className="flex items-center px-4 py-3 bg-gray-50 hover:bg-gray-100 cursor-pointer" onClick={() => toggleGroup(group)}>
                     {isExpanded ? <ChevronDown className="w-4 h-4 mr-2 text-gray-400" /> : <ChevronRight className="w-4 h-4 mr-2 text-gray-400" />}
                     <Database className="w-4 h-4 text-blue-500 mr-2" />
-                    <span className="font-medium text-gray-900">{group}</span>
+                    <span className="font-medium text-gray-900">{getGroupDisplay(group)}</span>
+                    {getGroupDisplay(group) !== group && <span className="ml-1 text-xs text-gray-400">({group})</span>}
                     <span className="ml-2 text-xs text-gray-400">({items.length})</span>
-                    <button onClick={(e) => { e.stopPropagation(); openNewForm(group); }} className="ml-auto text-blue-600 hover:bg-blue-100 p-1.5 rounded mr-1" title="添加字典项">
+                    <button onClick={(e) => { e.stopPropagation(); openGroupForm(groups.find(g => g.name === group)); }} className="ml-auto text-gray-400 hover:bg-gray-100 p-1.5 rounded mr-1" title="编辑分组名">
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); openNewForm(group); }} className="text-blue-600 hover:bg-blue-100 p-1.5 rounded mr-1" title="添加字典项">
                       <Plus className="w-4 h-4" />
                     </button>
                     {items.length === 0 && (
@@ -305,20 +333,43 @@ export default function DictsPage() {
         </div>
       )}
 
-      {/* 新建分组弹窗 */}
+      {/* 新建/编辑分组弹窗 */}
       {showGroupForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">新建字典分组</h2>
+              <h2 className="text-lg font-bold">{editingGroup ? "编辑分组" : "新建字典分组"}</h2>
               <button onClick={() => setShowGroupForm(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
             </div>
-            <input type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none mb-4"
-              placeholder="输入分组名称" autoFocus onKeyDown={(e) => e.key === "Enter" && handleCreateGroup()} />
-            <div className="flex gap-3">
-              <button onClick={handleCreateGroup} disabled={!newGroupName.trim()} className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">创建</button>
-              <button onClick={() => setShowGroupForm(false)} className="py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+            <div className="space-y-4">
+              {!editingGroup && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">分组标识（英文）</label>
+                  <input type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="如：lead_source" autoFocus onKeyDown={(e) => e.key === "Enter" && handleSaveGroup()} />
+                </div>
+              )}
+              {editingGroup && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">分组标识</label>
+                  <input type="text" value={newGroupName} disabled
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-400 bg-gray-50 outline-none" />
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">显示名称（中文）</label>
+                <input type="text" value={newGroupLabel} onChange={(e) => setNewGroupLabel(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="如：线索来源" autoFocus={!!editingGroup} onKeyDown={(e) => e.key === "Enter" && handleSaveGroup()} />
+              </div>
+              <div className="flex gap-3">
+                <button onClick={handleSaveGroup} disabled={editingGroup ? !newGroupLabel.trim() : !newGroupName.trim()}
+                  className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  {editingGroup ? "保存" : "创建"}
+                </button>
+                <button onClick={() => setShowGroupForm(false)} className="py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+              </div>
             </div>
           </div>
         </div>

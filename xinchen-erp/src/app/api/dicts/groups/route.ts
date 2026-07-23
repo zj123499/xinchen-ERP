@@ -16,17 +16,34 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const { tenantId } = getContext(request);
-  const { name } = await request.json();
-  if (!name) return NextResponse.json({ error: "请输入分组名称" }, { status: 400 });
+  const { name, label } = await request.json();
+  if (!name) return NextResponse.json({ error: "请输入分组标识" }, { status: 400 });
 
   const existing = await prisma.dictGroup.findFirst({ where: { tenantId, name } });
   if (existing) return NextResponse.json(existing);
 
   const max = await prisma.dictGroup.findFirst({ where: { tenantId }, orderBy: { sort: "desc" }, select: { sort: true } });
   const group = await prisma.dictGroup.create({
-    data: { tenantId, name, sort: (max?.sort || 0) + 1 },
+    data: { tenantId, name, label: label || name, sort: (max?.sort || 0) + 1 },
   });
   return NextResponse.json(group, { status: 201 });
+}
+
+export async function PUT(request: NextRequest) {
+  const { tenantId } = getContext(request);
+  const url = new URL(request.url);
+  const id = url.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "缺少ID" }, { status: 400 });
+
+  const { label } = await request.json();
+  const group = await prisma.dictGroup.findFirst({ where: { id: parseInt(id), tenantId } });
+  if (!group) return NextResponse.json({ error: "分组不存在" }, { status: 404 });
+
+  const updated = await prisma.dictGroup.update({
+    where: { id: parseInt(id) },
+    data: { label: label || null },
+  });
+  return NextResponse.json(updated);
 }
 
 export async function DELETE(request: NextRequest) {
