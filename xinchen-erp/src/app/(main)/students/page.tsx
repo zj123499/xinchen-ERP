@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Search, RefreshCw, ChevronLeft, ChevronRight, GraduationCap, Phone, FileText, ClipboardCheck, Plus, X } from "lucide-react";
+import { Search, RefreshCw, ChevronLeft, ChevronRight, GraduationCap, Phone, FileText, ClipboardCheck, Plus, X, Trash2 } from "lucide-react";
 import { useDict } from "@/lib/useDict";
 
 interface StudentItem {
@@ -42,6 +42,20 @@ export default function StudentsPage() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<StudentItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const r = await fetch(`/api/students/${deleteTarget.id}`, { method: "DELETE" });
+      if (!r.ok) { const d = await r.json().catch(() => ({})); alert(d.error || "删除失败"); return; }
+      setDeleteTarget(null);
+      fetchData();
+    } catch { alert("网络错误"); }
+    finally { setDeleting(false); }
+  }
   const [form, setForm] = useState({
     name: "", gender: "", phone: "", wechat: "", email: "", nationality: "",
     targetCountry: "", targetDegree: "", targetMajor: "", currentStatus: "LEAD",
@@ -150,6 +164,7 @@ export default function StudentsPage() {
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">归属顾问</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">关联</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">更新时间</th>
+                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -179,6 +194,11 @@ export default function StudentsPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {new Date(s.updatedAt).toLocaleDateString("zh-CN")}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button onClick={() => setDeleteTarget(s)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="删除">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -235,6 +255,22 @@ export default function StudentsPage() {
                 className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50">
                 {submitting ? "保存中..." : "确认新建"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 删除确认 */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-lg font-semibold mb-2">确认删除学生</h3>
+            <p className="text-sm text-gray-700 mb-1">{deleteTarget.name}</p>
+            <p className="text-sm text-gray-500 mb-4">该学生的合同、申请、跟进等关联数据将被一并删除。</p>
+            <div className="flex gap-3">
+              <button onClick={handleDelete} disabled={deleting} className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 disabled:opacity-50">
+                {deleting ? "删除中..." : "确认删除"}
+              </button>
+              <button onClick={() => setDeleteTarget(null)} className="py-2 px-6 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</button>
             </div>
           </div>
         </div>
