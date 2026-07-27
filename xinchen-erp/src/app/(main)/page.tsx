@@ -130,7 +130,7 @@ export default function DashboardPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/dashboard");
+      const res = await fetch("/api/dashboard?_=" + Date.now(), { cache: "no-store" });
       if (!res.ok) throw new Error();
       const result = await res.json();
       setData(result);
@@ -140,6 +140,14 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
+  // 自动刷新：每 30 秒 + 切回标签页时立即刷新
+  useEffect(() => {
+    const timer = setInterval(fetchData, 30000);
+    const onVisibility = () => { if (document.visibilityState === "visible") fetchData(); };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => { clearInterval(timer); document.removeEventListener("visibilitychange", onVisibility); };
+  }, []);
 
   useEffect(() => { fetchData(); }, []);
 
