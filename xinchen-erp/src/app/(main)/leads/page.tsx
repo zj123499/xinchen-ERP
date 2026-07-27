@@ -227,10 +227,23 @@ export default function LeadsPage() {
 
     try {
       const payload: Record<string, unknown> = {
-        ...formData,
+        name: formData.name,
+        phone: formData.phone,
+        wechat: formData.wechat,
+        source: formData.source,
+        sourceDetail: formData.sourceDetail || undefined,
+        businessType: formData.businessType || undefined,
+        partnerId: formData.partnerId || undefined,
+        siteId: formData.siteId || undefined,
+        mediaAccountId: formData.mediaAccountId || undefined,
+        intendedMajor: formData.intendedMajor || undefined,
+        targetCountry: formData.targetCountry || undefined,
+        targetDegree: formData.targetDegree || undefined,
         budget: formData.budget ? parseFloat(formData.budget) : undefined,
+        remark: formData.remark || undefined,
         assignedToId: formData.assignedToId ? parseInt(formData.assignedToId) : undefined,
         createStudent: formData.createStudent,
+        status: formData.status || "NEW",
       };
 
       const url = editingLead ? `/api/leads/${editingLead.id}` : "/api/leads";
@@ -259,8 +272,9 @@ export default function LeadsPage() {
 
       setShowForm(false);
       fetchLeads();
-    } catch {
-      setFormError("网络错误");
+    } catch (e: any) {
+      console.error("提交失败:", e);
+      setFormError(e?.message || String(e).slice(0, 60));
     } finally {
       setSubmitting(false);
     }
