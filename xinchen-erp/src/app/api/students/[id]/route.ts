@@ -141,7 +141,7 @@ export async function DELETE(
     await prisma.rentalOrder.deleteMany({ where: { studentId: sid } }).catch(() => {});
     await prisma.overseasService.deleteMany({ where: { studentId: sid } }).catch(() => {});
     await prisma.visitRecord.deleteMany({ where: { studentId: sid } }).catch(() => {});
-    await prisma.lifecycleEvent.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.studentLifecycleEvent.deleteMany({ where: { studentId: sid } }).catch(() => {});
     await prisma.lead.updateMany({ where: { studentId: sid }, data: { studentId: null } }).catch(() => {});
     await prisma.file.deleteMany({ where: { businessType: "contract_file", businessId: { in: [] } } }).catch(() => {});
 
