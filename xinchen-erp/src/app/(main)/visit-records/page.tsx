@@ -177,8 +177,7 @@ export default function VisitRecordsPage() {
 
   function handleSearch() { setPage(1); setSearchKeyword(keyword); }
 
-  const vtMap: Record<string, string> = {};
-  visitTypes.forEach(t => { vtMap[t.dictKey] = t.dictValue; });
+  const VT_COLOR: Record<string, string> = { PHONE: "bg-blue-100 text-blue-700", WECHAT: "bg-green-100 text-green-700", FACE_TO_FACE: "bg-purple-100 text-purple-700", VIDEO: "bg-orange-100 text-orange-700", };
 
   return (
     <div className="p-6">
@@ -238,8 +237,8 @@ export default function VisitRecordsPage() {
                       <div className="text-xs text-gray-400">{r.student.phone}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${vt[r.visitType]?.color || "bg-gray-100 text-gray-600"}`}>
-                        {vt[r.visitType]?.label || r.visitType}
+                      <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${VT_COLOR[r.visitType] || "bg-gray-100 text-gray-600"}`}>
+                        {getDictLabel(visitTypes, r.visitType)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">{new Date(r.visitDate).toLocaleDateString("zh-CN")}</td>
