@@ -79,6 +79,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  try {
   const denied = await requirePermission(request, "leads:create");
   if (denied) return denied;
   const { tenantId, userId } = getContext(request);
@@ -171,4 +172,8 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json(lead, { status: 201 });
+  } catch (e: any) {
+    console.error("[LEADS POST] error:", e?.message);
+    return NextResponse.json({ error: e?.message || "服务器异常" }, { status: 500 });
+  }
 }
