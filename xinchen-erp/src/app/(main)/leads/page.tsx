@@ -245,6 +245,7 @@ export default function LeadsPage() {
       const result = await res.json();
 
       if (!res.ok) {
+        const errMsg = result.error || result.message || "操作失败";
         if (res.status === 409 && result.conflict) {
           setConflictData({
             message: result.message,
@@ -252,7 +253,7 @@ export default function LeadsPage() {
           });
           return;
         }
-        setFormError(result.error || "操作失败");
+        setFormError(errMsg);
         return;
       }
 
