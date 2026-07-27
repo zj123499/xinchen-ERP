@@ -114,9 +114,9 @@ export default function LeadsPage() {
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // 解耦下拉框 → 数据字典
-  const bizTypes = useDict("business_type", BIZ_FALLBACK);
-  const studentStatuses = useDict("student_status", STATUS_FALLBACK);
+  // 下拉框（兜底确保英文key，等待字典数据迁移后可从字典加载）
+  const bizTypes = BIZ_FALLBACK;
+  const studentStatuses = STATUS_FALLBACK;
 
   // 数据字典来源 + 顾问列表 + 合作方/站群联动
   const [sources, setSources] = useState<DictItem[]>(DEFAULT_SOURCES);
