@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
     targetCountry, targetDegree, budget, remark, extData,
     assignedToId, createStudent, status,
   } = body;
+  console.log("[LEADS POST] status=", status, typeof status, "body keys=", Object.keys(body));
 
   if (!name || !source) {
     return NextResponse.json({ error: "姓名和线索来源为必填项" }, { status: 400 });
