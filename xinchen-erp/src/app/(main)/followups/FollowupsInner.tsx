@@ -282,7 +282,47 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
       {fuListTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[70vh] overflow-y-auto p-6"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">跟进记录 - {fuListTarget.name}</h3><button onClick={() => setFuListTarget(null)} className="p-1 text-gray-400 hover:text-gray-600 rounded">✕</button></div>{fuListLoading ? <p className="text-sm text-gray-400 text-center py-8">加载中...</p> : fuList.length === 0 ? <p className="text-sm text-gray-400 text-center py-8">暂无记录</p> : <div className="space-y-3">{fuList.map(fu => { const daysAgo = Math.floor((Date.now() - new Date(fu.createdAt).getTime()) / 86400000); const overdue = daysAgo > 3; return (<div key={fu.id} className="p-3 bg-gray-50 rounded-lg"><div className="flex items-center justify-between mb-1"><span className="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded">{fu.type}</span><span className="text-xs text-gray-400">{fu.user.realName}</span></div><p className="text-sm text-gray-700 mb-2">{fu.content}</p><div className="space-y-1"><div className="flex items-center justify-between"><span className="text-xs text-gray-500">跟进时间：{new Date(fu.createdAt).toLocaleString("zh-CN")}</span>{overdue ? <span className="text-xs text-red-500 font-medium">⚠ {daysAgo} 天未跟进</span> : <span className="text-xs text-green-500">{daysAgo === 0 ? "今天" : `${daysAgo} 天前`}</span>}</div>{fu.nextFollowUpAt && <div className="text-xs text-blue-600">📅 下次跟进：{new Date(fu.nextFollowUpAt).toLocaleString("zh-CN")}</div>}</div></div>); })}</div>}</div></div>)}
 
       {/* 弹窗：申请意向管理 */}
-      {intentionTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto p-6"><h3 className="text-lg font-semibold mb-4">申请意向 - {intentionTarget.name}</h3><p className="text-xs text-gray-500 mb-3">每个意向在分配文书时将自动创建为申请记录</p><div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-blue-50 rounded-lg"><input value={intForm.country} onChange={e => setIntForm(f => ({ ...f, country: e.target.value }))} placeholder="国家" className="px-2 py-1.5 border rounded text-xs outline-none" /><input value={intForm.institution} onChange={e => setIntForm(f => ({ ...f, institution: e.target.value }))} placeholder="院校" className="px-2 py-1.5 border rounded text-xs outline-none" /><input value={intForm.major} onChange={e => setIntForm(f => ({ ...f, major: e.target.value }))} placeholder="专业" className="px-2 py-1.5 border rounded text-xs outline-none" /><select value={intForm.degree} onChange={e => setIntForm(f => ({ ...f, degree: e.target.value }))} className="px-2 py-1.5 border rounded text-xs outline-none"><option>本科</option><option>硕士</option><option>博士</option><option>预科</option><option>其他</option></select><button onClick={addIntention} disabled={!intForm.country || intSaving} className="col-span-2 py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50">{intSaving ? "保存中..." : "添加意向"}</button></div>{intentions.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">暂无申请意向</p> : intentions.map(it => (<div key={it.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-1"><div className="text-xs"><span className="font-medium">{it.country}</span>{it.institution && <span className="text-gray-500 ml-1">· {it.institution}</span>}{it.major && <span className="text-gray-500 ml-1">· {it.major}</span>}<span className="bg-blue-100 text-blue-700 px-1 py-0.5 rounded ml-1">{it.degree}</span></div><button onClick={() => deleteIntention(it.id)} className="p-0.5 text-red-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button></div>))}</div></div>)}
+      {intentionTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white">
+              <h3 className="text-lg font-semibold">申请意向 - {intentionTarget.name}</h3>
+              <button onClick={() => { setIntentionTarget(null); setIntentions([]); }} className="p-1 text-gray-400 hover:text-gray-600 rounded text-lg">✕</button>
+            </div>
+            <div className="p-6">
+              <p className="text-xs text-gray-500 mb-3">每个意向在签约时将自动创建为申请记录，可添加多条</p>
+              <div className="grid grid-cols-2 gap-2 mb-4 p-3 bg-blue-50 rounded-lg">
+                <input value={intForm.country} onChange={e => setIntForm(f => ({ ...f, country: e.target.value }))} placeholder="国家（必填）" className="px-2 py-1.5 border rounded text-xs outline-none" />
+                <input value={intForm.institution} onChange={e => setIntForm(f => ({ ...f, institution: e.target.value }))} placeholder="院校" className="px-2 py-1.5 border rounded text-xs outline-none" />
+                <input value={intForm.major} onChange={e => setIntForm(f => ({ ...f, major: e.target.value }))} placeholder="专业" className="px-2 py-1.5 border rounded text-xs outline-none" />
+                <select value={intForm.degree} onChange={e => setIntForm(f => ({ ...f, degree: e.target.value }))} className="px-2 py-1.5 border rounded text-xs outline-none">
+                  <option>本科</option><option>硕士</option><option>博士</option><option>预科</option><option>其他</option>
+                </select>
+                <button onClick={addIntention} disabled={!intForm.country || intSaving} className="col-span-2 py-1.5 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50">
+                  {intSaving ? "保存中..." : "添加意向"}
+                </button>
+              </div>
+              {intentions.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">暂无申请意向，请在上方添加</p>
+              ) : (
+                <div className="space-y-1">
+                  {intentions.map(it => (
+                    <div key={it.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                      <div className="text-xs">
+                        <span className="font-medium">{it.country}</span>
+                        {it.institution && <span className="text-gray-500 ml-1">· {it.institution}</span>}
+                        {it.major && <span className="text-gray-500 ml-1">· {it.major}</span>}
+                        <span className="bg-blue-100 text-blue-700 px-1 py-0.5 rounded ml-1">{it.degree}</span>
+                      </div>
+                      <button onClick={() => deleteIntention(it.id)} className="p-0.5 text-red-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
