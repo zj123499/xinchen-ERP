@@ -51,6 +51,14 @@ interface PaginatedResponse {
 }
 
 // 默认来源兜底（数据字典未配置时使用）
+const BIZ_FALLBACK = [
+  { dictKey: "STUDY_ABROAD", dictValue: "留学" }, { dictKey: "RENTAL", dictValue: "租房" },
+  { dictKey: "OVERSEAS_SERVICE", dictValue: "境外服务" }, { dictKey: "PARTNER", dictValue: "合作" },
+];
+const STATUS_FALLBACK = [
+  { dictKey: "NEW", dictValue: "待跟进" }, { dictKey: "CONTACTED", dictValue: "有意向" }, { dictKey: "DEAD", dictValue: "无意向" },
+];
+
 const DEFAULT_SOURCES: DictItem[] = [
   { id: 0, dictKey: "WALK_IN", dictValue: "上门咨询", sort: 0 },
   { id: 0, dictKey: "REFERRAL", dictValue: "转介绍", sort: 1 },
@@ -107,8 +115,8 @@ export default function LeadsPage() {
   const [submitting, setSubmitting] = useState(false);
 
   // 解耦下拉框 → 数据字典
-  const bizTypes = useDict("business_type");
-  const studentStatuses = useDict("student_status");
+  const bizTypes = useDict("business_type", BIZ_FALLBACK);
+  const studentStatuses = useDict("student_status", STATUS_FALLBACK);
 
   // 数据字典来源 + 顾问列表 + 合作方/站群联动
   const [sources, setSources] = useState<DictItem[]>(DEFAULT_SOURCES);

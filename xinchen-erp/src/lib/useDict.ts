@@ -20,7 +20,14 @@ export function useDict(groupName: string, fallback: DictItem[] = []) {
       .then((r) => r.json())
       .then((d) => {
         if (d.list?.length > 0) {
-          setItems(d.list);
+          // 合并字典数据与 fallback：字典优先，fallback 兜底
+          const merged = [...d.list];
+          for (const fb of fallback) {
+            if (!merged.find((m: any) => m.dictKey === fb.dictKey)) {
+              merged.push(fb);
+            }
+          }
+          setItems(merged);
         }
       })
       .catch(() => {});
