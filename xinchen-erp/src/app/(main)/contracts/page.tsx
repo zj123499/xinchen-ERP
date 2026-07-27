@@ -6,6 +6,7 @@ import {
   Search, Plus, FileText, MoreHorizontal, Trash2, ChevronLeft, ChevronRight,
   RefreshCw, User, Calendar, DollarSign, Upload, X, Lock,
 } from "lucide-react";
+import { useDict, getDictLabel } from "@/lib/useDict";
 
 interface ContractItem {
   id: number;
@@ -30,13 +31,21 @@ interface PaginatedResponse {
   list: ContractItem[];
 }
 
-const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  DRAFT: { label: "草稿", color: "bg-gray-100 text-gray-800" },
-  PENDING: { label: "待审批", color: "bg-yellow-100 text-yellow-800" },
-  APPROVED: { label: "已审批", color: "bg-blue-100 text-blue-800" },
-  SIGNED: { label: "已签署", color: "bg-green-100 text-green-800" },
-  TERMINATED: { label: "已终止", color: "bg-red-100 text-red-800" },
-  EXPIRED: { label: "已过期", color: "bg-gray-100 text-gray-600" },
+const STATUS_FALLBACK = [
+  { dictKey: "DRAFT", dictValue: "草稿" },
+  { dictKey: "PENDING", dictValue: "待审批" },
+  { dictKey: "APPROVED", dictValue: "已审批" },
+  { dictKey: "SIGNED", dictValue: "已签署" },
+  { dictKey: "TERMINATED", dictValue: "已终止" },
+  { dictKey: "EXPIRED", dictValue: "已过期" },
+];
+const STATUS_COLOR: Record<string, string> = {
+  DRAFT: "bg-gray-100 text-gray-800",
+  PENDING: "bg-yellow-100 text-yellow-800",
+  APPROVED: "bg-blue-100 text-blue-800",
+  SIGNED: "bg-green-100 text-green-800",
+  TERMINATED: "bg-red-100 text-red-800",
+  EXPIRED: "bg-gray-100 text-gray-600",
 };
 
 const CURRENCY_MAP: Record<string, string> = {
@@ -44,6 +53,7 @@ const CURRENCY_MAP: Record<string, string> = {
 };
 
 export default function ContractsPage() {
+  const statuses = useDict("contract_status", STATUS_FALLBACK);
   const router = useRouter();
   const [data, setData] = useState<PaginatedResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -294,8 +304,8 @@ export default function ContractsPage() {
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
           >
             <option value="">全部状态</option>
-            {Object.entries(STATUS_MAP).map(([k, v]) => (
-              <option key={k} value={k}>{v.label}</option>
+            {statuses.map((t) => (
+              <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>
             ))}
           </select>
           <button
@@ -373,8 +383,8 @@ export default function ContractsPage() {
                           : "-"}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[contract.status]?.color || "bg-gray-100 text-gray-800"}`}>
-                          {STATUS_MAP[contract.status]?.label || contract.status}
+                        <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[contract.status] || "bg-gray-100 text-gray-800"}`}>
+                          {getDictLabel(statuses, contract.status)}
                         </span>
                       </td>
                       <td className="px-4 py-3">
@@ -599,8 +609,8 @@ export default function ContractsPage() {
                     onChange={(e) => setFormData((d) => ({ ...d, status: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                   >
-                    {Object.entries(STATUS_MAP).map(([k, v]) => (
-                      <option key={k} value={k}>{v.label}</option>
+                    {statuses.map((t) => (
+                      <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>
                     ))}
                   </select>
                 </div>
