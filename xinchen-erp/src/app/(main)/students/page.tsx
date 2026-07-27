@@ -196,7 +196,7 @@ export default function StudentsPage() {
                       {new Date(s.updatedAt).toLocaleDateString("zh-CN")}
                     </td>
                     <td className="px-4 py-3">
-                      <button onClick={() => setDeleteTarget(s)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="删除">
+                      <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(s); }} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="删除">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
