@@ -47,7 +47,6 @@ interface TransferLogItem {
   toUserId: number;
   reason?: string;
   applied: boolean;
-  approvalRecordId?: number | null;
   createdAt: string;
 }
 

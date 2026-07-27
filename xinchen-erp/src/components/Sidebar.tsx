@@ -63,7 +63,6 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   dingtalk: <Share2 className="w-5 h-5" />,
   bi: <PieChart className="w-5 h-5" />,
   product: <BookOpen className="w-5 h-5" />,
-  approval: <GitBranch className="w-5 h-5" />,
   success: <HeartHandshake className="w-5 h-5" />,
   risk: <AlertTriangle className="w-5 h-5" />,
   ai: <Sparkles className="w-5 h-5" />,

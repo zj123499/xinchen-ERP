@@ -99,14 +99,6 @@ export const MENU_TREE: MenuNode[] = [
     ],
   },
   {
-    name: "审批中心", code: "approval", icon: "approval",
-    children: [
-      { name: "审批流配置", code: "approval_flows", path: "/approval/flows", icon: "approval" },
-      { name: "待我审批", code: "approval_pending", path: "/approval/records?scope=pending", icon: "approval" },
-      { name: "我发起的", code: "approval_mine", path: "/approval/records?scope=mine", icon: "approval" },
-    ],
-  },
-  {
     name: "风险管理", code: "risk", icon: "risk",
     children: [
       { name: "风险看板", code: "risk_dashboard", path: "/risk/dashboard", icon: "risk" },
