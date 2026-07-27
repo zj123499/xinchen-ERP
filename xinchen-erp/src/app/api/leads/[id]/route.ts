@@ -102,26 +102,38 @@ export async function PUT(
       const nextYear = new Date().getFullYear() + 1;
       if (intentions.length > 0) {
         for (const it of intentions) {
-          await prisma.application.create({
-            data: {
-              tenantId, studentId: student.id, contractId: contract.id,
-              institutionName: it.institution || "待确认",
-              majorName: it.major || "待确认",
-              degree: it.degree || "硕士", intakeYear: nextYear, intakeMonth: 9,
-              status: "PREPARING",
-            },
-          }).catch(() => {});
+          try {
+            const app = await prisma.application.create({
+              data: {
+                tenantId, studentId: student.id, contractId: contract.id,
+                institutionName: it.institution || "待确认",
+                majorName: it.major || "待确认",
+                degree: it.degree || "硕士", intakeYear: nextYear, intakeMonth: 9,
+                status: "PREPARING",
+              },
+            });
+            console.log("[签约] 创建申请:", app.id, it.institution);
+          } catch (e: any) {
+            console.error("[签约] 创建申请失败:", e?.message);
+          }
         }
       } else {
-        await prisma.application.create({
-          data: {
-            tenantId, studentId: student.id, contractId: contract.id,
-            institutionName: "待确认", majorName: "待确认",
-            degree: existing.targetDegree || "硕士", intakeYear: nextYear, intakeMonth: 9,
-            status: "PREPARING",
-          },
-        }).catch(() => {});
+        try {
+          const app = await prisma.application.create({
+            data: {
+              tenantId, studentId: student.id, contractId: contract.id,
+              institutionName: "待确认", majorName: "待确认",
+              degree: existing.targetDegree || "硕士", intakeYear: nextYear, intakeMonth: 9,
+              status: "PREPARING",
+            },
+          });
+          console.log("[签约] 创建默认申请:", app.id);
+        } catch (e: any) {
+          console.error("[签约] 创建默认申请失败:", e?.message);
+        }
       }
+    } else {
+      console.error("[签约] 合同创建失败，无法自动创建申请");
     }
   }
 
