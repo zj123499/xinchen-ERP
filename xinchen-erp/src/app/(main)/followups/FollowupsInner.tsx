@@ -34,6 +34,7 @@ const STYLES: Record<FormKey, { headerBg: string; headerBorder: string; headerTe
 };
 
 export default function FollowupsInner({ form }: { form: FormKey }) {
+  const followTypes = useDict("follow_type", [{ dictKey: "phone", dictValue: "电话" },{ dictKey: "wechat", dictValue: "微信" },{ dictKey: "visit", dictValue: "面谈" },{ dictKey: "other", dictValue: "其他" }]);
   const [activeForm] = useState<FormKey>(form);
   const [leads, setLeads] = useState<LeadItem[]>([]);
   const [total, setTotal] = useState(0);
