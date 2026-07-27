@@ -128,7 +128,24 @@ export async function DELETE(
     const existing = await prisma.student.findFirst({ where: { id: parseInt(id), tenantId } });
     if (!existing) return NextResponse.json({ error: "学生不存在" }, { status: 404 });
 
-    await prisma.student.delete({ where: { id: parseInt(id) } });
+    // 级联清理关联数据
+    const sid = parseInt(id);
+    await prisma.followUp.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.studentIntention.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.visa.deleteMany({ where: { application: { studentId: sid } } }).catch(() => {});
+    await prisma.offer.deleteMany({ where: { application: { studentId: sid } } }).catch(() => {});
+    await prisma.applicationMaterial.deleteMany({ where: { application: { studentId: sid } } }).catch(() => {});
+    await prisma.application.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.order.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.contract.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.rentalOrder.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.overseasService.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.visitRecord.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.lifecycleEvent.deleteMany({ where: { studentId: sid } }).catch(() => {});
+    await prisma.lead.updateMany({ where: { studentId: sid }, data: { studentId: null } }).catch(() => {});
+    await prisma.file.deleteMany({ where: { businessType: "contract_file", businessId: { in: [] } } }).catch(() => {});
+
+    await prisma.student.delete({ where: { id: sid } });
     await recordOperation(request, {
       module: "students",
       action: "DELETE",
