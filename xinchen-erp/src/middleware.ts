@@ -31,10 +31,30 @@ export async function middleware(request: NextRequest) {
     cookieToken = match ? decodeURIComponent(match[1]) : undefined;
   }
 
-  // 兜底: URL 参数 _t（登录后前端未写入 cookie 前的过渡期）
+  // 兜底: URL 参数 _t
   const urlToken = request.nextUrl.searchParams.get("_t") || undefined;
 
-  const token = bearerToken || cookieToken || urlToken;
+  let token = bearerToken || cookieToken || urlToken;
+
+  // 如果通过 _t 参数验证通过，立即设置 cookie，后续请求不再需要 _t
+  if (!cookieToken && urlToken) {
+    const payload = await verifyToken(urlToken);
+    if (payload) {
+      token = urlToken;
+      // 在重定向响应中设置 cookie，去掉 _t 参数
+      const url = new URL(request.url);
+      url.searchParams.delete("_t");
+      const response = NextResponse.redirect(url);
+      response.cookies.set("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 8,
+        path: "/",
+      });
+      return response;
+    }
+  }
 
   if (!token) {
     if (pathname.startsWith("/api/")) {

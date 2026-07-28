@@ -19,8 +19,10 @@ export default function LoginPage() {
 
   function goRedirect(token: string) {
     const redirectTo = new URLSearchParams(window.location.search).get("redirect") || "/";
-    // 将 token 通过 URL 参数传给首页，首页 js 会写入 cookie
-    window.location.href = redirectTo + (redirectTo.includes("?") ? "&" : "?") + "_t=" + encodeURIComponent(token);
+    // token 存 localStorage 备用，通过 URL 参数传给首页（中间件识别 _t）
+    localStorage.setItem("token", token);
+    // 用 location.replace 确保触发完整页面导航
+    window.location.replace(redirectTo + (redirectTo.includes("?") ? "&" : "?") + "_t=" + encodeURIComponent(token));
   }
 
   async function handleSubmit(e: React.FormEvent) {
