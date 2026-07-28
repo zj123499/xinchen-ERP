@@ -49,7 +49,7 @@ export default function OffersPage() {
   });
   const [appSearch, setAppSearch] = useState("");
   const [appResults, setAppResults] = useState<{ id: number; institutionName: string; majorName: string; degree: string; student: { name: string; targetCountry?: string } }[]>([]);
-  const [selectedApp, setSelectedApp] = useState<{ id: number; institutionName: string; majorName?: string } | null>(null);
+  const [selectedApp, setSelectedApp] = useState<{ id: number; institutionName: string; majorName?: string; student?: { name: string } } | null>(null);
   const [appFilter, setAppFilter] = useState({ country: "", institution: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -92,7 +92,7 @@ export default function OffersPage() {
     setSelectedApp(a);
     setForm(f => ({ ...f, applicationId: String(a.id), institutionName: a.institutionName, majorName: a.majorName || "" }));
     setAppResults([]);
-    setAppSearch(a.student?.name || a.institutionName);
+    setAppSearch("");
   };
 
   const openCreate = () => {
@@ -201,7 +201,13 @@ export default function OffersPage() {
             <div className="space-y-4">
               <div><label className="block text-sm font-medium text-gray-700 mb-1">关联申请 <span className="text-red-500">*</span></label>
                 {selectedApp ? (
-                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedApp.institutionName} - {selectedApp.majorName || "未知专业"}</span><button onClick={() => { setSelectedApp(null); setForm(f => ({ ...f, applicationId: "", institutionName: "", majorName: "" })); setAppSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
+                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+                    <div>
+                      <span className="text-sm font-medium text-blue-700">{selectedApp.student?.name || "未知学生"}</span>
+                      <span className="text-xs text-gray-500 ml-2">{selectedApp.institutionName} - {selectedApp.majorName || "未知专业"}</span>
+                    </div>
+                    <button onClick={() => { setSelectedApp(null); setForm(f => ({ ...f, applicationId: "", institutionName: "", majorName: "" })); setAppSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button>
+                  </div>
                 ) : (
                   <div>
                     <div className="flex gap-2 mb-2">
