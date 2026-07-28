@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { GraduationCap, KeyRound } from "lucide-react";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,8 +21,8 @@ export default function LoginPage() {
 
   function goRedirect() {
     const redirectTo = new URLSearchParams(window.location.search).get("redirect") || "/";
-    const separator = redirectTo.includes("?") ? "&" : "?";
-    window.location.replace(`${redirectTo}${separator}t=${Date.now()}`);
+    // 稍延迟确保 cookie 已写入，然后用 Next.js router 跳转
+    setTimeout(() => router.replace(redirectTo), 100);
   }
 
   async function handleSubmit(e: React.FormEvent) {
