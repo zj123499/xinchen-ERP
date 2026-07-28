@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const { tenantId } = getContext(request);
   const body = await request.json();
-  const { applicationId, visaType, status, submittedAt, visaNumber, expiryDate, attachmentUrl } = body;
+  const { applicationId, visaType, status, approvedDate, attachmentUrl } = body;
   if (!applicationId || !visaType) {
     return NextResponse.json({ error: "申请和签证类型为必填项" }, { status: 400 });
   }
@@ -70,9 +70,7 @@ export async function POST(request: NextRequest) {
     data: {
       applicationId: parseInt(applicationId), visaType,
       status: status || "NOT_STARTED",
-      submittedAt: submittedAt ? new Date(submittedAt) : null,
-      visaNumber: visaNumber || null,
-      expiryDate: expiryDate ? new Date(expiryDate) : null,
+      approvedDate: approvedDate ? new Date(approvedDate) : null,
       attachmentUrl: attachmentUrl || null,
     },
     include: {

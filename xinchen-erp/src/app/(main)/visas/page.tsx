@@ -7,10 +7,8 @@ interface VisaItem {
   id: number;
   visaType: string;
   status: string;
-  submittedAt: string | null;
+  approvedDate: string | null;
   resultAt: string | null;
-  visaNumber: string | null;
-  expiryDate: string | null;
   application: {
     id: number;
     institutionName: string;
@@ -39,7 +37,7 @@ export default function VisasPage() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState({ applicationId: "", visaType: "", status: "NOT_STARTED", submittedAt: "", visaNumber: "", expiryDate: "" });
+  const [form, setForm] = useState({ applicationId: "", visaType: "", status: "NOT_STARTED", approvedDate: "" });
   const [appSearch, setAppSearch] = useState("");
   const [appResults, setAppResults] = useState<{ id: number; institutionName: string; majorName: string; degree: string; student: { name: string; targetCountry?: string } }[]>([]);
   const [selectedApp, setSelectedApp] = useState<{ id: number; institutionName: string; majorName?: string; student?: { name: string } } | null>(null);
@@ -84,7 +82,7 @@ export default function VisasPage() {
 
   const openCreate = () => {
     setEditingId(null);
-    setForm({ applicationId: "", visaType: "", status: "NOT_STARTED", submittedAt: "", visaNumber: "", expiryDate: "" });
+    setForm({ applicationId: "", visaType: "", status: "NOT_STARTED", approvedDate: "" });
     setSelectedApp(null); setAppSearch(""); setAppResults([]); setAppFilter({ institution: "" }); setError(""); setShowModal(true);
   };
 
@@ -95,7 +93,7 @@ export default function VisasPage() {
       const data = await res.json();
       if (res.ok) {
         setEditingId(id);
-        setForm({ applicationId: String(data.applicationId), visaType: data.visaType, status: data.status, submittedAt: data.submittedAt ? data.submittedAt.slice(0, 10) : "", visaNumber: data.visaNumber || "", expiryDate: data.expiryDate ? data.expiryDate.slice(0, 10) : "" });
+        setForm({ applicationId: String(data.applicationId), visaType: data.visaType, status: data.status, approvedDate: data.approvedDate ? data.approvedDate.slice(0, 10) : "" });
         setSelectedApp(data.application); setAppSearch(data.application?.institutionName || ""); setShowModal(true);
       }
     } catch (e) { console.error(e); }
@@ -141,8 +139,7 @@ export default function VisasPage() {
           <thead><tr className="bg-gray-50 border-b border-gray-200">
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">学生</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">签证类型</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">签证号</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">递交日期</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">批复日期</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">结果日期</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
@@ -154,8 +151,7 @@ export default function VisasPage() {
               <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.application.student.name}</td>
                 <td className="px-4 py-3 text-sm text-gray-700">{item.visaType}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">{item.visaNumber || "-"}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">{item.submittedAt ? new Date(item.submittedAt).toLocaleDateString("zh-CN") : "-"}</td>
+                <td className="px-4 py-3 text-sm text-gray-500">{item.approvedDate ? new Date(item.approvedDate).toLocaleDateString("zh-CN") : "-"}</td>
                 <td className="px-4 py-3 text-sm text-gray-500">{item.resultAt ? new Date(item.resultAt).toLocaleDateString("zh-CN") : "-"}</td>
                 <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${VISA_STATUS_MAP[item.status]?.color || "bg-gray-100 text-gray-800"}`}>{VISA_STATUS_MAP[item.status]?.label || item.status}</span></td>
                 <td className="px-4 py-3 text-right"><div className="flex items-center justify-end gap-1">
@@ -214,10 +210,9 @@ export default function VisasPage() {
               <div><label className="block text-sm font-medium text-gray-700 mb-1">签证类型 <span className="text-red-500">*</span></label><input type="text" value={form.visaType} onChange={e => setForm(f => ({ ...f, visaType: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="如：学生签证" /></div>
               <div><label className="block text-sm font-medium text-gray-700 mb-1">状态</label><select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{Object.entries(VISA_STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">递交日期</label><input type="date" value={form.submittedAt} onChange={e => setForm(f => ({ ...f, submittedAt: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">签证号</label><input type="text" value={form.visaNumber} onChange={e => setForm(f => ({ ...f, visaNumber: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">批复日期</label><input type="date" value={form.approvedDate} onChange={e => setForm(f => ({ ...f, approvedDate: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">有效期至</label><input type="date" value={form.expiryDate} onChange={e => setForm(f => ({ ...f, expiryDate: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+              
             </div>
             <div className="flex justify-end gap-3 mt-6"><button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleSubmit} disabled={submitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button></div>
           </div>

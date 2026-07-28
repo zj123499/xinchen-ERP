@@ -294,6 +294,7 @@ model User {
   assignedOrders   Order[]          @relation("order_assignee")
   reimbursements   Reimbursement[]
   uploadedFiles    File[]
+  mediaAccounts    MediaAccount[]
   operatedChanges  EmployeeChange[]
 
   @@index([tenantId])
@@ -1083,6 +1084,7 @@ model Offer {
   offerType       String      @map("offer_type") @db.VarChar(30)
   conditions      String?     @db.Text
   deadline        DateTime?
+  submittedAt     DateTime?   @map("submitted_at")
   status          OfferStatus @default(RECEIVED)
   offerDate       DateTime    @map("offer_date")
   responseDate    DateTime?   @map("response_date")
@@ -1099,11 +1101,9 @@ model Visa {
   id            Int        @id @default(autoincrement())
   applicationId Int        @map("application_id")
   visaType      String     @map("visa_type") @db.VarChar(50)
-  submittedAt   DateTime?  @map("submitted_at")
   status        VisaStatus @default(NOT_STARTED)
+  approvedDate  DateTime?  @map("approved_date")
   resultAt      DateTime?  @map("result_at")
-  visaNumber    String?    @map("visa_number") @db.VarChar(50)
-  expiryDate    DateTime?  @map("expiry_date")
   attachmentUrl String?    @map("attachment_url") @db.Text
   createdAt     DateTime   @default(now()) @map("created_at")
   updatedAt     DateTime   @updatedAt @map("updated_at")

@@ -55,7 +55,7 @@ export async function PUT(
   const { tenantId } = getContext(request);
   const { id } = await params;
   const body = await request.json();
-  const { visaType, status, submittedAt, resultAt, visaNumber, expiryDate, attachmentUrl } = body;
+  const { visaType, status, approvedDate, resultAt, attachmentUrl } = body;
 
   const existing = await prisma.visa.findFirst({
     where: { id: parseInt(id), application: { tenantId } },
@@ -69,10 +69,8 @@ export async function PUT(
     data: {
       visaType: visaType || undefined,
       status: status || undefined,
-      submittedAt: submittedAt ? new Date(submittedAt) : submittedAt === null ? null : undefined,
+      approvedDate: approvedDate ? new Date(approvedDate) : approvedDate === null ? null : undefined,
       resultAt: resultAt ? new Date(resultAt) : resultAt === null ? null : undefined,
-      visaNumber: visaNumber !== undefined ? visaNumber : undefined,
-      expiryDate: expiryDate ? new Date(expiryDate) : expiryDate === null ? null : undefined,
       attachmentUrl: attachmentUrl !== undefined ? attachmentUrl : undefined,
     },
     include: {
