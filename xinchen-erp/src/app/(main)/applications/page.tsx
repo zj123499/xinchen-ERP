@@ -30,11 +30,10 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 
 export default function ApplicationsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"apps" | "offers">("apps");
   const [list, setList] = useState<ApplicationItem[]>([]);
-  const [offerList, setOfferList] = useState<any[]>([]);
-  const [offerTotal, setOfferTotal] = useState(0);
   const [total, setTotal] = useState(0);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedOffers, setExpandedOffers] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
   const [keyword, setKeyword] = useState("");
@@ -111,7 +110,7 @@ export default function ApplicationsPage() {
       const method = editingOffer ? "PUT" : "POST";
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(offerForm) });
       if (!res.ok) { const d = await res.json(); setOfferError(d.error || "失败"); return; }
-      setShowOfferForm(false); fetchOffers();
+      setShowOfferForm(false); setExpandedId(null); fetchList();
     } catch { setOfferError("网络错误"); }
     finally { setOfferSubmitting(false); }
   };
@@ -119,7 +118,7 @@ export default function ApplicationsPage() {
   const handleDeleteOffer = async (id: number) => {
     if (!confirm("确定删除此Offer？")) return;
     await fetch(`/api/offers/${id}`, { method: "DELETE" });
-    fetchOffers();
+    setExpandedId(null); fetchList();
   };
 
   const openOfferEdit = async (id: number) => {
