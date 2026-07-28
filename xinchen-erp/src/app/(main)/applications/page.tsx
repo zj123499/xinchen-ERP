@@ -80,17 +80,13 @@ export default function ApplicationsPage() {
 
   useEffect(() => { fetchList(); }, [fetchList]);
 
-  const fetchOffers = useCallback(async () => {
+  const fetchOffersForApp = async (appId: number) => {
     try {
-      const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
-      if (keyword) params.set("keyword", keyword);
-      const res = await fetch(`/api/offers?${params}`);
+      const res = await fetch(`/api/offers?applicationId=${appId}&pageSize=50`);
       const data = await res.json();
-      if (res.ok) { setOfferList(data.list || []); setOfferTotal(data.total || 0); }
-    } catch (e) { console.error(e); }
-  }, [page, pageSize, keyword]);
-
-  useEffect(() => { if (activeTab === "offers") fetchOffers(); }, [fetchOffers, activeTab]);
+      return data.list || [];
+    } catch { return []; }
+  };
 
   // Offer 关联申请搜索
   const searchOfferApps = async (q: string, institution?: string) => {
@@ -142,7 +138,7 @@ export default function ApplicationsPage() {
     } catch { alert("加载失败"); }
   };
 
-  const totalPages = Math.ceil((activeTab === "offers" ? offerTotal : total) / pageSize);
+  const totalPages = Math.ceil(total / pageSize);
 
   // 按需加载最近学生（onFocus触发，不是初始加载）
   const loadRecentStudents = useCallback(() => {
@@ -242,14 +238,11 @@ export default function ApplicationsPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">申请管理</h1>
-        <div className="flex gap-1 mt-2 bg-gray-100 rounded-lg p-1 w-fit">
-          <button onClick={() => setActiveTab("apps")} className={`px-4 py-1.5 text-sm rounded-md transition ${activeTab === "apps" ? "bg-white shadow font-medium text-gray-900" : "text-gray-500"}`}>申请</button>
-          <button onClick={() => setActiveTab("offers")} className={`px-4 py-1.5 text-sm rounded-md transition ${activeTab === "offers" ? "bg-white shadow font-medium text-gray-900" : "text-gray-500"}`}>Offer</button>
+        <h1 className="text-2xl font-bold text-gray-900">申请与Offer管理</h1>
+        <div className="flex gap-2">
+          <button onClick={() => (setEditingOffer(null), setOfferForm({ applicationId: "", institutionName: "", majorName: "", offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp(null), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true))} className="px-3 py-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100">+ Offer</button>
+          <button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"><Plus className="w-4 h-4" />新增申请</button>
         </div>
-        <button onClick={() => activeTab === "offers" ? (setEditingOffer(null), setOfferForm({ applicationId: "", institutionName: "", majorName: "", offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp(null), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true)) : openCreate()} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-          <Plus className="w-4 h-4" />{activeTab === "offers" ? "新增Offer" : "新增申请"}
-        </button>
       </div>
       <div className="flex items-center gap-4 mb-4">
         <div className="relative flex-1 max-w-md">
@@ -261,7 +254,6 @@ export default function ApplicationsPage() {
           {Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
       </div>
-      {activeTab === "apps" && (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full">
           <thead><tr className="bg-gray-50 border-b border-gray-200">
@@ -277,7 +269,7 @@ export default function ApplicationsPage() {
           <tbody className="divide-y divide-gray-100">
             {loading ? <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-400">加载中...</td></tr>
             : list.length === 0 ? <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-400">暂无数据</td></tr>
-            : list.map(item => (
+            : list.map(item => (<>
               <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.student.name}</td>
                 <td className="px-4 py-3 text-sm text-gray-700">{item.institutionName}</td>
@@ -285,14 +277,51 @@ export default function ApplicationsPage() {
                 <td className="px-4 py-3 text-sm text-gray-500">{item.degree} / {item.intakeYear}.{String(item.intakeMonth).padStart(2, "0")}</td>
                 <td className="px-4 py-3 text-sm text-gray-700">{item.contract?.contractNo || "-"}</td>
                 <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[item.status]?.color || "bg-gray-100 text-gray-800"}`}>{STATUS_MAP[item.status]?.label || item.status}</span></td>
-                <td className="px-4 py-3"><div className="flex items-center gap-2 text-xs text-gray-500">{item._count.offers > 0 && <span className="text-green-600">Offer×{item._count.offers}</span>}{item._count.visas > 0 && <span className="text-blue-600">签证×{item._count.visas}</span>}</div></td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2 text-xs">
+                    {item._count.offers > 0 ? (
+                      <button onClick={async (e) => { e.stopPropagation(); 
+                        if (expandedId === item.id) { setExpandedId(null); } 
+                        else { const offs = await fetchOffersForApp(item.id); setExpandedOffers(offs); setExpandedId(item.id); }
+                      }} className="text-green-600 hover:underline">Offer×{item._count.offers}</button>
+                    ) : <span className="text-gray-400">Offer×0</span>}
+                    {item._count.visas > 0 && <span className="text-blue-600">签证×{item._count.visas}</span>}
+                  </div></td>
+                <td className="px-4 py-3">
+                  <button onClick={(e) => { e.stopPropagation(); (setEditingOffer(null), setOfferForm({ applicationId: String(item.id), institutionName: item.institutionName, majorName: item.majorName, offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp({ id: item.id, institutionName: item.institutionName, student: item.student, majorName: item.majorName }), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true)); }} className="text-blue-500 text-xs hover:underline">+Offer</button>
+                </td>
                 <td className="px-4 py-3 text-right"><div className="flex items-center justify-end gap-1">
                   <button onClick={() => router.push(`/applications/${item.id}`)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Eye className="w-4 h-4" /></button>
                   <button onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-4 h-4" /></button>
                   <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
                 </div></td>
               </tr>
-            ))}
+              {expandedId === item.id && (
+                <tr key={`offer-${item.id}`} className="bg-gray-50">
+                  <td colSpan={9} className="px-4 py-2">
+                    <div className="text-xs font-medium text-gray-700 mb-2">Offer 列表</div>
+                    {expandedOffers.length === 0 ? (
+                      <p className="text-xs text-gray-400">暂无Offer</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {expandedOffers.map((o: any) => (
+                          <div key={o.id} className="flex items-center justify-between py-1 px-2 bg-white rounded text-xs">
+                            <span>{o.institutionName} · {o.majorName}</span>
+                            <span className="text-gray-400 mx-2">{o.offerType}</span>
+                            <span className="text-gray-400">{o.deadline ? new Date(o.deadline).toLocaleDateString("zh-CN") : "-"}</span>
+                            <span className="mx-2 px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">{o.status}</span>
+                            <div className="flex gap-1 ml-2">
+                              <button onClick={() => openOfferEdit(o.id)} className="text-blue-500 hover:underline">编辑</button>
+                              <button onClick={() => handleDeleteOffer(o.id)} className="text-red-500 hover:underline">删除</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              )}
+            </>))}
           </tbody>
         </table>
         {totalPages > 1 && (
@@ -306,40 +335,6 @@ export default function ApplicationsPage() {
           </div>
         )}
       </div>
-      )}
-      {activeTab === "offers" && (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead><tr className="bg-gray-50">
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">学生</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">院校/专业</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">类型</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">截止日期</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
-          </tr></thead>
-          <tbody className="divide-y divide-gray-100">
-            {offerList.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-gray-400">暂无Offer数据</td></tr>
-            ) : offerList.map((o: any) => (
-              <tr key={o.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">{o.application?.student?.name || "-"}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">{o.institutionName} · {o.majorName}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{o.offerType}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{o.deadline ? new Date(o.deadline).toLocaleDateString("zh-CN") : "-"}</td>
-                <td className="px-4 py-3"><span className="inline-flex text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{o.status}</span></td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-1">
-                    <button onClick={() => openOfferEdit(o.id)} className="p-1 text-gray-400 hover:text-blue-600 rounded"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                    <button onClick={() => handleDeleteOffer(o.id)} className="p-1 text-gray-400 hover:text-red-600 rounded"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      )}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
