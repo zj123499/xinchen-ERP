@@ -110,7 +110,7 @@ export default function ApplicationsPage() {
       const method = editingOffer ? "PUT" : "POST";
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(offerForm) });
       if (!res.ok) { const d = await res.json(); setOfferError(d.error || "失败"); return; }
-      setShowOfferForm(false); setExpandedId(null); fetchList();
+      setShowOfferForm(false); fetchList();
     } catch { setOfferError("网络错误"); }
     finally { setOfferSubmitting(false); }
   };
@@ -118,7 +118,7 @@ export default function ApplicationsPage() {
   const handleDeleteOffer = async (id: number) => {
     if (!confirm("确定删除此Offer？")) return;
     await fetch(`/api/offers/${id}`, { method: "DELETE" });
-    setExpandedId(null); fetchList();
+    fetchList();
   };
 
   const openOfferEdit = async (id: number) => {
@@ -311,27 +311,27 @@ export default function ApplicationsPage() {
                     {expandedOffers.length === 0 ? (
                       <p className="text-xs text-gray-400">暂无Offer，点右侧「+ Offer」新增</p>
                     ) : (
-                      <table className="w-full bg-white rounded text-xs">
-                        <thead className="text-gray-500 bg-gray-50">
-                          <tr>
-                            <th className="px-2 py-1.5 text-left">院校/专业</th>
-                            <th className="px-2 py-1.5 text-left">类型</th>
-                            <th className="px-2 py-1.5 text-left">截止日期</th>
-                            <th className="px-2 py-1.5 text-left">提交日期</th>
-                            <th className="px-2 py-1.5 text-left">状态</th>
-                            <th className="px-2 py-1.5 text-right">操作</th>
+                      <table className="w-full text-xs">
+                        <thead className="text-gray-500">
+                          <tr className="border-b">
+                            <th className="px-3 py-2 text-left font-medium">院校/专业</th>
+                            <th className="px-3 py-2 text-left font-medium">类型</th>
+                            <th className="px-3 py-2 text-left font-medium">截止日期</th>
+                            <th className="px-3 py-2 text-left font-medium">提交日期</th>
+                            <th className="px-3 py-2 text-left font-medium">状态</th>
+                            <th className="px-3 py-2 text-right font-medium">操作</th>
                           </tr>
                         </thead>
                         <tbody>
                           {expandedOffers.map((o: any) => (
-                            <tr key={o.id} className="border-t">
-                              <td className="px-2 py-1.5">{o.institutionName} · {o.majorName}</td>
-                              <td className="px-2 py-1.5">{o.offerType === "conditional" ? "有条件" : o.offerType === "unconditional" ? "无条件" : o.offerType}</td>
-                              <td className="px-2 py-1.5 text-red-600">{o.deadline ? new Date(o.deadline).toLocaleDateString("zh-CN") : "-"}</td>
-                              <td className="px-2 py-1.5 text-gray-500">{o.submittedAt ? new Date(o.submittedAt).toLocaleDateString("zh-CN") : "-"}</td>
-                              <td className="px-2 py-1.5"><span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">{o.status}</span></td>
-                              <td className="px-2 py-1.5 text-right">
-                                <button onClick={() => openOfferEdit(o.id)} className="text-blue-500 hover:underline mr-2">编辑</button>
+                            <tr key={o.id} className="border-b last:border-0">
+                              <td className="px-3 py-2">{o.institutionName} · {o.majorName}</td>
+                              <td className="px-3 py-2">{o.offerType === "conditional" ? "有条件" : o.offerType === "unconditional" ? "无条件" : o.offerType}</td>
+                              <td className="px-3 py-2">{o.deadline ? new Date(o.deadline).toLocaleDateString("zh-CN") : "-"}</td>
+                              <td className="px-3 py-2 text-gray-500">{o.submittedAt ? new Date(o.submittedAt).toLocaleDateString("zh-CN") : "-"}</td>
+                              <td className="px-3 py-2"><span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700">{o.status}</span></td>
+                              <td className="px-3 py-2 text-right">
+                                <button onClick={() => openOfferEdit(o.id)} className="text-blue-600 hover:underline mr-2">编辑</button>
                                 <label className="text-green-600 hover:underline mr-2 cursor-pointer" onClick={async (e) => { e.preventDefault(); const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.pdf,.jpg,.png,.doc,.docx'; inp.onchange = async () => { if (inp.files?.[0]) { const fd = new FormData(); fd.append('file', inp.files[0]); fd.append('offerId', String(o.id)); const r = await fetch('/api/offers/upload', { method: 'POST', body: fd }); if (r.ok) { const data = await r.json(); alert(`已上传: ${data.originalName}`); } else { alert('上传失败'); } } }; inp.click(); }}>上传</label>
                                 <button onClick={() => handleDeleteOffer(o.id)} className="text-red-500 hover:underline">删除</button>
                               </td>
