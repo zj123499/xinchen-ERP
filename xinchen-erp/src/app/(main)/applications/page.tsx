@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ApplicationItem {
   id: number;
@@ -239,7 +239,6 @@ export default function ApplicationsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">申请与Offer管理</h1>
         <div className="flex gap-2">
-          <button onClick={() => (setEditingOffer(null), setOfferForm({ applicationId: "", institutionName: "", majorName: "", offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp(null), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true))} className="px-3 py-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100">+ Offer</button>
           <button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"><Plus className="w-4 h-4" />新增申请</button>
         </div>
       </div>
@@ -286,11 +285,12 @@ export default function ApplicationsPage() {
                     ) : <span className="text-gray-400">Offer×0</span>}
                     {item._count.visas > 0 && <span className="text-blue-600">签证×{item._count.visas}</span>}
                   </div></td>
-                <td className="px-4 py-3">
-                  <button onClick={(e) => { e.stopPropagation(); (setEditingOffer(null), setOfferForm({ applicationId: String(item.id), institutionName: item.institutionName, majorName: item.majorName, offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp({ id: item.id, institutionName: item.institutionName, student: item.student, majorName: item.majorName }), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true)); }} className="text-blue-500 text-xs hover:underline">+Offer</button>
+                <td className="px-4 py-3 text-center">
+                  <button onClick={(e) => { e.stopPropagation(); (setEditingOffer(null), setOfferForm({ applicationId: String(item.id), institutionName: item.institutionName, majorName: item.majorName, offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp({ id: item.id, institutionName: item.institutionName, student: item.student, majorName: item.majorName }), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true)); }} className="inline-flex items-center gap-1 px-2 py-1 text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 rounded">
+                    <Plus className="w-3 h-3" />Offer
+                  </button>
                 </td>
                 <td className="px-4 py-3 text-right"><div className="flex items-center justify-end gap-1">
-                  <button onClick={() => router.push(`/applications/${item.id}`)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Eye className="w-4 h-4" /></button>
                   <button onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-4 h-4" /></button>
                   <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
                 </div></td>
@@ -298,24 +298,37 @@ export default function ApplicationsPage() {
               {expandedId === item.id && (
                 <tr key={`offer-${item.id}`} className="bg-gray-50">
                   <td colSpan={9} className="px-4 py-2">
-                    <div className="text-xs font-medium text-gray-700 mb-2">Offer 列表</div>
+                    <div className="text-xs font-medium text-gray-700 mb-2">Offer 列表（{expandedOffers.length}）</div>
                     {expandedOffers.length === 0 ? (
-                      <p className="text-xs text-gray-400">暂无Offer</p>
+                      <p className="text-xs text-gray-400">暂无Offer，点右侧「+ Offer」新增</p>
                     ) : (
-                      <div className="space-y-1">
-                        {expandedOffers.map((o: any) => (
-                          <div key={o.id} className="flex items-center justify-between py-1 px-2 bg-white rounded text-xs">
-                            <span>{o.institutionName} · {o.majorName}</span>
-                            <span className="text-gray-400 mx-2">{o.offerType}</span>
-                            <span className="text-gray-400">{o.deadline ? new Date(o.deadline).toLocaleDateString("zh-CN") : "-"}</span>
-                            <span className="mx-2 px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">{o.status}</span>
-                            <div className="flex gap-1 ml-2">
-                              <button onClick={() => openOfferEdit(o.id)} className="text-blue-500 hover:underline">编辑</button>
-                              <button onClick={() => handleDeleteOffer(o.id)} className="text-red-500 hover:underline">删除</button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <table className="w-full bg-white rounded text-xs">
+                        <thead className="text-gray-500 bg-gray-50">
+                          <tr>
+                            <th className="px-2 py-1.5 text-left">院校/专业</th>
+                            <th className="px-2 py-1.5 text-left">类型</th>
+                            <th className="px-2 py-1.5 text-left">截止日期</th>
+                            <th className="px-2 py-1.5 text-left">提交日期</th>
+                            <th className="px-2 py-1.5 text-left">状态</th>
+                            <th className="px-2 py-1.5 text-right">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {expandedOffers.map((o: any) => (
+                            <tr key={o.id} className="border-t">
+                              <td className="px-2 py-1.5">{o.institutionName} · {o.majorName}</td>
+                              <td className="px-2 py-1.5">{o.offerType === "conditional" ? "有条件" : o.offerType === "unconditional" ? "无条件" : o.offerType}</td>
+                              <td className="px-2 py-1.5 text-red-600">{o.deadline ? new Date(o.deadline).toLocaleDateString("zh-CN") : "-"}</td>
+                              <td className="px-2 py-1.5 text-gray-500">{o.submittedAt ? new Date(o.submittedAt).toLocaleDateString("zh-CN") : "-"}</td>
+                              <td className="px-2 py-1.5"><span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">{o.status}</span></td>
+                              <td className="px-2 py-1.5 text-right">
+                                <button onClick={() => openOfferEdit(o.id)} className="text-blue-500 hover:underline mr-2">编辑</button>
+                                <button onClick={() => handleDeleteOffer(o.id)} className="text-red-500 hover:underline">删除</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     )}
                   </td>
                 </tr>
