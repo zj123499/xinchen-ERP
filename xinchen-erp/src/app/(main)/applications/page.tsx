@@ -111,6 +111,7 @@ export default function ApplicationsPage() {
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(offerForm) });
       if (!res.ok) { const d = await res.json(); setOfferError(d.error || "失败"); return; }
       setShowOfferForm(false); fetchList();
+      if (expandedId) { const offs = await fetchOffersForApp(expandedId); setExpandedOffers(offs); }
     } catch { setOfferError("网络错误"); }
     finally { setOfferSubmitting(false); }
   };
@@ -119,6 +120,7 @@ export default function ApplicationsPage() {
     if (!confirm("确定删除此Offer？")) return;
     await fetch(`/api/offers/${id}`, { method: "DELETE" });
     fetchList();
+    if (expandedId) { const offs = await fetchOffersForApp(expandedId); setExpandedOffers(offs); }
   };
 
   const openOfferEdit = async (id: number) => {
