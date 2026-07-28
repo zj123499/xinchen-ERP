@@ -30,7 +30,10 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 
 export default function ApplicationsPage() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<"apps" | "offers">("apps");
   const [list, setList] = useState<ApplicationItem[]>([]);
+  const [offerList, setOfferList] = useState<any[]>([]);
+  const [offerTotal, setOfferTotal] = useState(0);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
@@ -67,7 +70,19 @@ export default function ApplicationsPage() {
 
   useEffect(() => { fetchList(); }, [fetchList]);
 
-  const totalPages = Math.ceil(total / pageSize);
+  const fetchOffers = useCallback(async () => {
+    try {
+      const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+      if (keyword) params.set("keyword", keyword);
+      const res = await fetch(`/api/offers?${params}`);
+      const data = await res.json();
+      if (res.ok) { setOfferList(data.list || []); setOfferTotal(data.total || 0); }
+    } catch (e) { console.error(e); }
+  }, [page, pageSize, keyword]);
+
+  useEffect(() => { if (activeTab === "offers") fetchOffers(); }, [fetchOffers, activeTab]);
+
+  const totalPages = Math.ceil((activeTab === "offers" ? offerTotal : total) / pageSize);
 
   // 按需加载最近学生（onFocus触发，不是初始加载）
   const loadRecentStudents = useCallback(() => {
@@ -168,7 +183,13 @@ export default function ApplicationsPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">申请管理</h1>
-        <button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"><Plus className="w-4 h-4" />新增申请</button>
+        <div className="flex gap-1 mt-2 bg-gray-100 rounded-lg p-1 w-fit">
+          <button onClick={() => setActiveTab("apps")} className={`px-4 py-1.5 text-sm rounded-md transition ${activeTab === "apps" ? "bg-white shadow font-medium text-gray-900" : "text-gray-500"}`}>申请</button>
+          <button onClick={() => setActiveTab("offers")} className={`px-4 py-1.5 text-sm rounded-md transition ${activeTab === "offers" ? "bg-white shadow font-medium text-gray-900" : "text-gray-500"}`}>Offer</button>
+        </div>
+        <button onClick={() => activeTab === "offers" ? router.push("/offers") : openCreate()} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+          <Plus className="w-4 h-4" />{activeTab === "offers" ? "新增Offer" : "新增申请"}
+        </button>
       </div>
       <div className="flex items-center gap-4 mb-4">
         <div className="relative flex-1 max-w-md">
@@ -180,6 +201,7 @@ export default function ApplicationsPage() {
           {Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
       </div>
+      {activeTab === "apps" && (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full">
           <thead><tr className="bg-gray-50 border-b border-gray-200">
@@ -224,6 +246,37 @@ export default function ApplicationsPage() {
           </div>
         )}
       </div>
+      )}
+      {activeTab === "offers" && (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <table className="w-full">
+          <thead><tr className="bg-gray-50">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">学生</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">院校/专业</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">类型</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">截止日期</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+          </tr></thead>
+          <tbody className="divide-y divide-gray-100">
+            {offerList.length === 0 ? (
+              <tr><td colSpan={6} className="px-4 py-12 text-center text-gray-400">暂无Offer数据</td></tr>
+            ) : offerList.map((o: any) => (
+              <tr key={o.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">{o.application?.student?.name || "-"}</td>
+                <td className="px-4 py-3 text-sm text-gray-700">{o.institutionName} · {o.majorName}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{o.offerType}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{o.deadline ? new Date(o.deadline).toLocaleDateString("zh-CN") : "-"}</td>
+                <td className="px-4 py-3"><span className="inline-flex text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{o.status}</span></td>
+                <td className="px-4 py-3">
+                  <button onClick={() => router.push(`/offers`)} className="text-blue-600 text-xs hover:underline">管理</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      )}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">

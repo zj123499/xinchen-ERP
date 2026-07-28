@@ -31,7 +31,6 @@ export const MENU_TREE: MenuNode[] = [
     children: [
       { name: "学生档案", code: "students", path: "/students", icon: "students" },
       { name: "申请管理", code: "applications", path: "/applications", icon: "applications" },
-      { name: "Offer管理", code: "offers", path: "/applications?tab=offers", icon: "offers" },
       { name: "签证管理", code: "visas", path: "/visas", icon: "visas" },
     ],
   },
