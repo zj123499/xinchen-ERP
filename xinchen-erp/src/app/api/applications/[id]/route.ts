@@ -36,7 +36,7 @@ export async function GET(
       },
       visas: {
         orderBy: { createdAt: "desc" },
-        select: { id: true, visaType: true, status: true, submittedAt: true, resultAt: true, visaNumber: true, expiryDate: true },
+        select: { id: true, visaType: true, status: true, approvedDate: true, resultAt: true },
       },
       materials: {
         orderBy: { createdAt: "desc" },
