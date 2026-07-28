@@ -48,8 +48,9 @@ export default function OffersPage() {
     status: "RECEIVED", offerDate: new Date().toISOString().slice(0, 10),
   });
   const [appSearch, setAppSearch] = useState("");
-  const [appResults, setAppResults] = useState<{ id: number; institutionName: string; majorName: string; student: { name: string } }[]>([]);
-  const [selectedApp, setSelectedApp] = useState<{ id: number; institutionName: string } | null>(null);
+  const [appResults, setAppResults] = useState<{ id: number; institutionName: string; majorName: string; degree: string; student: { name: string; targetCountry?: string } }[]>([]);
+  const [selectedApp, setSelectedApp] = useState<{ id: number; institutionName: string; majorName?: string } | null>(null);
+  const [appFilter, setAppFilter] = useState({ country: "", institution: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -70,25 +71,34 @@ export default function OffersPage() {
   useEffect(() => { fetchList(); }, [fetchList]);
   const totalPages = Math.ceil(total / pageSize);
 
-  const searchApps = async (q: string) => {
+  const searchApps = async (q: string, country?: string, institution?: string) => {
     setAppSearch(q);
     try {
-      const params = new URLSearchParams({ pageSize: "10" });
+      const params = new URLSearchParams({ pageSize: "20" });
       if (q) params.set("keyword", q);
       const res = await fetch(`/api/applications?${params}`);
       const data = await res.json();
-      if (res.ok) setAppResults(data.list || []);
+      let list = data.list || [];
+      // 前端筛选：先国家，再院校
+      const fCountry = country || appFilter.country;
+      const fInstitution = institution || appFilter.institution;
+      if (fCountry) list = list.filter((a: any) => a.student?.targetCountry === fCountry);
+      if (fInstitution) list = list.filter((a: any) => a.institutionName === fInstitution);
+      setAppResults(list);
     } catch (e) { console.error(e); }
   };
 
-  const selectApp = (a: { id: number; institutionName: string }) => {
-    setSelectedApp(a); setForm(f => ({ ...f, applicationId: String(a.id) })); setAppResults([]); setAppSearch(a.institutionName);
+  const selectApp = (a: { id: number; institutionName: string; majorName?: string; degree?: string; student?: { name: string; targetCountry?: string } }) => {
+    setSelectedApp(a);
+    setForm(f => ({ ...f, applicationId: String(a.id), institutionName: a.institutionName, majorName: a.majorName || "" }));
+    setAppResults([]);
+    setAppSearch(a.student?.name || a.institutionName);
   };
 
   const openCreate = () => {
     setEditingId(null);
     setForm({ applicationId: "", institutionName: "", majorName: "", offerType: "CONDITIONAL", conditions: "", deadline: "", status: "RECEIVED", offerDate: new Date().toISOString().slice(0, 10) });
-    setSelectedApp(null); setAppSearch(""); setAppResults([]); setError(""); setShowModal(true);
+    setSelectedApp(null); setAppSearch(""); setAppResults([]); setAppFilter({ country: "", institution: "" }); setError(""); setShowModal(true);
   };
 
   const openEdit = async (id: number) => {
@@ -191,10 +201,29 @@ export default function OffersPage() {
             <div className="space-y-4">
               <div><label className="block text-sm font-medium text-gray-700 mb-1">关联申请 <span className="text-red-500">*</span></label>
                 {selectedApp ? (
-                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedApp.institutionName}</span><button onClick={() => { setSelectedApp(null); setForm(f => ({ ...f, applicationId: "" })); setAppSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
+                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedApp.institutionName} - {selectedApp.majorName || "未知专业"}</span><button onClick={() => { setSelectedApp(null); setForm(f => ({ ...f, applicationId: "", institutionName: "", majorName: "" })); setAppSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
                 ) : (
-                  <div className="relative"><input type="text" placeholder="点击搜索申请..." value={appSearch} onChange={e => searchApps(e.target.value)} onFocus={() => { if (appResults.length === 0) searchApps(""); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                    {appResults.length > 0 && (<div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">{appResults.map(a => (<div key={a.id} onClick={() => selectApp(a)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm">{a.institutionName} - {a.majorName} <span className="text-gray-400 ml-2">({a.student.name})</span></div>))}</div>)}
+                  <div>
+                    <div className="flex gap-2 mb-2">
+                      <input type="text" placeholder="搜索学生/院校..." value={appSearch} onChange={e => searchApps(e.target.value)} onFocus={() => { if (appResults.length === 0) searchApps(""); }} className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                      <select value={appFilter.institution} onChange={e => { const v = e.target.value; setAppFilter(f => ({ ...f, institution: v })); searchApps(appSearch, undefined, v); }} className="px-2 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="">所有院校</option>
+                        {[...new Set(appResults.map(a => a.institutionName))].map(inst => <option key={inst} value={inst}>{inst}</option>)}
+                      </select>
+                    </div>
+                    {appResults.length > 0 && (
+                      <div className="border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {appResults.map(a => (
+                          <div key={a.id} onClick={() => selectApp(a)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center justify-between border-b last:border-0">
+                            <div><span className="text-sm font-medium text-gray-900">{a.student?.name || "未知"}</span><span className="text-xs text-gray-500 ml-2">{a.institutionName} · {a.majorName}</span></div>
+                            <span className="text-xs text-gray-400">{a.degree}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {appSearch && appResults.length === 0 && (
+                      <p className="text-xs text-gray-400 py-2">无匹配申请，请先在申请管理中添加</p>
+                    )}
                   </div>
                 )}
               </div>
