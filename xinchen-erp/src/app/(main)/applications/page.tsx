@@ -42,6 +42,16 @@ export default function ApplicationsPage() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  // Offer 表单状态
+  const [showOfferForm, setShowOfferForm] = useState(false);
+  const [editingOffer, setEditingOffer] = useState<any>(null);
+  const [offerForm, setOfferForm] = useState({ applicationId: "", institutionName: "", majorName: "", offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" });
+  const [offerError, setOfferError] = useState("");
+  const [offerSubmitting, setOfferSubmitting] = useState(false);
+  const [offerAppSearch, setOfferAppSearch] = useState("");
+  const [offerAppResults, setOfferAppResults] = useState<any[]>([]);
+  const [offerSelectedApp, setOfferSelectedApp] = useState<any>(null);
+  const [offerAppFilter, setOfferAppFilter] = useState({ institution: "" });
   const [form, setForm] = useState({
     studentId: "", contractId: "", institutionName: "", majorName: "",
     degree: "硕士", intakeYear: new Date().getFullYear() + 1, intakeMonth: 9,
@@ -81,6 +91,56 @@ export default function ApplicationsPage() {
   }, [page, pageSize, keyword]);
 
   useEffect(() => { if (activeTab === "offers") fetchOffers(); }, [fetchOffers, activeTab]);
+
+  // Offer 关联申请搜索
+  const searchOfferApps = async (q: string, institution?: string) => {
+    setOfferAppSearch(q);
+    try {
+      const params = new URLSearchParams({ pageSize: "20" });
+      if (q) params.set("keyword", q);
+      const res = await fetch(`/api/applications?${params}`);
+      const data = await res.json();
+      let list = data.list || [];
+      const fi = institution || offerAppFilter.institution;
+      if (fi) list = list.filter((a: any) => a.institutionName === fi);
+      setOfferAppResults(list);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleOfferSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOfferSubmitting(true); setOfferError("");
+    try {
+      const url = editingOffer ? `/api/offers/${editingOffer.id}` : "/api/offers";
+      const method = editingOffer ? "PUT" : "POST";
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(offerForm) });
+      if (!res.ok) { const d = await res.json(); setOfferError(d.error || "失败"); return; }
+      setShowOfferForm(false); fetchOffers();
+    } catch { setOfferError("网络错误"); }
+    finally { setOfferSubmitting(false); }
+  };
+
+  const handleDeleteOffer = async (id: number) => {
+    if (!confirm("确定删除此Offer？")) return;
+    await fetch(`/api/offers/${id}`, { method: "DELETE" });
+    fetchOffers();
+  };
+
+  const openOfferEdit = async (id: number) => {
+    try {
+      const res = await fetch(`/api/offers/${id}`);
+      const data = await res.json();
+      setEditingOffer(data);
+      setOfferForm({
+        applicationId: String(data.applicationId), institutionName: data.institutionName,
+        majorName: data.majorName, offerType: data.offerType,
+        deadline: data.deadline ? data.deadline.slice(0, 10) : "",
+        submittedAt: data.submittedAt ? data.submittedAt.slice(0, 10) : "", status: data.status,
+      });
+      setOfferSelectedApp({ id: data.applicationId, institutionName: data.institutionName, student: data.application?.student, majorName: data.majorName });
+      setShowOfferForm(true);
+    } catch { alert("加载失败"); }
+  };
 
   const totalPages = Math.ceil((activeTab === "offers" ? offerTotal : total) / pageSize);
 
@@ -187,7 +247,7 @@ export default function ApplicationsPage() {
           <button onClick={() => setActiveTab("apps")} className={`px-4 py-1.5 text-sm rounded-md transition ${activeTab === "apps" ? "bg-white shadow font-medium text-gray-900" : "text-gray-500"}`}>申请</button>
           <button onClick={() => setActiveTab("offers")} className={`px-4 py-1.5 text-sm rounded-md transition ${activeTab === "offers" ? "bg-white shadow font-medium text-gray-900" : "text-gray-500"}`}>Offer</button>
         </div>
-        <button onClick={() => activeTab === "offers" ? router.push("/offers") : openCreate()} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+        <button onClick={() => activeTab === "offers" ? (setEditingOffer(null), setOfferForm({ applicationId: "", institutionName: "", majorName: "", offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp(null), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true)) : openCreate()} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
           <Plus className="w-4 h-4" />{activeTab === "offers" ? "新增Offer" : "新增申请"}
         </button>
       </div>
@@ -269,7 +329,10 @@ export default function ApplicationsPage() {
                 <td className="px-4 py-3 text-sm text-gray-600">{o.deadline ? new Date(o.deadline).toLocaleDateString("zh-CN") : "-"}</td>
                 <td className="px-4 py-3"><span className="inline-flex text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{o.status}</span></td>
                 <td className="px-4 py-3">
-                  <button onClick={() => router.push(`/offers`)} className="text-blue-600 text-xs hover:underline">管理</button>
+                  <div className="flex gap-1">
+                    <button onClick={() => openOfferEdit(o.id)} className="p-1 text-gray-400 hover:text-blue-600 rounded"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                    <button onClick={() => handleDeleteOffer(o.id)} className="p-1 text-gray-400 hover:text-red-600 rounded"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -329,6 +392,51 @@ export default function ApplicationsPage() {
               <div><label className="block text-sm font-medium text-gray-700 mb-1">备注</label><textarea value={form.remark} onChange={e => setForm(f => ({ ...f, remark: e.target.value }))} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="可选备注信息" /></div>
             </div>
             <div className="flex justify-end gap-3 mt-6"><button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleSubmit} disabled={submitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button></div>
+          </div>
+        </div>
+      )}
+      {/* Offer 新增/编辑表单 */}
+      {showOfferForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto p-6">
+            <h2 className="text-lg font-semibold mb-4">{editingOffer ? "编辑 Offer" : "新增 Offer"}</h2>
+            <form onSubmit={handleOfferSubmit} className="space-y-4">
+              {offerError && <div className="p-3 bg-red-50 text-red-700 text-sm rounded">{offerError}</div>}
+              <div><label className="block text-sm font-medium text-gray-700 mb-1">关联申请 *</label>
+                {offerSelectedApp ? (
+                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+                    <span className="text-sm">{offerSelectedApp.student?.name || "未知"} · {offerSelectedApp.institutionName}</span>
+                    <button type="button" onClick={() => { setOfferSelectedApp(null); setOfferForm(f => ({ ...f, applicationId: "" })); }} className="text-xs text-red-500">更换</button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="搜索申请..." value={offerAppSearch} onChange={e => searchOfferApps(e.target.value)} onFocus={() => { if (offerAppResults.length === 0 && !offerAppSearch) searchOfferApps(""); }} className="flex-1 px-3 py-2 border rounded-lg text-sm" />
+                    <select value={offerAppFilter.institution} onChange={e => { const v = e.target.value; setOfferAppFilter(f => ({ institution: v })); searchOfferApps(offerAppSearch, v); }} className="px-2 py-2 border rounded-lg text-sm"><option value="">所有</option>{[...new Set(offerAppResults.map((a: any) => a.institutionName))].map((i: any) => <option key={i} value={i}>{i}</option>)}</select>
+                  </div>
+                )}
+                {offerAppResults.length > 0 && !offerSelectedApp && (
+                  <div className="border rounded-lg mt-1 max-h-40 overflow-y-auto">
+                    {offerAppResults.map((a: any) => (
+                      <div key={a.id} onClick={() => { setOfferSelectedApp(a); setOfferForm(f => ({ ...f, applicationId: String(a.id), institutionName: a.institutionName, majorName: a.majorName })); setOfferAppResults([]); }} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-0">
+                        <span className="font-medium">{a.student?.name || "?"}</span><span className="text-gray-500 ml-2">{a.institutionName} · {a.majorName}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">类型</label><select value={offerForm.offerType} onChange={e => setOfferForm(f => ({ ...f, offerType: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm"><option value="conditional">有条件录取</option><option value="unconditional">无条件录取</option></select></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">状态</label><select value={offerForm.status} onChange={e => setOfferForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm"><option value="RECEIVED">已收到</option><option value="ACCEPTED">已接受</option><option value="DECLINED">已拒绝</option></select></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">截止日期</label><input type="date" value={offerForm.deadline} onChange={e => setOfferForm(f => ({ ...f, deadline: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">提交日期</label><input type="date" value={offerForm.submittedAt} onChange={e => setOfferForm(f => ({ ...f, submittedAt: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setShowOfferForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg">取消</button>
+                <button type="submit" disabled={offerSubmitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg disabled:opacity-50">{offerSubmitting ? "保存中..." : "保存"}</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
