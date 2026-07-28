@@ -1393,12 +1393,14 @@ model Attribution {
 }
 
 model Site {
-  id        Int      @id @default(autoincrement())
-  tenantId  Int      @map("tenant_id")
-  name      String   @db.VarChar(200)
-  domain    String   @db.VarChar(200)
-  status    String   @default("active") @db.VarChar(20)
-  createdAt DateTime @default(now()) @map("created_at")
+  id                Int      @id @default(autoincrement())
+  tenantId          Int      @map("tenant_id")
+  name              String   @db.VarChar(200)
+  domain            String   @db.VarChar(200)
+  icpCompany        String?  @map("icp_company") @db.VarChar(200)
+  legalRepresentative String? @map("legal_representative") @db.VarChar(50)
+  status            String   @default("active") @db.VarChar(20)
+  createdAt         DateTime @default(now()) @map("created_at")
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
   leads  Lead[]
@@ -1414,10 +1416,17 @@ model MediaAccount {
   accountName String   @map("account_name") @db.VarChar(100)
   accountId   String?  @map("account_id") @db.VarChar(100)
   followers   Int      @default(0)
+  operatorId  Int?     @map("operator_id")
+  phone       String?  @map("phone") @db.VarChar(20)
+  verified    Boolean  @default(false) @map("verified")
+  company     String?  @map("company") @db.VarChar(200)
+  personaStyle String? @map("persona_style") @db.VarChar(50)
+  styleDetail String?  @map("style_detail") @db.Text
   status      Boolean  @default(true)
   createdAt   DateTime @default(now()) @map("created_at")
 
   tenant       Tenant             @relation(fields: [tenantId], references: [id])
+  operator     User?              @relation(fields: [operatorId], references: [id])
   leads        Lead[]
   performances MediaPerformance[]
 

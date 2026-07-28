@@ -47,7 +47,7 @@ export default function SitesPage() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<SiteItem | null>(null);
-  const [formData, setFormData] = useState({ name: "", domain: "", status: "active" });
+  const [formData, setFormData] = useState({ name: "", domain: "", icpCompany: "", legalRepresentative: "", status: "active" });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<SiteItem | null>(null);
@@ -74,14 +74,14 @@ export default function SitesPage() {
 
   function openNewForm() {
     setEditingItem(null);
-    setFormData({ name: "", domain: "", status: "active" });
+    setFormData({ name: "", domain: "", icpCompany: "", legalRepresentative: "", status: "active" });
     setFormError("");
     setShowForm(true);
   }
 
   function openEditForm(item: SiteItem) {
     setEditingItem(item);
-    setFormData({ name: item.name, domain: item.domain, status: item.status });
+    setFormData({ name: item.name, domain: item.domain, icpCompany: (item as any).icpCompany || "", legalRepresentative: (item as any).legalRepresentative || "", status: item.status });
     setFormError("");
     setShowForm(true);
   }
@@ -94,6 +94,8 @@ export default function SitesPage() {
       const payload: any = {
         name: formData.name,
         domain: formData.domain,
+        icpCompany: formData.icpCompany || undefined,
+        legalRepresentative: formData.legalRepresentative || undefined,
         status: formData.status,
       };
       const url = editingItem ? `/api/sites/${editingItem.id}` : "/api/sites";
@@ -276,6 +278,18 @@ export default function SitesPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">域名 <span className="text-red-500">*</span></label>
                 <input type="text" required value={formData.domain} onChange={(e) => setFormData(d => ({ ...d, domain: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="如: www.xinchen.com" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">备案公司</label>
+                  <input type="text" value={formData.icpCompany} onChange={(e) => setFormData(d => ({ ...d, icpCompany: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ICP备案公司名" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">法人代表</label>
+                  <input type="text" value={formData.legalRepresentative} onChange={(e) => setFormData(d => ({ ...d, legalRepresentative: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="法人代表姓名" />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>

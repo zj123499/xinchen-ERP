@@ -7,6 +7,7 @@ import {
   Target, BarChart3, Smartphone,
   Trash2, Edit3, X,
 } from "lucide-react";
+import { useDict } from "@/lib/useDict";
 
 interface MediaAccountItem {
   id: number;
@@ -92,6 +93,8 @@ export default function MediaAccountsPage() {
 
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<MediaAccountItem | null>(null);
+  const personaStyles = useDict("persona_style", [{ dictKey: "video", dictValue: "视频" }, { dictKey: "image_text", dictValue: "图文" }, { dictKey: "personal_ip", dictValue: "个人IP" }]);
+  const [employees, setEmployees] = useState<{ id: number; realName: string }[]>([]);
   const [formData, setFormData] = useState({ platform: "", accountName: "", accountId: "", followers: "0" });
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -629,6 +632,49 @@ export default function MediaAccountsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">粉丝数</label>
                 <input type="number" value={formData.followers} onChange={(e) => setFormData(d => ({ ...d, followers: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">运营专员</label>
+                  <select value={formData.operatorId} onChange={(e) => setFormData(d => ({ ...d, operatorId: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="">请选择</option>
+                    {employees.map(e => <option key={e.id} value={e.id}>{e.realName}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">手机号</label>
+                  <input type="text" value={formData.phone} onChange={(e) => setFormData(d => ({ ...d, phone: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="运营专员手机号" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">关联公司</label>
+                  <input type="text" value={formData.company} onChange={(e) => setFormData(d => ({ ...d, company: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="公司名" />
+                </div>
+                <div className="flex items-center pt-5">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={formData.verified} onChange={(e) => setFormData(d => ({ ...d, verified: e.target.checked }))} className="rounded" />
+                    <span className="text-sm text-gray-700">实名认证</span>
+                  </label>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">人设风格</label>
+                  <select value={formData.personaStyle} onChange={(e) => setFormData(d => ({ ...d, personaStyle: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="">请选择</option>
+                    {personaStyles.map(p => <option key={p.dictKey} value={p.dictKey}>{p.dictValue}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">风格详情</label>
+                  <input type="text" value={formData.styleDetail} onChange={(e) => setFormData(d => ({ ...d, styleDetail: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="补充说明" />
+                </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
