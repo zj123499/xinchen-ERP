@@ -95,13 +95,16 @@ export async function POST(request: NextRequest) {
     // Set cookie for page auth
     // 注意: 当前仅 HTTP 部署，secure 必须为 false
     // HTTPS 部署时改为: process.env.NODE_ENV === "production"
-    response.cookies.set("token", token, {
-      httpOnly: true,
+    const cookieOpts = {
+      httpOnly: false,
       secure: false,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 8, // 8 hours
+      sameSite: "lax" as const,
+      maxAge: 60 * 60 * 8,
       path: "/",
-    });
+    };
+
+    // 同时设置 httpOnly 和 非httpOnly cookie，确保浏览器一定能读取
+    response.cookies.set("token", token, { ...cookieOpts, httpOnly: true });
 
     return response;
   } catch (error) {

@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { GraduationCap, KeyRound } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,10 +17,10 @@ export default function LoginPage() {
   const [chgError, setChgError] = useState("");
   const [chgLoading, setChgLoading] = useState(false);
 
-  function goRedirect() {
+  function goRedirect(token: string) {
     const redirectTo = new URLSearchParams(window.location.search).get("redirect") || "/";
-    // 稍延迟确保 cookie 已写入，然后用 Next.js router 跳转
-    setTimeout(() => router.replace(redirectTo), 100);
+    // 将 token 通过 URL 参数传给首页，首页 js 会写入 cookie
+    window.location.href = redirectTo + (redirectTo.includes("?") ? "&" : "?") + "_t=" + encodeURIComponent(token);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -51,7 +49,7 @@ export default function LoginPage() {
         return;
       }
 
-      goRedirect();
+      goRedirect(data.token);
     } catch {
       setError("网络错误，请重试");
     } finally {
@@ -86,7 +84,8 @@ export default function LoginPage() {
         return;
       }
 
-      goRedirect();
+      const data = await res.json();
+      goRedirect(data.token);
     } catch {
       setChgError("网络错误，请重试");
     } finally {

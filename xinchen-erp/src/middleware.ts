@@ -20,12 +20,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 获取 token：优先 Authorization header，回退到 cookie
+  // 获取 token：优先 Authorization header，回退到 cookie，再回退到 URL _t 参数
   const authHeader = request.headers.get("authorization");
   const bearerToken = authHeader?.replace("Bearer ", "");
 
-  // 优先用内置 cookies API；Next 16 standalone 下 cookies API 有时取不到，
-  // 兜底从原始 Cookie header 手动解析，保证浏览器 cookie 登录可用
   let cookieToken = request.cookies.get("token")?.value;
   if (!cookieToken) {
     const rawCookie = request.headers.get("cookie") || "";
@@ -33,7 +31,10 @@ export async function middleware(request: NextRequest) {
     cookieToken = match ? decodeURIComponent(match[1]) : undefined;
   }
 
-  const token = bearerToken || cookieToken;
+  // 兜底: URL 参数 _t（登录后前端未写入 cookie 前的过渡期）
+  const urlToken = request.nextUrl.searchParams.get("_t") || undefined;
+
+  const token = bearerToken || cookieToken || urlToken;
 
   if (!token) {
     if (pathname.startsWith("/api/")) {
