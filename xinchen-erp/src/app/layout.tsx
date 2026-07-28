@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "新辰ERP - 留学业务管理系统",
+  title: "新辰未来 - 留学业务管理系统",
   description: "新辰留学业务管理系统",
 };
 
