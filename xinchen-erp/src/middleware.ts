@@ -36,23 +36,11 @@ export async function middleware(request: NextRequest) {
 
   let token = bearerToken || cookieToken || urlToken;
 
-  // 如果通过 _t 参数验证通过，立即设置 cookie，后续请求不再需要 _t
+  // 如果通过 _t 参数验证通过，直接放行并设置 cookie（不重定向，避免丢失 cookie）
   if (!cookieToken && urlToken) {
     const payload = await verifyToken(urlToken);
     if (payload) {
       token = urlToken;
-      // 在重定向响应中设置 cookie，去掉 _t 参数
-      const url = new URL(request.url);
-      url.searchParams.delete("_t");
-      const response = NextResponse.redirect(url);
-      response.cookies.set("token", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-        maxAge: 60 * 60 * 8,
-        path: "/",
-      });
-      return response;
     }
   }
 
@@ -81,9 +69,22 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-tenant-id", String(payload.tenantId));
   requestHeaders.set("x-user-roles", payload.roles.join(","));
 
-  return NextResponse.next({
+  const response = NextResponse.next({
     request: { headers: requestHeaders },
   });
+
+  // 如果通过 _t 参数登录，在页面响应中设置 cookie
+  if (urlToken && !cookieToken) {
+    response.cookies.set("token", urlToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 8,
+      path: "/",
+    });
+  }
+
+  return response;
 }
 
 export const config = {
