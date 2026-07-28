@@ -70,15 +70,16 @@ export default function OffersPage() {
   useEffect(() => { fetchList(); }, [fetchList]);
   const totalPages = Math.ceil(total / pageSize);
 
-  const searchApps = useCallback(async (q: string) => {
+  const searchApps = async (q: string) => {
     setAppSearch(q);
-    if (q.length < 2) { setAppResults([]); return; }
     try {
-      const res = await fetch(`/api/applications?keyword=${encodeURIComponent(q)}&pageSize=10`);
+      const params = new URLSearchParams({ pageSize: "10" });
+      if (q) params.set("keyword", q);
+      const res = await fetch(`/api/applications?${params}`);
       const data = await res.json();
       if (res.ok) setAppResults(data.list || []);
     } catch (e) { console.error(e); }
-  }, []);
+  };
 
   const selectApp = (a: { id: number; institutionName: string }) => {
     setSelectedApp(a); setForm(f => ({ ...f, applicationId: String(a.id) })); setAppResults([]); setAppSearch(a.institutionName);
@@ -192,7 +193,7 @@ export default function OffersPage() {
                 {selectedApp ? (
                   <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedApp.institutionName}</span><button onClick={() => { setSelectedApp(null); setForm(f => ({ ...f, applicationId: "" })); setAppSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
                 ) : (
-                  <div className="relative"><input type="text" placeholder="搜索申请..." value={appSearch} onChange={e => searchApps(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  <div className="relative"><input type="text" placeholder="点击搜索申请..." value={appSearch} onChange={e => searchApps(e.target.value)} onFocus={() => { if (appResults.length === 0) searchApps(""); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
                     {appResults.length > 0 && (<div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">{appResults.map(a => (<div key={a.id} onClick={() => selectApp(a)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm">{a.institutionName} - {a.majorName} <span className="text-gray-400 ml-2">({a.student.name})</span></div>))}</div>)}
                   </div>
                 )}
