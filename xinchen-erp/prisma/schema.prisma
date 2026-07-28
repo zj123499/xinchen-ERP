@@ -1418,7 +1418,7 @@ model MediaAccount {
   followers   Int      @default(0)
   operatorId  Int?     @map("operator_id")
   phone       String?  @map("phone") @db.VarChar(20)
-  verified    Boolean  @default(false) @map("verified")
+  verified    String?  @map("verified") @db.VarChar(50)
   company     String?  @map("company") @db.VarChar(200)
   personaStyle String? @map("persona_style") @db.VarChar(50)
   styleDetail String?  @map("style_detail") @db.Text
