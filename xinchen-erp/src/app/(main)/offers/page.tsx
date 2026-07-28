@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Search, Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface OfferItem {
   id: number;
@@ -31,7 +30,6 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 };
 
 export default function OffersPage() {
-  const router = useRouter();
   const initialApplicationId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("applicationId") : null;
   const [list, setList] = useState<OfferItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -174,7 +172,6 @@ export default function OffersPage() {
                 <td className="px-4 py-3 text-sm text-gray-500">{item.deadline ? new Date(item.deadline).toLocaleDateString("zh-CN") : "-"}</td>
                 <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[item.status]?.color || "bg-gray-100 text-gray-800"}`}>{STATUS_MAP[item.status]?.label || item.status}</span></td>
                 <td className="px-4 py-3 text-right"><div className="flex items-center justify-end gap-1">
-                  <button onClick={() => router.push(`/offers/${item.id}`)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Eye className="w-4 h-4" /></button>
                   <button onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-4 h-4" /></button>
                   <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
                 </div></td>

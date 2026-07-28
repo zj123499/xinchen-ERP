@@ -95,7 +95,16 @@ export default function CopywriterPage() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   useEffect(() => {
-    fetch("/api/employees?pageSize=1000").then(r => r.json()).then(d => setUsers(d.list || [])).catch(() => {});
+    // 只加载文书角色人员（如升学顾问、文书申请）
+    fetch("/api/employees?pageSize=1000&roleCode=document_application").then(r => r.json()).then(d => {
+      const docs = d.list || [];
+      if (docs.length === 0) {
+        // fallback: 也查 academic_advisor 角色
+        fetch("/api/employees?pageSize=1000&roleCode=academic_advisor").then(r => r.json()).then(d2 => setUsers(d2.list || [])).catch(() => {});
+      } else {
+        setUsers(docs);
+      }
+    }).catch(() => {});
     fetch("/api/applications?pageSize=1000").then(r => r.json()).then(d => setApps(d.list || [])).catch(() => {});
   }, []);
 

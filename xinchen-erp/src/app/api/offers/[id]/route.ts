@@ -35,7 +35,7 @@ export async function GET(
           intakeMonth: true,
           status: true,
           student: { select: { id: true, name: true, phone: true, wechat: true } },
-          order: { select: { id: true, orderNo: true, productName: true, amount: true } },
+          contract: { select: { id: true, contractNo: true } },
         },
       },
     },
