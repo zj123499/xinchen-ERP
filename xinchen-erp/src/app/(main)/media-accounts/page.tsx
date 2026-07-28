@@ -141,12 +141,9 @@ export default function MediaAccountsPage() {
     fetch("/api/media-accounts?pageSize=200").then(r => r.json()).then(d => {
       setAccounts(d.list || []);
     }).catch(() => {});
-    // 加载新媒体相关人员（组长+运营专员）
-    fetch("/api/employees?pageSize=500&roleCode=newmedia_manager").then(r => r.json()).then(d => {
-      const managers = d.list || [];
-      fetch("/api/employees?pageSize=500&roleCode=newmedia_operator").then(r => r.json()).then(d2 => {
-        setEmployees([...managers, ...(d2.list || [])]);
-      }).catch(() => {});
+    // 加载所有在职员工（运营专员由管理员在后台随时调整）
+    fetch("/api/employees?pageSize=500&status=active").then(r => r.json()).then(d => {
+      setEmployees(d.list || []);
     }).catch(() => {});
   }, []);
 
