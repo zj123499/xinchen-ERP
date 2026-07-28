@@ -262,11 +262,12 @@ export default function ApplicationsPage() {
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">合同</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">关联</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">截止日期</th>
             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
           </tr></thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-400">加载中...</td></tr>
-            : list.length === 0 ? <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-400">暂无数据</td></tr>
+            {loading ? <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-400">加载中...</td></tr>
+            : list.length === 0 ? <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-400">暂无数据</td></tr>
             : list.map(item => (<>
               <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.student.name}</td>
@@ -285,14 +286,22 @@ export default function ApplicationsPage() {
                     ) : <span className="text-gray-400">Offer×0</span>}
                     {item._count.visas > 0 && <span className="text-blue-600">签证×{item._count.visas}</span>}
                   </div></td>
-                <td className="px-4 py-3 text-center">
-                  <button onClick={(e) => { e.stopPropagation(); (setEditingOffer(null), setOfferForm({ applicationId: String(item.id), institutionName: item.institutionName, majorName: item.majorName, offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp({ id: item.id, institutionName: item.institutionName, student: item.student, majorName: item.majorName }), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true)); }} className="inline-flex items-center gap-1 px-2 py-1 text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 rounded">
-                    <Plus className="w-3 h-3" />Offer
-                  </button>
+                <td className="px-4 py-3 text-sm">
+                  {(() => {
+                    if (expandedOffers.length > 0) {
+                      const next = expandedOffers.filter((o: any) => o.deadline).sort((a: any, b: any) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())[0];
+                      if (next?.deadline) {
+                        const days = Math.ceil((new Date(next.deadline).getTime() - Date.now()) / 86400000);
+                        return <span className={days <= 7 ? "text-red-600 font-medium" : "text-gray-700"}>{new Date(next.deadline).toLocaleDateString("zh-CN")}{days <= 7 && <span className="text-xs ml-1">({days}天)</span>}</span>;
+                      }
+                    }
+                    return <span className="text-gray-400">-</span>;
+                  })()}
                 </td>
                 <td className="px-4 py-3 text-right"><div className="flex items-center justify-end gap-1">
-                  <button onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); (setEditingOffer(null), setOfferForm({ applicationId: String(item.id), institutionName: item.institutionName, majorName: item.majorName, offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp({ id: item.id, institutionName: item.institutionName, student: item.student, majorName: item.majorName }), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true)); }} title="新增 Offer" className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded"><Plus className="w-4 h-4" /></button>
+                  <button title="编辑" onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-4 h-4" /></button>
+                  <button title="删除" onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
                 </div></td>
               </tr>
               {expandedId === item.id && (
