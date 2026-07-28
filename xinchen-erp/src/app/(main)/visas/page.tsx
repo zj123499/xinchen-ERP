@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Search, Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface VisaItem {
   id: number;
@@ -30,7 +29,6 @@ const VISA_STATUS_MAP: Record<string, { label: string; color: string }> = {
 };
 
 export default function VisasPage() {
-  const router = useRouter();
   const initialApplicationId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("applicationId") : null;
   const [list, setList] = useState<VisaItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -43,8 +41,9 @@ export default function VisasPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState({ applicationId: "", visaType: "", status: "NOT_STARTED", submittedAt: "", visaNumber: "", expiryDate: "" });
   const [appSearch, setAppSearch] = useState("");
-  const [appResults, setAppResults] = useState<{ id: number; institutionName: string; majorName: string; student: { name: string } }[]>([]);
-  const [selectedApp, setSelectedApp] = useState<{ id: number; institutionName: string } | null>(null);
+  const [appResults, setAppResults] = useState<{ id: number; institutionName: string; majorName: string; degree: string; student: { name: string; targetCountry?: string } }[]>([]);
+  const [selectedApp, setSelectedApp] = useState<{ id: number; institutionName: string; majorName?: string; student?: { name: string } } | null>(null);
+  const [appFilter, setAppFilter] = useState({ institution: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -65,24 +64,28 @@ export default function VisasPage() {
   useEffect(() => { fetchList(); }, [fetchList]);
   const totalPages = Math.ceil(total / pageSize);
 
-  const searchApps = useCallback(async (q: string) => {
+  const searchApps = async (q: string, institution?: string) => {
     setAppSearch(q);
-    if (q.length < 2) { setAppResults([]); return; }
     try {
-      const res = await fetch(`/api/applications?keyword=${encodeURIComponent(q)}&pageSize=10`);
+      const params = new URLSearchParams({ pageSize: "20" });
+      if (q) params.set("keyword", q);
+      const res = await fetch(`/api/applications?${params}`);
       const data = await res.json();
-      if (res.ok) setAppResults(data.list || []);
+      let list = data.list || [];
+      const filterInstitution = institution || appFilter.institution;
+      if (filterInstitution) list = list.filter((a: any) => a.institutionName === filterInstitution);
+      setAppResults(list);
     } catch (e) { console.error(e); }
-  }, []);
+  };
 
-  const selectApp = (a: { id: number; institutionName: string }) => {
-    setSelectedApp(a); setForm(f => ({ ...f, applicationId: String(a.id) })); setAppResults([]); setAppSearch(a.institutionName);
+  const selectApp = (a: { id: number; institutionName: string; majorName?: string; student?: { name: string } }) => {
+    setSelectedApp(a); setForm(f => ({ ...f, applicationId: String(a.id) })); setAppResults([]); setAppSearch("");
   };
 
   const openCreate = () => {
     setEditingId(null);
     setForm({ applicationId: "", visaType: "", status: "NOT_STARTED", submittedAt: "", visaNumber: "", expiryDate: "" });
-    setSelectedApp(null); setAppSearch(""); setAppResults([]); setError(""); setShowModal(true);
+    setSelectedApp(null); setAppSearch(""); setAppResults([]); setAppFilter({ institution: "" }); setError(""); setShowModal(true);
   };
 
   const openEdit = async (id: number) => {
@@ -156,7 +159,6 @@ export default function VisasPage() {
                 <td className="px-4 py-3 text-sm text-gray-500">{item.resultAt ? new Date(item.resultAt).toLocaleDateString("zh-CN") : "-"}</td>
                 <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${VISA_STATUS_MAP[item.status]?.color || "bg-gray-100 text-gray-800"}`}>{VISA_STATUS_MAP[item.status]?.label || item.status}</span></td>
                 <td className="px-4 py-3 text-right"><div className="flex items-center justify-end gap-1">
-                  <button onClick={() => router.push(`/visas/${item.id}`)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Eye className="w-4 h-4" /></button>
                   <button onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-4 h-4" /></button>
                   <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
                 </div></td>
@@ -183,10 +185,29 @@ export default function VisasPage() {
             <div className="space-y-4">
               <div><label className="block text-sm font-medium text-gray-700 mb-1">关联申请 <span className="text-red-500">*</span></label>
                 {selectedApp ? (
-                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedApp.institutionName}</span><button onClick={() => { setSelectedApp(null); setForm(f => ({ ...f, applicationId: "" })); setAppSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
+                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+                    <div><span className="text-sm font-medium text-blue-700">{selectedApp.student?.name || "未知学生"}</span><span className="text-xs text-gray-500 ml-2">{selectedApp.institutionName} - {selectedApp.majorName || "未知专业"}</span></div>
+                    <button onClick={() => { setSelectedApp(null); setForm(f => ({ ...f, applicationId: "" })); setAppSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button>
+                  </div>
                 ) : (
-                  <div className="relative"><input type="text" placeholder="搜索申请..." value={appSearch} onChange={e => searchApps(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                    {appResults.length > 0 && (<div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">{appResults.map(a => (<div key={a.id} onClick={() => selectApp(a)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm">{a.institutionName} - {a.majorName} <span className="text-gray-400 ml-2">({a.student.name})</span></div>))}</div>)}
+                  <div>
+                    <div className="flex gap-2 mb-2">
+                      <input type="text" placeholder="搜索学生/院校..." value={appSearch} onChange={e => searchApps(e.target.value)} onFocus={() => { if (appResults.length === 0) searchApps(""); }} className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                      <select value={appFilter.institution} onChange={e => { const v = e.target.value; setAppFilter(f => ({ institution: v })); searchApps(appSearch, v); }} className="px-2 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="">所有院校</option>
+                        {[...new Set(appResults.map(a => a.institutionName))].map(inst => <option key={inst} value={inst}>{inst}</option>)}
+                      </select>
+                    </div>
+                    {appResults.length > 0 && (
+                      <div className="border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {appResults.map(a => (
+                          <div key={a.id} onClick={() => selectApp(a)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center justify-between border-b last:border-0">
+                            <div><span className="text-sm font-medium text-gray-900">{a.student?.name || "未知"}</span><span className="text-xs text-gray-500 ml-2">{a.institutionName} · {a.majorName}</span></div>
+                            <span className="text-xs text-gray-400">{a.degree}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
