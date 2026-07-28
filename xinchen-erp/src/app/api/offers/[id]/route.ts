@@ -55,7 +55,7 @@ export async function PUT(
   const { tenantId } = getContext(request);
   const { id } = await params;
   const body = await request.json();
-  const { institutionName, majorName, offerType, conditions, deadline, status, offerDate, responseDate, attachmentUrl } = body;
+  const { institutionName, majorName, offerType, conditions, deadline, submittedAt, status, offerDate, responseDate, attachmentUrl } = body;
 
   const existing = await prisma.offer.findFirst({
     where: { id: parseInt(id), application: { tenantId } },
@@ -72,6 +72,7 @@ export async function PUT(
       offerType: offerType || undefined,
       conditions: conditions !== undefined ? conditions : undefined,
       deadline: deadline ? new Date(deadline) : deadline === null ? null : undefined,
+      submittedAt: submittedAt ? new Date(submittedAt) : submittedAt === null ? null : undefined,
       status: status || undefined,
       offerDate: offerDate ? new Date(offerDate) : undefined,
       responseDate: responseDate ? new Date(responseDate) : responseDate === null ? null : undefined,

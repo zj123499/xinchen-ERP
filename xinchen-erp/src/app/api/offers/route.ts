@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const { tenantId } = getContext(request);
   const body = await request.json();
-  const { applicationId, institutionName, majorName, offerType, conditions, deadline, status, offerDate, attachmentUrl } = body;
+  const { applicationId, institutionName, majorName, offerType, conditions, deadline, submittedAt, status, offerDate, attachmentUrl } = body;
 
   if (!applicationId || !institutionName || !majorName) {
     return NextResponse.json({ error: "申请、院校和专业为必填项" }, { status: 400 });
@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
       offerType: offerType || "CONDITIONAL",
       conditions: conditions || null,
       deadline: deadline ? new Date(deadline) : null,
+      submittedAt: submittedAt ? new Date(submittedAt) : null,
       status: status || "RECEIVED",
       offerDate: offerDate ? new Date(offerDate) : new Date(),
       attachmentUrl: attachmentUrl || null,
