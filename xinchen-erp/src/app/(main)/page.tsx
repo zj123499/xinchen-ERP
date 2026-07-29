@@ -126,27 +126,25 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError("");
+  const fetchData = async (silent = false) => {
+    if (!silent) setLoading(true);
+    if (!silent) setError("");
     try {
       const res = await fetch("/api/dashboard?_=" + Date.now(), { cache: "no-store" });
       if (!res.ok) throw new Error();
       const result = await res.json();
       setData(result);
     } catch {
-      setError("数据加载失败，请稍后重试");
+      if (!silent) setError("数据加载失败，请稍后重试");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
-  // 自动刷新：每 30 秒 + 切回标签页时立即刷新
+  // 静默刷新：每 60 秒自动拉取新数据，不显示 loading
   useEffect(() => {
-    const timer = setInterval(fetchData, 30000);
-    const onVisibility = () => { if (document.visibilityState === "visible") fetchData(); };
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => { clearInterval(timer); document.removeEventListener("visibilitychange", onVisibility); };
+    const timer = setInterval(() => fetchData(true), 60000);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => { fetchData(); }, []);
