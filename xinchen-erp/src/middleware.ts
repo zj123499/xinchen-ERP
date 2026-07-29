@@ -77,7 +77,7 @@ export async function middleware(request: NextRequest) {
   // 如果通过 _t 参数登录，在页面响应中设置 cookie
   if (urlToken && !cookieToken) {
     response.cookies.set("token", urlToken, {
-      httpOnly: true,
+      httpOnly: false,
       secure: false,
       sameSite: "lax",
       maxAge: 60 * 60 * 8,

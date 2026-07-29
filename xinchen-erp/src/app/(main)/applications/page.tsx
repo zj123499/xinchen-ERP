@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { Search, Plus, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ApplicationItem {
@@ -28,7 +27,6 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 };
 
 export default function ApplicationsPage() {
-  const router = useRouter();
   const [list, setList] = useState<ApplicationItem[]>([]);
   const [total, setTotal] = useState(0);
   const [expandedId, setExpandedId] = useState<number | null>(null);
