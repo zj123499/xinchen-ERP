@@ -64,12 +64,13 @@ export async function POST(request: NextRequest) {
   const { tenantId } = getContext(request);
   const body = await request.json();
   const { studentId, contractId, institutionName, majorName, degree, intakeYear, intakeMonth, status, remark } = body;
-  if (!studentId || !contractId || !institutionName || !majorName) {
-    return NextResponse.json({ error: "学生、合同、院校和专业为必填项" }, { status: 400 });
+  if (!studentId || !institutionName || !majorName) {
+    return NextResponse.json({ error: "学生、院校和专业为必填项" }, { status: 400 });
   }
   const application = await prisma.application.create({
     data: {
-      tenantId, studentId: parseInt(studentId), contractId: parseInt(contractId),
+      tenantId, studentId: parseInt(studentId),
+      contractId: contractId ? parseInt(contractId) : null,
       institutionName, majorName, degree: degree || "硕士",
       intakeYear: intakeYear || new Date().getFullYear() + 1, intakeMonth: intakeMonth || 9,
       status: status || "PREPARING", remark: remark || null,

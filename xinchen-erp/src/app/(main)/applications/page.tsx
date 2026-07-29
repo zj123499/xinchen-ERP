@@ -14,7 +14,6 @@ interface ApplicationItem {
   status: string;
   createdAt: string;
   student: { id: number; name: string; phone: string };
-  contract: { id: number; contractNo: string } | null;
   _count: { offers: number; visas: number };
 }
 
@@ -52,7 +51,7 @@ export default function ApplicationsPage() {
   const [offerSelectedApp, setOfferSelectedApp] = useState<any>(null);
   const [offerAppFilter, setOfferAppFilter] = useState({ institution: "" });
   const [form, setForm] = useState({
-    studentId: "", contractId: "", institutionName: "", majorName: "",
+    studentId: "", institutionName: "", majorName: "",
     degree: "硕士", intakeYear: new Date().getFullYear() + 1, intakeMonth: 9,
     status: "PREPARING", remark: "",
   });
@@ -162,11 +161,7 @@ export default function ApplicationsPage() {
     setForm(f => ({ ...f, studentId: String(s.id) }));
     setStudentResults([]);
     setStudentSearch(s.name);
-    // 自动关联学生最新合同
-    fetch(`/api/contracts?studentId=${s.id}&pageSize=1`).then(r => r.json()).then(d => {
-      const ct = d.list?.[0];
-      if (ct) setForm(f => ({ ...f, contractId: String(ct.id) }));
-    }).catch(() => {});
+
     // 加载该学生的申请意向，自动预填院校/专业
     fetch(`/api/students/${s.id}/intentions`).then(r => r.json()).then(d => {
       const items = d.list || [];
@@ -185,7 +180,7 @@ export default function ApplicationsPage() {
 
   const openCreate = () => {
     setEditingId(null);
-    setForm({ studentId: "", contractId: "", institutionName: "", majorName: "", degree: "硕士", intakeYear: new Date().getFullYear() + 1, intakeMonth: 9, status: "PREPARING", remark: "" });
+    setForm({ studentId: "", institutionName: "", majorName: "", degree: "硕士", intakeYear: new Date().getFullYear() + 1, intakeMonth: 9, status: "PREPARING", remark: "" });
     setSelectedStudent(null); setSelectedIntentionId(null);
     setStudentSearch("");
     setStudentResults([]);
@@ -199,7 +194,7 @@ export default function ApplicationsPage() {
       const data = await res.json();
       if (res.ok) {
         setEditingId(id);
-        setForm({ studentId: String(data.studentId), contractId: String(data.contractId), institutionName: data.institutionName, majorName: data.majorName, degree: data.degree, intakeYear: data.intakeYear, intakeMonth: data.intakeMonth, status: data.status, remark: data.remark || "" });
+        setForm({ studentId: String(data.studentId), institutionName: data.institutionName, majorName: data.majorName, degree: data.degree, intakeYear: data.intakeYear, intakeMonth: data.intakeMonth, status: data.status, remark: data.remark || "" });
         setSelectedStudent(data.student); setSelectedIntentionId(null);
         setStudentSearch(data.student?.name || ""); setShowModal(true);
       }
