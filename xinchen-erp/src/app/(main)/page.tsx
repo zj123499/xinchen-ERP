@@ -41,15 +41,18 @@ interface DashboardData {
   permissions?: { leads: boolean; students: boolean; contracts: boolean; payments: boolean; applications: boolean; visits: boolean; reports: boolean; settings: boolean };
 }
 
+// 安全格式化：用正则代替 toLocaleString，避免 SSR 水合不一致
+function formatNum(v: number): string {
+  return v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 function formatCurrency(amount: number | undefined | null) {
   const v = Number(amount) || 0;
-  return `\u00a5 ${v.toLocaleString("zh-CN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  return `\u00a5 ${formatNum(v)}`;
 }
-
 function formatCompact(amount: number | undefined | null) {
   const v = Number(amount) || 0;
   if (v >= 10000) return `${(v / 10000).toFixed(1)}万`;
-  return v.toLocaleString("zh-CN");
+  return formatNum(v);
 }
 
 // 简易柱状图组件
@@ -242,7 +245,7 @@ export default function DashboardPage() {
   const yearProfitColor = (fin.yearProfit || 0) >= 0 ? "text-green-600" : "text-red-600";
 
   return (
-    <div>
+    <div suppressHydrationWarning>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">工作台</h1>
