@@ -530,22 +530,6 @@ export default function DashboardPage() {
       </div>
       )}
 
-      {/* 快捷操作 */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">快捷操作</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: "新建线索", href: "/leads", color: "bg-blue-600" },
-            { label: "新建合同", href: "/contracts", color: "bg-green-600" },
-            { label: "录入回访", href: "/visit-records", color: "bg-purple-600" },
-            { label: "收款登记", href: "/payments", color: "bg-orange-600" },
-          ].map((action) => (
-            <a key={action.label} href={action.href} className={`${action.color} text-white text-center py-3 rounded-lg font-medium hover:opacity-90 transition`}>
-              {action.label}
-            </a>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
