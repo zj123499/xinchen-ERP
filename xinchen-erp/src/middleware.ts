@@ -5,6 +5,7 @@ const PUBLIC_PATHS = [
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/logout",
+  "/api/auth/set-cookie",
   "/api/dingtalk/callback",
   "/api/health",
   "/login",

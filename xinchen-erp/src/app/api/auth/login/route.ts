@@ -6,106 +6,78 @@ import { recordLogin } from "@/lib/operation-log";
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json();
+    const contentType = request.headers.get("content-type") || "";
+    let username = "";
+    let password = "";
+    let redirectTo = "/";
+    let isFormSubmit = false;
 
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-      request.headers.get("x-real-ip") ||
-      request.headers.get("x-client-ip") ||
-      null;
+    if (contentType.includes("application/json")) {
+      const body = await request.json();
+      username = body.username;
+      password = body.password;
+    } else {
+      isFormSubmit = true;
+      // 支持 form-urlencoded 和 multipart/form-data
+      const formData = await request.formData();
+      username = (formData.get("username") as string) || "";
+      password = (formData.get("password") as string) || "";
+      redirectTo = (formData.get("redirect") as string) || "/";
+    }
+
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
     const ua = request.headers.get("user-agent") || null;
-    // 登录失败且用户不存在时，无租户上下文，回退到默认租户
     const FALLBACK_TENANT = 1;
 
-    // 支持用手机号或用户名登录（默认手机号）
     const user = await prisma.user.findFirst({
       where: { OR: [{ username }, { phone: username }] },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
-          },
-        },
-      },
+      include: { userRoles: { include: { role: true } } },
     });
 
     if (!user || !user.isActive) {
-      await recordLogin({
-        tenantId: FALLBACK_TENANT,
-        username,
-        status: "FAILED",
-        reason: "用户不存在或已禁用",
-        ipAddress: ip,
-        userAgent: ua,
-      });
+      await recordLogin({ tenantId: FALLBACK_TENANT, username, status: "FAILED", reason: "用户不存在或已禁用", ipAddress: ip, userAgent: ua });
+      if (isFormSubmit) return NextResponse.redirect(new URL("/login?error=1", request.url));
       return NextResponse.json({ error: "用户名或密码错误" }, { status: 401 });
     }
 
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
-      await recordLogin({
-        tenantId: user.tenantId,
-        userId: user.id,
-        username,
-        status: "FAILED",
-        reason: "密码错误",
-        ipAddress: ip,
-        userAgent: ua,
-      });
+      await recordLogin({ tenantId: user.tenantId, userId: user.id, username, status: "FAILED", reason: "密码错误", ipAddress: ip, userAgent: ua });
+      if (isFormSubmit) return NextResponse.redirect(new URL("/login?error=1", request.url));
       return NextResponse.json({ error: "用户名或密码错误" }, { status: 401 });
     }
 
     const roles = user.userRoles.map((ur) => ur.role.code);
+    const token = await signToken({ userId: user.id, tenantId: user.tenantId, username: user.username, roles });
 
-    const token = await signToken({
-      userId: user.id,
-      tenantId: user.tenantId,
-      username: user.username,
-      roles,
-    });
+    await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+    await recordLogin({ tenantId: user.tenantId, userId: user.id, username: user.username, status: "SUCCESS", ipAddress: ip, userAgent: ua });
 
-    // 更新最后登录时间
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
+    // Form POST: 302 重定向到首页，同时 Set-Cookie
+    if (isFormSubmit) {
+      const response = NextResponse.redirect(new URL(redirectTo, request.url));
+      response.cookies.set("token", token, {
+        httpOnly: false,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 60 * 60 * 8,
+        path: "/",
+      });
+      return response;
+    }
 
-    await recordLogin({
-      tenantId: user.tenantId,
-      userId: user.id,
-      username: user.username,
-      status: "SUCCESS",
-      ipAddress: ip,
-      userAgent: ua,
-    });
-
+    // JSON fetch: 返回 token
     const response = NextResponse.json({
       token,
-      user: {
-        id: user.id,
-        username: user.username,
-        realName: user.realName,
-        email: user.email,
-        avatar: user.avatar,
-        mustChangePassword: user.mustChangePassword,
-        roles,
-      },
+      user: { id: user.id, username: user.username, realName: user.realName, email: user.email, avatar: user.avatar, mustChangePassword: user.mustChangePassword, roles },
     });
-
-    // Set cookie for page auth
-    // 注意: 当前仅 HTTP 部署，secure 必须为 false
-    // HTTPS 部署时改为: process.env.NODE_ENV === "production"
-    const cookieOpts = {
+    response.cookies.set("token", token, {
       httpOnly: false,
       secure: false,
-      sameSite: "lax" as const,
+      sameSite: "lax",
       maxAge: 60 * 60 * 8,
       path: "/",
-    };
-
-    // 同时设置 httpOnly 和 非httpOnly cookie，确保浏览器一定能读取
-    response.cookies.set("token", token, { ...cookieOpts, httpOnly: true });
-
+    });
     return response;
   } catch (error) {
     console.error("Login error:", error);

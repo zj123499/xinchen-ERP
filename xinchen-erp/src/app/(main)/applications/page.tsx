@@ -165,6 +165,7 @@ export default function ApplicationsPage() {
   }, []);
 
   const [intentions, setIntentions] = useState<any[]>([]);
+  const [selectedIntentionId, setSelectedIntentionId] = useState<number | null>(null);
 
   const selectStudent = (s: { id: number; name: string }) => {
     setSelectedStudent(s);
@@ -194,7 +195,7 @@ export default function ApplicationsPage() {
   const openCreate = () => {
     setEditingId(null);
     setForm({ studentId: "", contractId: "", institutionName: "", majorName: "", degree: "硕士", intakeYear: new Date().getFullYear() + 1, intakeMonth: 9, status: "PREPARING", remark: "" });
-    setSelectedStudent(null); setSelectedContract(null);
+    setSelectedStudent(null); setSelectedContract(null); setSelectedIntentionId(null);
     setStudentSearch("");
     setStudentResults([]);
     setContractResults([]);
@@ -209,7 +210,7 @@ export default function ApplicationsPage() {
       if (res.ok) {
         setEditingId(id);
         setForm({ studentId: String(data.studentId), contractId: String(data.contractId), institutionName: data.institutionName, majorName: data.majorName, degree: data.degree, intakeYear: data.intakeYear, intakeMonth: data.intakeMonth, status: data.status, remark: data.remark || "" });
-        setSelectedStudent(data.student); setSelectedContract(data.contract);
+        setSelectedStudent(data.student); setSelectedContract(data.contract); setSelectedIntentionId(null);
         setStudentSearch(data.student?.name || ""); setShowModal(true);
       }
     } catch (e) { console.error(e); }
@@ -379,13 +380,13 @@ export default function ApplicationsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">申请意向（点击快速填充）</label>
                   <div className="flex flex-wrap gap-1.5">
                     {intentions.map((it: any, idx: number) => (
-                      <button key={it.id} onClick={() => setForm(f => ({
+                      <button key={it.id} onClick={() => { setSelectedIntentionId(it.id); setForm(f => ({
                         ...f,
                         institutionName: it.institution || f.institutionName,
                         majorName: it.major || f.majorName,
                         degree: it.degree || f.degree,
-                      }))}
-                        className={`text-xs px-2 py-1 rounded border transition ${idx === 0 ? "border-blue-300 bg-blue-50 text-blue-700" : "border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-300"}`}
+                      })); }}
+                        className={`text-xs px-2 py-1 rounded border transition ${selectedIntentionId === it.id ? "border-blue-500 bg-blue-100 text-blue-800 ring-1 ring-blue-300" : "border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-300"}`}
                         title={`${it.country} · ${it.institution || "—"} · ${it.major || "—"}`}>
                         {it.country}{it.institution ? ` · ${it.institution}` : ""}
                       </button>
