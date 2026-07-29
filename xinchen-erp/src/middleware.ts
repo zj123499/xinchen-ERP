@@ -13,8 +13,21 @@ const PUBLIC_PATHS = [
   "/favicon.ico",
 ];
 
+function getBaseUrl(request: NextRequest): string {
+  const host = request.headers.get("host") || "";
+  const proto = request.headers.get("x-forwarded-proto") || "http";
+  if (host && !host.startsWith("0.0.0.0") && !host.startsWith("localhost")) {
+    return `${proto}://${host}`;
+  }
+  const fwdHost = request.headers.get("x-forwarded-host");
+  if (fwdHost) return `${proto}://${fwdHost}`;
+  // last resort: strip path from request.url
+  return request.url.replace(/\/[^/]*$/, "").replace(/\/api.*$/, "");
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const baseUrl = getBaseUrl(request);
 
   // 公开路径放行
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
@@ -49,7 +62,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/login", baseUrl);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -59,7 +72,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Token 已过期" }, { status: 401 });
     }
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/login", baseUrl);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }

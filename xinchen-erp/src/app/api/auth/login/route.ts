@@ -4,6 +4,19 @@ import { verifyPassword } from "@/lib/auth";
 import { signToken } from "@/lib/jwt";
 import { recordLogin } from "@/lib/operation-log";
 
+// 从请求中获取正确的 base URL（避免 0.0.0.0 问题）
+function getBaseUrl(request: NextRequest): string {
+  const host = request.headers.get("host") || "";
+  const proto = request.headers.get("x-forwarded-proto") || "http";
+  if (host && !host.startsWith("0.0.0.0") && !host.startsWith("localhost")) {
+    return `${proto}://${host}`;
+  }
+  // 回退：尝试从 x-forwarded-host 或 request.url 解析
+  const fwdHost = request.headers.get("x-forwarded-host");
+  if (fwdHost) return `${proto}://${fwdHost}`;
+  return request.url.replace(/\/api\/auth\/login.*$/, "");
+}
+
 export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get("content-type") || "";
@@ -11,6 +24,7 @@ export async function POST(request: NextRequest) {
     let password = "";
     let redirectTo = "/";
     let isFormSubmit = false;
+    const baseUrl = getBaseUrl(request);
 
     if (contentType.includes("application/json")) {
       const body = await request.json();
@@ -36,14 +50,14 @@ export async function POST(request: NextRequest) {
 
     if (!user || !user.isActive) {
       await recordLogin({ tenantId: FALLBACK_TENANT, username, status: "FAILED", reason: "用户不存在或已禁用", ipAddress: ip, userAgent: ua });
-      if (isFormSubmit) return NextResponse.redirect(new URL("/login?error=1", request.url));
+      if (isFormSubmit) return NextResponse.redirect(new URL("/login?error=1", baseUrl));
       return NextResponse.json({ error: "用户名或密码错误" }, { status: 401 });
     }
 
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
       await recordLogin({ tenantId: user.tenantId, userId: user.id, username, status: "FAILED", reason: "密码错误", ipAddress: ip, userAgent: ua });
-      if (isFormSubmit) return NextResponse.redirect(new URL("/login?error=1", request.url));
+      if (isFormSubmit) return NextResponse.redirect(new URL("/login?error=1", baseUrl));
       return NextResponse.json({ error: "用户名或密码错误" }, { status: 401 });
     }
 
@@ -55,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // Form POST: 302 重定向到首页，同时 Set-Cookie
     if (isFormSubmit) {
-      const response = NextResponse.redirect(new URL(redirectTo, request.url));
+      const response = NextResponse.redirect(new URL(redirectTo, baseUrl));
       response.cookies.set("token", token, {
         httpOnly: false,
         secure: false,
