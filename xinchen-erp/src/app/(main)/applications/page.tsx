@@ -58,9 +58,7 @@ export default function ApplicationsPage() {
   });
   const [studentSearch, setStudentSearch] = useState("");
   const [studentResults, setStudentResults] = useState<{ id: number; name: string; phone: string }[]>([]);
-  const [contractResults, setContractResults] = useState<{ id: number; contractNo: string }[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<{ id: number; name: string } | null>(null);
-  const [selectedContract, setSelectedContract] = useState<{ id: number; contractNo: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
@@ -156,14 +154,6 @@ export default function ApplicationsPage() {
     } catch (e) { console.error(e); }
   }, []);
 
-  const fetchContracts = useCallback(async (studentId: number) => {
-    try {
-      const res = await fetch(`/api/contracts?studentId=${studentId}&pageSize=50`);
-      const data = await res.json();
-      if (res.ok) setContractResults(data.list || []);
-    } catch (e) { console.error(e); }
-  }, []);
-
   const [intentions, setIntentions] = useState<any[]>([]);
   const [selectedIntentionId, setSelectedIntentionId] = useState<number | null>(null);
 
@@ -172,10 +162,11 @@ export default function ApplicationsPage() {
     setForm(f => ({ ...f, studentId: String(s.id) }));
     setStudentResults([]);
     setStudentSearch(s.name);
-    setContractResults([]);
-    setSelectedContract(null);
-    setForm(f => ({ ...f, contractId: "" }));
-    fetchContracts(s.id);
+    // 自动关联学生最新合同
+    fetch(`/api/contracts?studentId=${s.id}&pageSize=1`).then(r => r.json()).then(d => {
+      const ct = d.list?.[0];
+      if (ct) setForm(f => ({ ...f, contractId: String(ct.id) }));
+    }).catch(() => {});
     // 加载该学生的申请意向，自动预填院校/专业
     fetch(`/api/students/${s.id}/intentions`).then(r => r.json()).then(d => {
       const items = d.list || [];
@@ -195,10 +186,9 @@ export default function ApplicationsPage() {
   const openCreate = () => {
     setEditingId(null);
     setForm({ studentId: "", contractId: "", institutionName: "", majorName: "", degree: "硕士", intakeYear: new Date().getFullYear() + 1, intakeMonth: 9, status: "PREPARING", remark: "" });
-    setSelectedStudent(null); setSelectedContract(null); setSelectedIntentionId(null);
+    setSelectedStudent(null); setSelectedIntentionId(null);
     setStudentSearch("");
     setStudentResults([]);
-    setContractResults([]);
     setError(""); setShowModal(true);
   };
 
@@ -210,15 +200,15 @@ export default function ApplicationsPage() {
       if (res.ok) {
         setEditingId(id);
         setForm({ studentId: String(data.studentId), contractId: String(data.contractId), institutionName: data.institutionName, majorName: data.majorName, degree: data.degree, intakeYear: data.intakeYear, intakeMonth: data.intakeMonth, status: data.status, remark: data.remark || "" });
-        setSelectedStudent(data.student); setSelectedContract(data.contract); setSelectedIntentionId(null);
+        setSelectedStudent(data.student); setSelectedIntentionId(null);
         setStudentSearch(data.student?.name || ""); setShowModal(true);
       }
     } catch (e) { console.error(e); }
   };
 
   const handleSubmit = async () => {
-    if (!form.studentId || !form.contractId || !form.institutionName || !form.majorName) {
-      setError("学生、合同、院校和专业为必填项"); return;
+    if (!form.studentId || !form.institutionName || !form.majorName) {
+      setError("学生、院校和专业为必填项"); return;
     }
     setSubmitting(true); setError("");
     try {
@@ -262,22 +252,22 @@ export default function ApplicationsPage() {
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">院校</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">专业</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">学位/入学</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">合同</th>
+
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">关联</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">截止日期</th>
             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
           </tr></thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-400">加载中...</td></tr>
-            : list.length === 0 ? <tr><td colSpan={9} className="px-4 py-12 text-center text-gray-400">暂无数据</td></tr>
+            {loading ? <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-400">加载中...</td></tr>
+            : list.length === 0 ? <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-400">暂无数据</td></tr>
             : list.map(item => (<>
               <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.student.name}</td>
                 <td className="px-4 py-3 text-sm text-gray-700">{item.institutionName}</td>
                 <td className="px-4 py-3 text-sm text-gray-700">{item.majorName}</td>
                 <td className="px-4 py-3 text-sm text-gray-500">{item.degree} / {item.intakeYear}.{String(item.intakeMonth).padStart(2, "0")}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">{item.contract?.contractNo || "-"}</td>
+
                 <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[item.status]?.color || "bg-gray-100 text-gray-800"}`}>{STATUS_MAP[item.status]?.label || item.status}</span></td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2 text-xs">
@@ -309,7 +299,7 @@ export default function ApplicationsPage() {
               </tr>
               {expandedId === item.id && (
                 <tr key={`offer-${item.id}`} className="bg-gray-50">
-                  <td colSpan={9} className="px-4 py-2">
+                  <td colSpan={8} className="px-4 py-2">
                     <div className="text-xs font-medium text-gray-700 mb-2">Offer 列表（{expandedOffers.length}）</div>
                     {expandedOffers.length === 0 ? (
                       <p className="text-xs text-gray-400">暂无Offer，点右侧「+ Offer」新增</p>
@@ -394,13 +384,6 @@ export default function ApplicationsPage() {
                   </div>
                 </div>
               )}
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">合同 <span className="text-red-500">*</span></label>
-                {selectedContract ? (
-                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedContract.contractNo}</span><button onClick={() => { setSelectedContract(null); setForm(f => ({ ...f, contractId: "" })); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
-                ) : selectedStudent ? (
-                  <select value={form.contractId} onChange={e => { setForm(f => ({ ...f, contractId: e.target.value })); const o = contractResults.find(r => r.id === parseInt(e.target.value)); if (o) setSelectedContract(o); }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"><option value="">选择合同</option>{contractResults.map(o => (<option key={o.id} value={o.id}>{o.contractNo}</option>))}</select>
-                ) : (<p className="text-sm text-gray-400">请先选择学生</p>)}
-              </div>
               <div><label className="block text-sm font-medium text-gray-700 mb-1">院校 <span className="text-red-500">*</span></label><input type="text" value={form.institutionName} onChange={e => setForm(f => ({ ...f, institutionName: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="如：马来亚大学" /></div>
               <div><label className="block text-sm font-medium text-gray-700 mb-1">专业 <span className="text-red-500">*</span></label><input type="text" value={form.majorName} onChange={e => setForm(f => ({ ...f, majorName: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="如：计算机科学" /></div>
               <div className="grid grid-cols-3 gap-3">
