@@ -79,7 +79,13 @@ export const MENU_TREE: MenuNode[] = [
   {
     name: "营销管理", code: "marketing", icon: "marketing",
     children: [
-      { name: "站群管理", code: "sites", path: "/sites", icon: "sites" },
+      { name: "站群管理", code: "sites_mgmt", icon: "sites",
+        children: [
+          { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
+          { name: "公司模板", code: "company_templates", path: "/company-templates", icon: "template" },
+          { name: "服务器", code: "servers", path: "/servers", icon: "server" },
+        ],
+      },
       { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
       { name: "触点管理", code: "touchpoints", path: "/touchpoints", icon: "touchpoints" },
       { name: "归因结果", code: "attributions", path: "/attributions", icon: "attributions" },

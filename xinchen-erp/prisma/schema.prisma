@@ -230,6 +230,8 @@ model Tenant {
   partners            Partner[]
   partnerSchools      PartnerSchool[]
   sites               Site[]
+  companyTemplates    CompanyTemplate[]
+  servers             Server[]
   mediaAccounts       MediaAccount[]
   auditLogs           AuditLog[]
   businessLines       BusinessLine[]
@@ -1399,14 +1401,64 @@ model Site {
   domain            String   @db.VarChar(200)
   icpCompany        String?  @map("icp_company") @db.VarChar(200)
   legalRepresentative String? @map("legal_representative") @db.VarChar(50)
+  domainExpiresAt   DateTime? @map("domain_expires_at")
+  baiduAnalyticsAccount String? @map("baidu_analytics_account") @db.VarChar(200)
+  cloudAccount      String?  @map("cloud_account") @db.VarChar(200)
+  cloudAccountPassword String? @map("cloud_account_password") @db.VarChar(200)
+  cloudLoginPhone   String?  @map("cloud_login_phone") @db.VarChar(50)
+  baiduSearchResourceAccount String? @map("baidu_search_resource_account") @db.VarChar(200)
+  resolvedServerId  Int?     @map("resolved_server_id")
+  templateId        Int?     @map("template_id")
   status            String   @default("active") @db.VarChar(20)
   createdAt         DateTime @default(now()) @map("created_at")
 
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-  leads  Lead[]
+  tenant           Tenant           @relation(fields: [tenantId], references: [id])
+  resolvedServer   Server?          @relation("SiteServer", fields: [resolvedServerId], references: [id])
+  template         CompanyTemplate? @relation("SiteTemplate", fields: [templateId], references: [id])
+  leads            Lead[]
 
   @@index([tenantId])
+  @@index([templateId])
   @@map("sites")
+}
+
+model CompanyTemplate {
+  id                  Int      @id @default(autoincrement())
+  tenantId            Int      @map("tenant_id")
+  name                String   @db.VarChar(200)
+  cloudAccount        String?  @map("cloud_account") @db.VarChar(200)
+  cloudAccountPassword String? @map("cloud_account_password") @db.VarChar(200)
+  cloudLoginPhone     String?  @map("cloud_login_phone") @db.VarChar(50)
+  icpCompany          String?  @map("icp_company") @db.VarChar(200)
+  legalRepresentative String?  @map("legal_representative") @db.VarChar(50)
+  remark              String?  @db.Text
+  status              Boolean  @default(true)
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  tenant Tenant        @relation(fields: [tenantId], references: [id])
+  sites  Site[]        @relation("SiteTemplate")
+
+  @@index([tenantId])
+  @@map("company_templates")
+}
+
+model Server {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int      @map("tenant_id")
+  name        String   @db.VarChar(200)
+  address     String   @db.VarChar(100)
+  account     String?  @db.VarChar(100)
+  password    String?  @db.VarChar(100)
+  description String?  @db.Text
+  expiresAt   DateTime? @map("expires_at")
+  status      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  sites  Site[]  @relation("SiteServer")
+
+  @@index([tenantId])
+  @@map("servers")
 }
 
 model MediaAccount {

@@ -17,6 +17,10 @@ export async function GET(
 
   const site = await prisma.site.findFirst({
     where: { id: parseInt(id), tenantId },
+    include: {
+      resolvedServer: { select: { id: true, name: true, address: true } },
+      template: { select: { id: true, name: true } },
+    },
   });
 
   if (!site) return NextResponse.json({ error: "站点不存在" }, { status: 404 });
@@ -30,7 +34,9 @@ export async function PUT(
   const { tenantId } = getContext(request);
   const { id } = await params;
   const body = await request.json();
-  const { name, domain, status } = body;
+  const { name, domain, status, icpCompany, legalRepresentative, domainExpiresAt,
+    baiduAnalyticsAccount, cloudAccount, cloudAccountPassword, cloudLoginPhone,
+    baiduSearchResourceAccount, resolvedServerId, templateId } = body;
 
   const existing = await prisma.site.findFirst({
     where: { id: parseInt(id), tenantId },
@@ -38,9 +44,19 @@ export async function PUT(
   if (!existing) return NextResponse.json({ error: "站点不存在" }, { status: 404 });
 
   const updateData: any = {};
-  if (name) updateData.name = name;
-  if (domain) updateData.domain = domain;
-  if (status) updateData.status = status;
+  if (name !== undefined) updateData.name = name;
+  if (domain !== undefined) updateData.domain = domain;
+  if (status !== undefined) updateData.status = status;
+  if (icpCompany !== undefined) updateData.icpCompany = icpCompany || null;
+  if (legalRepresentative !== undefined) updateData.legalRepresentative = legalRepresentative || null;
+  if (domainExpiresAt !== undefined) updateData.domainExpiresAt = domainExpiresAt ? new Date(domainExpiresAt) : null;
+  if (baiduAnalyticsAccount !== undefined) updateData.baiduAnalyticsAccount = baiduAnalyticsAccount || null;
+  if (cloudAccount !== undefined) updateData.cloudAccount = cloudAccount || null;
+  if (cloudAccountPassword !== undefined) updateData.cloudAccountPassword = cloudAccountPassword || null;
+  if (cloudLoginPhone !== undefined) updateData.cloudLoginPhone = cloudLoginPhone || null;
+  if (baiduSearchResourceAccount !== undefined) updateData.baiduSearchResourceAccount = baiduSearchResourceAccount || null;
+  if (resolvedServerId !== undefined) updateData.resolvedServerId = resolvedServerId ? parseInt(resolvedServerId) : null;
+  if (templateId !== undefined) updateData.templateId = templateId ? parseInt(templateId) : null;
 
   const site = await prisma.site.update({
     where: { id: parseInt(id) },
