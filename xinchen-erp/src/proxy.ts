@@ -25,7 +25,7 @@ function getBaseUrl(request: NextRequest): string {
   return request.url.replace(/\/[^/]*$/, "").replace(/\/api.*$/, "");
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const baseUrl = getBaseUrl(request);
 
