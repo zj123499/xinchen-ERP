@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -40,7 +41,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const body = await request.json();
   const { groupName, dictKey, dictValue, sort, isEnabled } = body;
 

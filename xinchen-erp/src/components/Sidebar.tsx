@@ -67,6 +67,8 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   risk: <AlertTriangle className="w-5 h-5" />,
   ai: <Sparkles className="w-5 h-5" />,
   screen: <Monitor className="w-5 h-5" />,
+  template: <FileText className="w-5 h-5" />,
+  server: <Database className="w-5 h-5" />,
 };
 
 export default function Sidebar() {

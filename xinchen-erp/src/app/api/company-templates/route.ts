@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -9,7 +10,10 @@ function getContext(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "company_templates:view");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const list = await prisma.companyTemplate.findMany({
     where: { tenantId, status: true },
     orderBy: { createdAt: "desc" },
@@ -19,7 +23,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "company_templates:create");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const body = await request.json();
   const { name, cloudAccount, cloudAccountPassword, cloudLoginPhone, icpCompany, legalRepresentative, remark } = body;
   if (!name) return NextResponse.json({ error: "请填写模板名称" }, { status: 400 });

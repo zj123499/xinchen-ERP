@@ -164,30 +164,126 @@ async function main() {
 
   // 4. 创建权限
   const permData = [
+    // 线索
     { code: "leads:create", name: "创建线索", groupName: "线索" },
     { code: "leads:update", name: "编辑线索", groupName: "线索" },
     { code: "leads:delete", name: "删除线索", groupName: "线索" },
     { code: "leads:view", name: "查看线索", groupName: "线索" },
     { code: "leads:export", name: "导出线索", groupName: "线索" },
     { code: "leads:assign", name: "分配线索", groupName: "线索" },
+    // 学生
     { code: "students:create", name: "创建学生", groupName: "学生" },
     { code: "students:update", name: "编辑学生", groupName: "学生" },
     { code: "students:delete", name: "删除学生", groupName: "学生" },
     { code: "students:view", name: "查看学生", groupName: "学生" },
+    // 合同
     { code: "contracts:create", name: "创建合同", groupName: "合同" },
     { code: "contracts:update", name: "编辑合同", groupName: "合同" },
     { code: "contracts:approve", name: "审批合同", groupName: "合同" },
     { code: "contracts:view", name: "查看合同", groupName: "合同" },
+    // 财务
     { code: "payments:create", name: "创建收款", groupName: "财务" },
     { code: "payments:view", name: "查看收款", groupName: "财务" },
     { code: "payments:export", name: "导出财务", groupName: "财务" },
+    // 交付
     { code: "applications:create", name: "创建申请", groupName: "交付" },
     { code: "applications:update", name: "编辑申请", groupName: "交付" },
     { code: "applications:view", name: "查看申请", groupName: "交付" },
+    // 回访
     { code: "visits:create", name: "创建回访", groupName: "回访" },
     { code: "visits:view", name: "查看回访", groupName: "回访" },
+    { code: "visits:update", name: "编辑回访", groupName: "回访" },
+    { code: "visits:delete", name: "删除回访", groupName: "回访" },
+    // 系统
     { code: "settings:manage", name: "系统设置", groupName: "系统" },
     { code: "reports:view", name: "查看报表", groupName: "报表" },
+    // 站群管理
+    { code: "sites:view", name: "查看站点", groupName: "站群" },
+    { code: "sites:create", name: "创建站点", groupName: "站群" },
+    { code: "sites:update", name: "编辑站点", groupName: "站群" },
+    { code: "sites:delete", name: "删除站点", groupName: "站群" },
+    { code: "company_templates:view", name: "查看公司模板", groupName: "站群" },
+    { code: "company_templates:create", name: "创建公司模板", groupName: "站群" },
+    { code: "company_templates:update", name: "编辑公司模板", groupName: "站群" },
+    { code: "company_templates:delete", name: "删除公司模板", groupName: "站群" },
+    { code: "servers:view", name: "查看服务器", groupName: "站群" },
+    { code: "servers:create", name: "创建服务器", groupName: "站群" },
+    { code: "servers:update", name: "编辑服务器", groupName: "站群" },
+    { code: "servers:delete", name: "删除服务器", groupName: "站群" },
+    // 营销
+    { code: "media:view", name: "查看新媒体账号", groupName: "营销" },
+    { code: "media:create", name: "创建新媒体账号", groupName: "营销" },
+    { code: "media:update", name: "编辑新媒体账号", groupName: "营销" },
+    { code: "media:delete", name: "删除新媒体账号", groupName: "营销" },
+    { code: "touchpoints:view", name: "查看触点", groupName: "营销" },
+    { code: "touchpoints:create", name: "创建触点", groupName: "营销" },
+    { code: "touchpoints:update", name: "编辑触点", groupName: "营销" },
+    { code: "touchpoints:delete", name: "删除触点", groupName: "营销" },
+    // 产品资源
+    { code: "countries:view", name: "查看国家", groupName: "产品" },
+    { code: "countries:create", name: "创建国家", groupName: "产品" },
+    { code: "countries:update", name: "编辑国家", groupName: "产品" },
+    { code: "countries:delete", name: "删除国家", groupName: "产品" },
+    { code: "institutions:view", name: "查看院校", groupName: "产品" },
+    { code: "institutions:create", name: "创建院校", groupName: "产品" },
+    { code: "institutions:update", name: "编辑院校", groupName: "产品" },
+    { code: "institutions:delete", name: "删除院校", groupName: "产品" },
+    { code: "majors:view", name: "查看专业", groupName: "产品" },
+    { code: "majors:create", name: "创建专业", groupName: "产品" },
+    { code: "majors:update", name: "编辑专业", groupName: "产品" },
+    { code: "majors:delete", name: "删除专业", groupName: "产品" },
+    { code: "products:view", name: "查看产品", groupName: "产品" },
+    { code: "products:create", name: "创建产品", groupName: "产品" },
+    { code: "products:update", name: "编辑产品", groupName: "产品" },
+    { code: "products:delete", name: "删除产品", groupName: "产品" },
+    { code: "product_packages:view", name: "查看产品套餐", groupName: "产品" },
+    { code: "product_packages:create", name: "创建产品套餐", groupName: "产品" },
+    { code: "product_packages:update", name: "编辑产品套餐", groupName: "产品" },
+    { code: "product_packages:delete", name: "删除产品套餐", groupName: "产品" },
+    // 风险管理
+    { code: "risk:view", name: "查看风险", groupName: "风险" },
+    { code: "risk:manage", name: "管理风险规则", groupName: "风险" },
+    // AI 智能
+    { code: "ai:use", name: "使用AI功能", groupName: "AI" },
+    // 扩展业务
+    { code: "rental:view", name: "查看租房", groupName: "扩展" },
+    { code: "rental:manage", name: "管理租房", groupName: "扩展" },
+    { code: "overseas:view", name: "查看境外服务", groupName: "扩展" },
+    { code: "overseas:manage", name: "管理境外服务", groupName: "扩展" },
+    // 合作方
+    { code: "partners:view", name: "查看合作方", groupName: "合作方" },
+    { code: "partners:manage", name: "管理合作方", groupName: "合作方" },
+    // 回访计划
+    { code: "visit_plans:view", name: "查看回访计划", groupName: "回访" },
+    { code: "visit_plans:create", name: "创建回访计划", groupName: "回访" },
+    { code: "visit_plans:update", name: "编辑回访计划", groupName: "回访" },
+    { code: "visit_plans:delete", name: "删除回访计划", groupName: "回访" },
+    // 满意度
+    { code: "surveys:view", name: "查看满意度调查", groupName: "回访" },
+    { code: "surveys:create", name: "创建满意度调查", groupName: "回访" },
+    { code: "surveys:update", name: "编辑满意度调查", groupName: "回访" },
+    { code: "surveys:delete", name: "删除满意度调查", groupName: "回访" },
+    // 投诉
+    { code: "complaints:view", name: "查看投诉", groupName: "回访" },
+    { code: "complaints:create", name: "创建投诉", groupName: "回访" },
+    { code: "complaints:update", name: "编辑投诉", groupName: "回访" },
+    { code: "complaints:delete", name: "删除投诉", groupName: "回访" },
+    // 转介绍
+    { code: "referrals:view", name: "查看转介绍", groupName: "回访" },
+    { code: "referrals:create", name: "创建转介绍", groupName: "回访" },
+    { code: "referrals:update", name: "编辑转介绍", groupName: "回访" },
+    { code: "referrals:delete", name: "删除转介绍", groupName: "回访" },
+    // 线索流转
+    { code: "leadflow:view", name: "查看线索流转", groupName: "线索" },
+    // 跟进
+    { code: "followups:view", name: "查看跟进", groupName: "线索" },
+    { code: "followups:create", name: "创建跟进", groupName: "线索" },
+    { code: "followups:update", name: "编辑跟进", groupName: "线索" },
+    { code: "followups:delete", name: "删除跟进", groupName: "线索" },
+    // 线索申诉
+    { code: "lead_appeals:view", name: "查看申诉", groupName: "线索" },
+    { code: "lead_appeals:create", name: "创建申诉", groupName: "线索" },
+    { code: "lead_appeals:update", name: "编辑申诉", groupName: "线索" },
   ];
 
   const permMap = new Map<string, number>();
@@ -199,7 +295,7 @@ async function main() {
     });
     permMap.set(p.code, perm.id);
   }
-  console.log("✅ 权限: 24 项");
+  console.log(`✅ 权限: ${permData.length} 项`);
 
   // 5. 角色-菜单关联
   const allMenus = await prisma.menu.findMany();

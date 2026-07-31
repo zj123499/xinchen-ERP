@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -16,6 +17,9 @@ function getContext(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    const _denied = await requirePermission(request, "institutions:view");
+    if (_denied) return _denied;
+
   const { tenantId } = getContext(request);
   const { id } = await params;
   const institution = await prisma.institution.findFirst({
@@ -27,6 +31,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    const _denied = await requirePermission(request, "institutions:update");
+    if (_denied) return _denied;
+
   const { tenantId } = getContext(request);
   const { id } = await params;
   const body = await request.json();
@@ -51,6 +58,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    const _denied = await requirePermission(request, "institutions:delete");
+    if (_denied) return _denied;
+
   const { tenantId } = getContext(request);
   const { id } = await params;
   const existing = await prisma.institution.findFirst({ where: { id: parseInt(id), tenantId } });

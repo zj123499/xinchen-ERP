@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -9,7 +10,10 @@ function getContext(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "partners:view");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = Math.min(parseInt(searchParams.get("pageSize") || "20"), 100);
@@ -44,7 +48,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "partners:manage");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const body = await request.json();
   const {
     name, country, city, contactName, contactEmail,

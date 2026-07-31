@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 import { callAi } from "@/lib/ai-gateway";
 
 function getContext(request: NextRequest) {
@@ -36,7 +37,10 @@ function bestFaq(question: string, faqs: { dictKey: string; dictValue: string }[
 }
 
 export async function POST(request: NextRequest) {
-  const { userId, tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "ai:use");
+  if (_denied) return _denied;
+
+const { userId, tenantId } = getContext(request);
   const body = await request.json();
   const { studentId, question, context, messages, save } = body;
 

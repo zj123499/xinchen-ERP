@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 import { callAi } from "@/lib/ai-gateway";
 
 function getContext(request: NextRequest) {
@@ -29,7 +30,10 @@ async function fillBgFromStudent(studentId: number, tenantId: number) {
 }
 
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "ai:use");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const studentId = parseInt(request.nextUrl.searchParams.get("studentId") || "0");
   const list = await prisma.aiConversation.findMany({
     where: { tenantId, type: "WRITING", ...(studentId ? { studentId } : {}) },

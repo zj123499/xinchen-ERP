@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -9,7 +10,10 @@ function getContext(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "servers:view");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const list = await prisma.server.findMany({
     where: { tenantId, status: true },
     orderBy: { createdAt: "desc" },
@@ -19,7 +23,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "servers:create");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const body = await request.json();
   const { name, address, account, password, description, expiresAt } = body;
   if (!name || !address) return NextResponse.json({ error: "名称和地址为必填项" }, { status: 400 });

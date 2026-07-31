@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -18,7 +19,10 @@ const PARTNER_TYPE_MAP: Record<string, string> = {
 };
 
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "partners:view");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
   const type = searchParams.get("type") || "";
@@ -60,7 +64,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "partners:manage");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const body = await request.json();
   const {
     name, type, country, contactName, contactPhone,

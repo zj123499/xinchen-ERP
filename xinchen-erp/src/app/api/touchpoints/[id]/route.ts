@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return { tenantId: parseInt(request.headers.get("x-tenant-id") || "0") };
@@ -9,6 +10,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+    const _denied = await requirePermission(request, "touchpoints:view");
+    if (_denied) return _denied;
+
   const { tenantId } = getContext(request);
   const id = parseInt((await params).id);
   const touchpoint = await prisma.touchpoint.findFirst({
@@ -23,6 +27,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+    const _denied = await requirePermission(request, "touchpoints:update");
+    if (_denied) return _denied;
+
   const { tenantId } = getContext(request);
   const id = parseInt((await params).id);
   const body = await request.json().catch(() => ({}) as any);
@@ -48,6 +55,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+    const _denied = await requirePermission(request, "touchpoints:delete");
+    if (_denied) return _denied;
+
   const { tenantId } = getContext(request);
   const id = parseInt((await params).id);
   const existing = await prisma.touchpoint.findFirst({ where: { id, tenantId } });

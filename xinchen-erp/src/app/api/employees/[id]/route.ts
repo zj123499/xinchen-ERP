@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 import { hashPassword } from "@/lib/auth";
 import { resolveAccountUsername } from "@/lib/employee-account";
 
@@ -35,6 +36,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+    const _denied = await requirePermission(request, "settings:manage");
+    if (_denied) return _denied;
+
   const { tenantId, userId: operatorId } = getContext(request);
   const { id } = await params;
   const body = await request.json();

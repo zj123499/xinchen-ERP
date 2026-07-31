@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permission";
 
 function getContext(request: NextRequest) {
   return {
@@ -10,7 +11,10 @@ function getContext(request: NextRequest) {
 
 // GET /api/touchpoints  获客触点列表（分页 + 关键字）
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "touchpoints:view");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = Math.min(parseInt(searchParams.get("pageSize") || "10"), 100);
@@ -48,7 +52,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/touchpoints  新建获客触点
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+    const _denied = await requirePermission(request, "touchpoints:create");
+  if (_denied) return _denied;
+
+const { tenantId } = getContext(request);
   const body = await request.json().catch(() => ({}) as any);
   const { studentId, channel, source, medium, campaign, occurredAt, touchUrl, remark } = body;
 
