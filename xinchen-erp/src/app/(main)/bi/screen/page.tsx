@@ -300,8 +300,8 @@ export default function BigScreenPage() {
           <div className="bs-date">{now.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}</div>
         </div>
         <h1 className="bs-title">
-          <span className="bs-title-main">新辰留学 · 实时经营大屏</span>
-          <span className="bs-title-sub">XINCHEN ERP REAL-TIME DASHBOARD</span>
+          <span className="bs-title-main">Newill 新辰未来 · 实时经营大屏</span>
+          <span className="bs-title-sub">NEWILL ERP REAL-TIME DASHBOARD</span>
           {progress?.scope === "visible" && (
             <span style={{ fontSize: "12px", color: "#22d3ee", background: "rgba(34,211,238,.12)", borderRadius: "8px", padding: "2px 10px", marginTop: "6px", display: "inline-block" }}>
               按权限显示申请数据

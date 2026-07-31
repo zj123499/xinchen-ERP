@@ -152,15 +152,15 @@ export default function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-[240px] bg-gray-900 flex flex-col z-30">
-      <div className="h-14 flex items-center px-5 border-b border-gray-800">
-        <GraduationCap className="w-6 h-6 text-blue-500 mr-2" />
-        <span className="text-white font-bold text-lg">新辰ERP</span>
+      <div className="h-14 flex items-center px-4 border-b border-gray-800">
+        <img src="/logo.svg" alt="Newill" className="h-9 w-auto mr-2" />
+        <span className="text-white font-bold text-base">Newill</span>
       </div>
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
         {(menus ?? []).map((item) => renderItem(item))}
       </nav>
       <div className="p-3 border-t border-gray-800">
-        <div className="text-xs text-gray-500 text-center">新辰留学 v1.0.0</div>
+        <div className="text-xs text-gray-500 text-center">Newill 新辰未来 v1.0.0</div>
       </div>
     </aside>
   );
