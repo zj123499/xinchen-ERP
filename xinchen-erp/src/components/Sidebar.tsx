@@ -131,8 +131,8 @@ export default function Sidebar() {
       return (
         <div key={item.code}>
           <button onClick={() => toggleExpand(item.code)}
-            className="w-full flex items-center px-3 py-2 text-sm text-slate-400 hover:text-white hover:bg-white/[0.04] transition rounded-lg">
-            <span className="mr-2.5 opacity-60">{ICON_MAP[item.icon]}</span>
+            className="w-full flex items-center px-3 py-2.5 text-[15px] text-slate-300 hover:text-white hover:bg-white/[0.06] transition rounded-lg">
+            <span className="mr-2.5 opacity-70">{ICON_MAP[item.icon]}</span>
             <span className="flex-1 text-left font-medium">{item.name}</span>
             {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
           </button>
@@ -149,13 +149,13 @@ export default function Sidebar() {
       <Link key={item.code} href={item.path || "#"}
         className={`flex items-center py-2 text-sm rounded-lg transition ${
           isActive
-            ? "bg-indigo-600/20 text-indigo-300 font-semibold"
+            ? "bg-indigo-600/25 text-indigo-200 font-semibold"
             : depth > 0
-              ? "text-slate-500 hover:text-slate-200 hover:bg-white/[0.03] px-3"
-              : "text-slate-400 hover:text-white hover:bg-white/[0.04] px-3"
-        } ${depth > 0 ? "pl-8" : ""}`}>
-        {depth === 0 && <span className="mr-2.5 opacity-60">{ICON_MAP[item.icon]}</span>}
-        <span className={depth > 0 ? "text-xs" : ""}>{item.name}</span>
+              ? "text-slate-400 hover:text-slate-100 hover:bg-white/[0.04] px-3"
+              : "text-slate-300 hover:text-white hover:bg-white/[0.06] px-3"
+        } ${depth > 0 ? "pl-8 text-[13px]" : "text-[15px]"}`}>
+        {depth === 0 && <span className="mr-2.5 opacity-70">{ICON_MAP[item.icon]}</span>}
+        <span>{item.name}</span>
       </Link>
     );
   }
@@ -163,11 +163,11 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-screen w-[240px] bg-slate-900 flex flex-col z-30">
       <div className="h-14 flex items-center px-5 border-b border-white/[0.06]">
-        <span className="text-white font-bold text-base tracking-tight">新辰未来</span>
+        <span className="text-white font-bold text-lg tracking-tight">新辰未来</span>
       </div>
       {department && department !== "管理" && (
         <div className="px-4 py-2 bg-white/[0.03] border-b border-white/[0.05]">
-          <span className="text-xs text-indigo-400 font-medium">{department}</span>
+          <span className="text-[13px] text-indigo-300 font-medium">{department}</span>
         </div>
       )}
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
