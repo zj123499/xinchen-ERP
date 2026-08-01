@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import {
   Search, Plus, ChevronLeft, ChevronRight, RefreshCw, Upload, FileText, X,
   Building2, Phone, Mail, Globe, MoreHorizontal, Trash2, User,
@@ -35,7 +34,6 @@ const TYPE_COLORS = [
 ];
 
 export default function PartnersPage() {
-  const router = useRouter();
   const [data, setData] = useState<PaginatedResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");

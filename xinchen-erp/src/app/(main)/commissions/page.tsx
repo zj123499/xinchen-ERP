@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import {
   Search, Plus, ChevronLeft, ChevronRight, RefreshCw,
   DollarSign, User, Calendar, MoreHorizontal, Trash2, Filter,
@@ -62,7 +61,6 @@ const MILESTONE_MAP: Record<string, string> = {
 };
 
 export default function CommissionsPage() {
-  const router = useRouter();
   const [data, setData] = useState<PaginatedResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");

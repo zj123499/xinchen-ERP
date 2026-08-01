@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import {
   Search, Plus, ChevronLeft, ChevronRight, RefreshCw, RotateCw, Shield,
   User, Phone, Mail, Calendar, MoreHorizontal, Trash2, Key, UserPlus,
@@ -42,7 +41,6 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 
 export default function EmployeesPage() {
   const genders = useDict("gender", GENDER_FALLBACK);
-  const router = useRouter();
   const [data, setData] = useState<PaginatedResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");

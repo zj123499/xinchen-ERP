@@ -250,30 +250,4 @@ export function getMenuTreeByRoles(roles: string[]): { tree: MenuNode[]; departm
   return { tree: MENU_TREE, department: "未知", isManagement: true };
 }
 
-/** 递归展开所有节点（含父级） */
-export function flattenMenus(nodes: MenuNode[] = MENU_TREE): MenuNode[] {
-  const out: MenuNode[] = [];
-  for (const n of nodes) {
-    out.push(n);
-    if (n.children?.length) out.push(...flattenMenus(n.children));
-  }
-  return out;
-}
 
-/**
- * 根据可见 code 集合过滤菜单树。
- * - 叶子节点：自身 code 在集合内即显示
- * - 父节点：任一子节点可见即显示（仅保留可见子节点）
- */
-export function filterMenusByCodes(codes: Set<string>, nodes: MenuNode[] = MENU_TREE): MenuNode[] {
-  const result: MenuNode[] = [];
-  for (const n of nodes) {
-    if (n.children?.length) {
-      const kids = filterMenusByCodes(codes, n.children);
-      if (kids.length) result.push({ ...n, children: kids });
-    } else if (codes.has(n.code)) {
-      result.push(n);
-    }
-  }
-  return result;
-}
