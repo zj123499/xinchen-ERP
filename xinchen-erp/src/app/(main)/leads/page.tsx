@@ -174,7 +174,7 @@ export default function LeadsPage() {
       })
       .catch(() => {});
     // 加载顾问列表（自动按角色 isAssignable 过滤，管理员在角色管理中设置）
-    fetch("/api/advisors?roleCode=academic_advisor")
+    fetch("/api/advisors")
       .then((r) => r.json())
       .then((d) => setAdvisors(d.list || []))
       .catch(() => {});
