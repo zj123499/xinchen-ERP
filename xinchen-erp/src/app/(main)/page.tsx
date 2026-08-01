@@ -59,8 +59,8 @@ function formatCompact(amount: number | undefined | null) {
 function BarChart({ data, color = "blue", height = 120 }: { data: { label: string; value: number }[]; color?: string; height?: number }) {
   const maxVal = Math.max(...data.map((d) => d.value), 1);
   const colorMap: Record<string, string> = {
-    blue: "bg-blue-500", green: "bg-green-500", purple: "bg-purple-500",
-    orange: "bg-orange-500", cyan: "bg-cyan-500", indigo: "bg-indigo-500", rose: "bg-rose-500",
+    blue: "bg-indigo-500", green: "bg-emerald-500", purple: "bg-violet-500",
+    orange: "bg-amber-500", cyan: "bg-sky-500", indigo: "bg-indigo-600", rose: "bg-rose-500",
   };
   if (data.length === 0) return <div className="flex items-center justify-center text-gray-400 text-sm" style={{ height }}>暂无数据</div>;
   return (
@@ -102,14 +102,14 @@ function ProgressBar({ label, value, total, color }: { label: string; value: num
 // 数字卡片
 function StatCard({ label, value, icon: Icon, color, sub }: { label: string; value: string; icon: any; color: string; sub?: string }) {
   const colorMap: Record<string, string> = {
-    blue: "bg-blue-50 text-blue-600", orange: "bg-orange-50 text-orange-600",
+    blue: "bg-indigo-50 text-indigo-600", orange: "bg-orange-50 text-orange-600",
     green: "bg-green-50 text-green-600", purple: "bg-purple-50 text-purple-600",
     pink: "bg-pink-50 text-pink-600", indigo: "bg-indigo-50 text-indigo-600",
     cyan: "bg-cyan-50 text-cyan-600", amber: "bg-amber-50 text-amber-600",
     rose: "bg-rose-50 text-rose-600", emerald: "bg-emerald-50 text-emerald-600",
   };
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition">
+    <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-indigo-200 hover:shadow-[0_4px_20px_rgba(79,70,229,0.05)] transition">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-gray-500">{label}</p>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900 mb-6">工作台</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-200 p-5 animate-pulse">
+            <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 animate-pulse">
               <div className="flex items-center justify-between">
                 <div className="space-y-2 flex-1">
                   <div className="h-4 bg-gray-200 rounded w-24" />
@@ -275,7 +275,7 @@ export default function DashboardPage() {
       </div>
 
       {/* 数据总览 */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">数据总览</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {overviewStats.map((stat) => {
@@ -296,7 +296,7 @@ export default function DashboardPage() {
       {/* 财务概览 */}
       {hasFinance ? (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">本月财务</h2>
           <div className="space-y-3">
             <div className="flex justify-between items-center pb-3 border-b border-gray-100">
@@ -318,7 +318,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">本年财务</h2>
           <div className="space-y-3">
             <div className="flex justify-between items-center pb-3 border-b border-gray-100">
@@ -342,7 +342,7 @@ export default function DashboardPage() {
         </div>
       </div>
       ) : (
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 text-center">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 text-center">
         <p className="text-sm text-gray-400">无财务数据权限，如需查看请联系管理员</p>
       </div>
       )}
@@ -350,7 +350,7 @@ export default function DashboardPage() {
       {/* 线索分析 */}
       {hasLeads && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">线索来源分布</h3>
           <div className="space-y-3">
             {leadsBySource.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -360,7 +360,7 @@ export default function DashboardPage() {
             }
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">线索状态分布</h3>
           <div className="space-y-3">
             {leadsByStatus.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -370,7 +370,7 @@ export default function DashboardPage() {
             }
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">{(data.permissions?.leads && !(data.scope === "all")) ? "线索状态分布" : "员工线索 TOP10"}</h3>
           <div className="space-y-3">
             {leadsByAssignee.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -386,13 +386,13 @@ export default function DashboardPage() {
       {/* 收款 & 合同趋势 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {hasFinance && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">本年月度收款趋势</h3>
           <BarChart data={paymentsByMonth} color="purple" height={150} />
         </div>
         )}
         {hasContracts && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">本年合同签约趋势</h3>
           <BarChart data={contractsByMonth.map((c) => ({ label: c.month, value: c.count }))} color="green" height={150} />
         </div>
@@ -403,7 +403,7 @@ export default function DashboardPage() {
       {(hasFinance || hasContracts) && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {hasFinance && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">收款类型分布（本年）</h3>
           <div className="space-y-3">
             {paymentsByType.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -416,7 +416,7 @@ export default function DashboardPage() {
         </div>
         )}
         {hasContracts && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">合同业务线分布（本年）</h3>
           <div className="space-y-3">
             {contractsByBusinessLine.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -434,7 +434,7 @@ export default function DashboardPage() {
       {/* 学生分析 */}
       {hasStudents && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">学生目标国家分布</h3>
           <div className="space-y-3">
             {studentsByCountry.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -444,7 +444,7 @@ export default function DashboardPage() {
             }
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">学生目标学位分布</h3>
           <div className="space-y-3">
             {studentsByDegree.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -461,7 +461,7 @@ export default function DashboardPage() {
       {(hasApplications || hasFinance) && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {hasApplications && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">申请院校 TOP10</h3>
           <div className="space-y-3">
             {applicationsByInstitution.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -473,7 +473,7 @@ export default function DashboardPage() {
         </div>
         )}
         {hasFinance && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">佣金状态分布</h3>
           <div className="space-y-3">
             {commissionsByStatus.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
@@ -492,7 +492,7 @@ export default function DashboardPage() {
       {(hasLeads || hasFinance) && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {hasLeads && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">最近线索</h3>
           {recentLeads.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
             <div className="space-y-3">
@@ -504,7 +504,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-400">{lead.assignee}</span>
-                    <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">{lead.status}</span>
+                    <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded">{lead.status}</span>
                   </div>
                 </div>
               ))}
@@ -513,7 +513,7 @@ export default function DashboardPage() {
         </div>
         )}
         {hasFinance && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h3 className="text-md font-semibold text-gray-900 mb-4">最近收款</h3>
           {recentPayments.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
             <div className="space-y-3">

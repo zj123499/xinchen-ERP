@@ -112,7 +112,7 @@ export default function InstitutionsPage() {
               {data.map((i) => <tr key={i.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium text-gray-900">{i.name}</td>
                 <td className="px-4 py-3 text-gray-600">{i.country?.name}</td>
-                <td className="px-4 py-3"><span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">{TYPE_LABELS[i.type] || i.type}</span></td>
+                <td className="px-4 py-3"><span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">{TYPE_LABELS[i.type] || i.type}</span></td>
                 <td className="px-4 py-3 text-gray-600">{i.ranking ?? "-"}</td>
                 <td className="px-4 py-3 text-gray-600">{i.tuitionRange || "-"}</td>
                 <td className="px-4 py-3 text-gray-600">{i._count.majors}</td>

@@ -235,7 +235,7 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
               {selectedValues.map((v) => {
                 const opt = options.find((o) => o.value === v);
                 return (
-                  <span key={v} className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                  <span key={v} className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded-full">
                     {opt?.label || String(v)}
                     <button
                       type="button"

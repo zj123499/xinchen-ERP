@@ -410,7 +410,7 @@ export default function EmployeesPage() {
                       {emp.roles && emp.roles.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {emp.roles.map((r) => (
-                            <span key={r.id} className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">{r.name}</span>
+                            <span key={r.id} className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">{r.name}</span>
                           ))}
                         </div>
                       ) : (

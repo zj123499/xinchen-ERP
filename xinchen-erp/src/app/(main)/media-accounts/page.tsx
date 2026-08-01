@@ -386,7 +386,7 @@ export default function MediaAccountsPage() {
               </div>
               <div className="relative">
                 <button onClick={() => setShowFilter(!showFilter)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition ${platformFilter ? "border-blue-300 bg-blue-50 text-blue-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition ${platformFilter ? "border-blue-300 bg-indigo-50 text-indigo-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
                   <Filter className="w-4 h-4" /> 平台 {platformFilter && <span className="w-2 h-2 rounded-full bg-blue-500" />}
                 </button>
                 {showFilter && (
@@ -394,10 +394,10 @@ export default function MediaAccountsPage() {
                     <div className="text-xs font-medium text-gray-500 mb-2">选择平台</div>
                     <div className="space-y-1">
                       <button onClick={() => { setPlatformFilter(""); setPage(1); setShowFilter(false); }}
-                        className={`w-full text-left px-2 py-1 text-sm rounded ${!platformFilter ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
+                        className={`w-full text-left px-2 py-1 text-sm rounded ${!platformFilter ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
                       {PLATFORMS.map(k => (
                         <button key={k} onClick={() => { setPlatformFilter(k); setPage(1); setShowFilter(false); }}
-                          className={`w-full text-left px-2 py-1 text-sm rounded ${platformFilter === k ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>{PLATFORM_MAP[k]}</button>
+                          className={`w-full text-left px-2 py-1 text-sm rounded ${platformFilter === k ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>{PLATFORM_MAP[k]}</button>
                       ))}
                     </div>
                   </div>

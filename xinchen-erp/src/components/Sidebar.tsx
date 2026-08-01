@@ -122,7 +122,7 @@ export default function Sidebar() {
     });
   }
 
-  function renderItem(item: MenuNode) {
+  function renderItem(item: MenuNode, depth = 0) {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expanded.has(item.code);
     const isActive = item.path === pathname;
@@ -131,14 +131,14 @@ export default function Sidebar() {
       return (
         <div key={item.code}>
           <button onClick={() => toggleExpand(item.code)}
-            className="w-full flex items-center px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition rounded-lg">
-            <span className="mr-3">{ICON_MAP[item.icon]}</span>
-            <span className="flex-1 text-left">{item.name}</span>
-            {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            className="w-full flex items-center px-3 py-2 text-sm text-slate-400 hover:text-white hover:bg-white/[0.04] transition rounded-lg">
+            <span className="mr-2.5 opacity-60">{ICON_MAP[item.icon]}</span>
+            <span className="flex-1 text-left font-medium">{item.name}</span>
+            {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
           </button>
           {isExpanded && (
-            <div className="ml-4 mt-1 space-y-1">
-              {item.children!.map((child) => renderItem(child))}
+            <div className="ml-2 mt-0.5 space-y-0.5">
+              {item.children!.map((child) => renderItem(child, depth + 1))}
             </div>
           )}
         </div>
@@ -147,21 +147,27 @@ export default function Sidebar() {
 
     return (
       <Link key={item.code} href={item.path || "#"}
-        className={`flex items-center px-4 py-2.5 text-sm rounded-lg transition ${isActive ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-white/10 hover:text-white"}`}>
-        <span className="mr-3">{ICON_MAP[item.icon]}</span>
-        {item.name}
+        className={`flex items-center py-2 text-sm rounded-lg transition ${
+          isActive
+            ? "bg-indigo-600/20 text-indigo-300 font-semibold"
+            : depth > 0
+              ? "text-slate-500 hover:text-slate-200 hover:bg-white/[0.03] px-3"
+              : "text-slate-400 hover:text-white hover:bg-white/[0.04] px-3"
+        } ${depth > 0 ? "pl-8" : ""}`}>
+        {depth === 0 && <span className="mr-2.5 opacity-60">{ICON_MAP[item.icon]}</span>}
+        <span className={depth > 0 ? "text-xs" : ""}>{item.name}</span>
       </Link>
     );
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-[240px] bg-gray-900 flex flex-col z-30">
-      <div className="h-14 flex items-center px-5 border-b border-gray-800">
-        <span className="text-white font-bold text-base">新辰未来</span>
+    <aside className="fixed left-0 top-0 h-screen w-[240px] bg-slate-900 flex flex-col z-30">
+      <div className="h-14 flex items-center px-5 border-b border-white/[0.06]">
+        <span className="text-white font-bold text-base tracking-tight">新辰未来</span>
       </div>
       {department && department !== "管理" && (
-        <div className="px-4 py-2 bg-gray-800 border-b border-gray-700">
-          <span className="text-xs text-blue-400 font-medium">{department}</span>
+        <div className="px-4 py-2 bg-white/[0.03] border-b border-white/[0.05]">
+          <span className="text-xs text-indigo-400 font-medium">{department}</span>
         </div>
       )}
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">

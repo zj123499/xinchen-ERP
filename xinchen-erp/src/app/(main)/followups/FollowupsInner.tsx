@@ -233,7 +233,7 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
                 <td className="px-5 py-3.5">
                   {activeForm === "pending" && (
                     <select onChange={e => { if (e.target.value) changeStatus(lead, e.target.value); }} value=""
-                      className="text-xs px-2.5 py-1.5 rounded-lg border-2 border-blue-200 bg-blue-50 text-blue-700 font-medium outline-none cursor-pointer hover:border-blue-400 transition">
+                      className="text-xs px-2.5 py-1.5 rounded-lg border-2 border-blue-200 bg-indigo-50 text-indigo-700 font-medium outline-none cursor-pointer hover:border-blue-400 transition">
                       <option value="">待跟进</option>
                       <option value="CONTACTED">有意向</option>
                       <option value="DEAD">无意向</option>

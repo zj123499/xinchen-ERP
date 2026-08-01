@@ -227,7 +227,7 @@ export default function RentalPage() {
           </div>
           <div className="relative">
             <button onClick={() => setShowFilter(!showFilter)}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition ${statusFilter ? "border-blue-300 bg-blue-50 text-blue-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition ${statusFilter ? "border-blue-300 bg-indigo-50 text-indigo-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
               <Filter className="w-4 h-4" /> 状态 {statusFilter && <span className="w-2 h-2 rounded-full bg-blue-500" />}
             </button>
             {showFilter && (
@@ -235,10 +235,10 @@ export default function RentalPage() {
                 <div className="text-xs font-medium text-gray-500 mb-2">租房状态</div>
                 <div className="space-y-1">
                   <button onClick={() => { setStatusFilter(""); setPage(1); setShowFilter(false); }}
-                    className={`w-full text-left px-2 py-1 text-sm rounded ${!statusFilter ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
+                    className={`w-full text-left px-2 py-1 text-sm rounded ${!statusFilter ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
                   {Object.entries(STATUS_MAP).map(([k, v]) => (
                     <button key={k} onClick={() => { setStatusFilter(k); setPage(1); setShowFilter(false); }}
-                      className={`w-full text-left px-2 py-1 text-sm rounded ${statusFilter === k ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>{v}</button>
+                      className={`w-full text-left px-2 py-1 text-sm rounded ${statusFilter === k ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>{v}</button>
                   ))}
                 </div>
               </div>

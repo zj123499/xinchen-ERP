@@ -603,7 +603,7 @@ export default function RolesPage() {
                                 </span>
                               )}
                               {!sortMode && (
-                                <input type="checkbox" className="w-4 h-4 accent-purple-600" checked={allChecked} onChange={() => (isLeaf ? toggleMenu(tm.id) : setMenuGroup(childIds, !allChecked))} />
+                                <input type="checkbox" className="w-4 h-4 accent-indigo-600" checked={allChecked} onChange={() => (isLeaf ? toggleMenu(tm.id) : setMenuGroup(childIds, !allChecked))} />
                               )}
                               {tm.name}
                               {!isLeaf && <span className="text-xs text-gray-400">（{childIds.length} 项）</span>}
@@ -619,7 +619,7 @@ export default function RolesPage() {
                                       <button onClick={(e) => { e.preventDefault(); moveMenu(cm.id, 1); }} className="w-4 h-4 flex items-center justify-center rounded bg-white border border-gray-300 hover:bg-gray-100 text-xs">↓</button>
                                     </span>
                                   ) : (
-                                    <input type="checkbox" className="w-3.5 h-3.5 accent-purple-600" checked={checkedMenus.has(cm.id)} onChange={() => toggleMenu(cm.id)} />
+                                    <input type="checkbox" className="w-3.5 h-3.5 accent-indigo-600" checked={checkedMenus.has(cm.id)} onChange={() => toggleMenu(cm.id)} />
                                   )}
                                   {cm.name}
                                 </label>
@@ -664,7 +664,7 @@ export default function RolesPage() {
                                 <label key={p.id} className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded">
                                   <input
                                     type="checkbox"
-                                    className="w-3.5 h-3.5 accent-purple-600"
+                                    className="w-3.5 h-3.5 accent-indigo-600"
                                     checked={checkedPerms.has(p.id)}
                                     onChange={() => togglePerm(p.id)}
                                   />
@@ -684,7 +684,7 @@ export default function RolesPage() {
                                     <label key={p.id} className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded">
                                       <input
                                         type="checkbox"
-                                        className="w-3.5 h-3.5 accent-purple-600"
+                                        className="w-3.5 h-3.5 accent-indigo-600"
                                         checked={checkedPerms.has(p.id)}
                                         onChange={() => togglePerm(p.id)}
                                       />
@@ -708,7 +708,7 @@ export default function RolesPage() {
                                       <label key={p.id} className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer hover:bg-white px-2 py-1 rounded">
                                         <input
                                           type="checkbox"
-                                          className="w-3 h-3 accent-purple-600"
+                                          className="w-3 h-3 accent-indigo-600"
                                           checked={checkedPerms.has(p.id)}
                                           onChange={() => togglePerm(p.id)}
                                         />

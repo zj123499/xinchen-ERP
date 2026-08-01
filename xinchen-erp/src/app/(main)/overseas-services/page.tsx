@@ -228,7 +228,7 @@ export default function OverseasServicesPage() {
           </div>
           <div className="relative">
             <button onClick={() => setShowFilter(!showFilter)}
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition ${(typeFilter || statusFilter) ? "border-blue-300 bg-blue-50 text-blue-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition ${(typeFilter || statusFilter) ? "border-blue-300 bg-indigo-50 text-indigo-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
               <Filter className="w-4 h-4" /> 筛选 {(typeFilter || statusFilter) && <span className="w-2 h-2 rounded-full bg-blue-500" />}
             </button>
             {showFilter && (
@@ -236,19 +236,19 @@ export default function OverseasServicesPage() {
                 <div className="text-xs font-medium text-gray-500 mb-2">服务类型</div>
                 <div className="space-y-1 mb-3">
                   <button onClick={() => { setTypeFilter(""); setPage(1); }}
-                    className={`w-full text-left px-2 py-1 text-sm rounded ${!typeFilter ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
+                    className={`w-full text-left px-2 py-1 text-sm rounded ${!typeFilter ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
                   {serviceTypes.map(t => (
                     <button key={t.dictKey} onClick={() => { setTypeFilter(t.dictKey); setPage(1); }}
-                      className={`w-full text-left px-2 py-1 text-sm rounded ${typeFilter === t.dictKey ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>{t.dictValue}</button>
+                      className={`w-full text-left px-2 py-1 text-sm rounded ${typeFilter === t.dictKey ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>{t.dictValue}</button>
                   ))}
                 </div>
                 <div className="text-xs font-medium text-gray-500 mb-2">状态</div>
                 <div className="space-y-1">
                   <button onClick={() => { setStatusFilter(""); setPage(1); }}
-                    className={`w-full text-left px-2 py-1 text-sm rounded ${!statusFilter ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
+                    className={`w-full text-left px-2 py-1 text-sm rounded ${!statusFilter ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
                   {Object.entries(STATUS_MAP).map(([k, v]) => (
                     <button key={k} onClick={() => { setStatusFilter(k); setPage(1); }}
-                      className={`w-full text-left px-2 py-1 text-sm rounded ${statusFilter === k ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-50"}`}>{v}</button>
+                      className={`w-full text-left px-2 py-1 text-sm rounded ${statusFilter === k ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>{v}</button>
                   ))}
                 </div>
               </div>

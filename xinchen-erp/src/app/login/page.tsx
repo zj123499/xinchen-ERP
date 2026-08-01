@@ -6,6 +6,8 @@ import { KeyRound } from "lucide-react";
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [needChangePwd, setNeedChangePwd] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -13,58 +15,95 @@ export default function LoginPage() {
   const [chgError, setChgError] = useState("");
   const [chgLoading, setChgLoading] = useState(false);
 
-  const redirectTo = typeof window !== "undefined" ? (new URLSearchParams(window.location.search).get("redirect") || "/") : "/";
-  const loginError = typeof window !== "undefined" ? (new URLSearchParams(window.location.search).get("error") === "1" ? "用户名或密码错误" : "") : "";
-
-  async function handleChangePwd(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setChgError("");
-    if (newPassword.length < 6) { setChgError("新密码至少 6 位"); return; }
-    if (newPassword !== confirmPwd) { setChgError("两次输入的新密码不一致"); return; }
-    setChgLoading(true);
+    setError(""); setLoading(true);
     try {
-      const res = await fetch("/api/auth/change-password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ oldPassword, newPassword }) });
-      if (!res.ok) { const data = await res.json(); setChgError(data.error || "修改失败"); return; }
-      window.location.href = "/";
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ username, password, redirect: "/" }),
+      });
+      if (!res.ok) {
+        const ct = res.headers.get("content-type") || "";
+        if (ct.includes("json")) {
+          const d = await res.json();
+          setError(d.error || "登录失败");
+        } else {
+          setError("用户名或密码错误");
+        }
+        return;
+      }
+      // 表单 POST 返回 302 重定向，浏览器直接跟随
+      const html = await res.text();
+      if (html.includes("mustChangePassword")) {
+        setOldPassword(password);
+        setNeedChangePwd(true);
+        return;
+      }
+      // 如果走到这里，说明已经是 JSON 模式
+      // 表单模式不会走到这里，浏览器已自动重定向
+    } catch {
+      setError("网络错误，请重试");
+    } finally { setLoading(false); }
+  }
+
+  async function changePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword !== confirmPwd) { setChgError("两次密码不一致"); return; }
+    if (newPassword.length < 6) { setChgError("密码至少6位"); return; }
+    setChgLoading(true); setChgError("");
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, oldPassword, newPassword }),
+      });
+      if (!res.ok) { const d = await res.json(); setChgError(d.error || "修改失败"); return; }
+      const data = await res.json();
+      document.cookie = "token=" + data.token + "; path=/";
+      setTimeout(() => { window.location.href = "/"; }, 50);
     } catch { setChgError("网络错误"); }
     finally { setChgLoading(false); }
   }
 
-  if (needChangePwd) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-800">
-        <div className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
-          <div className="flex flex-col items-center mb-6">
-            <div className="w-16 h-16 bg-amber-500 rounded-xl flex items-center justify-center mb-4"><KeyRound className="w-8 h-8 text-white" /></div>
-            <h1 className="text-xl font-bold text-gray-900">请修改登录密码</h1>
-          </div>
-          <form onSubmit={handleChangePwd} className="space-y-4">
-            {chgError && <div className="bg-red-50 text-red-600 px-4 py-2.5 rounded-lg text-sm">{chgError}</div>}
-            <div><label className="block text-sm font-medium text-gray-700 mb-1.5">新密码</label><input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required /></div>
-            <div><label className="block text-sm font-medium text-gray-700 mb-1.5">确认新密码</label><input type="password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} className="w-full px-4 py-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required /></div>
-            <button type="submit" disabled={chgLoading} className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50">{chgLoading ? "提交中..." : "确认修改并登录"}</button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-800">
-      <div className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mb-4"><KeyRound className="w-8 h-8 text-white" /></div>
-          <h1 className="text-2xl font-bold text-gray-900">新辰未来</h1>
-          <p className="text-gray-500 mt-1">留学业务管理系统</p>
-        </div>
-        {/* 传统 HTML form POST，浏览器原生处理 302+Set-Cookie */}
-        <form method="POST" action="/api/auth/login" className="space-y-5">
-          {loginError && <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">{loginError}</div>}
-          <input type="hidden" name="redirect" value={redirectTo} />
-          <div><label className="block text-sm font-medium text-gray-700 mb-1.5">手机号 / 用户名</label><input type="text" name="username" value={username} onChange={e => setUsername(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="请输入手机号或用户名" required /></div>
-          <div><label className="block text-sm font-medium text-gray-700 mb-1.5">密码</label><input type="password" name="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="请输入密码" required /></div>
-          <button type="submit" className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700">登 录</button>
-        </form>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden">
+      {/* 装饰光晕 */}
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-100/50 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-sky-100/40 blur-3xl pointer-events-none" />
+
+      <div className="bg-white/90 backdrop-blur-md border border-black/5 rounded-2xl px-10 py-11 w-full max-w-[420px] relative z-10 shadow-[0_1px_2px_rgba(0,0,0,0.02),0_8px_32px_rgba(79,70,229,0.04)]">
+        {needChangePwd ? (
+          <form onSubmit={changePassword}>
+            <div className="flex flex-col items-center mb-8">
+              <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-[0_4px_16px_rgba(79,70,229,0.2)]">
+                <KeyRound className="w-7 h-7 text-white" />
+              </div>
+              <h1 className="text-xl font-bold text-slate-900">修改密码</h1>
+              <p className="text-slate-500 text-sm mt-1">首次登录需修改默认密码</p>
+            </div>
+            {chgError && <div className="bg-red-50 text-red-600 text-sm px-4 py-2 rounded-lg mb-4">{chgError}</div>}
+            <div className="mb-4"><label className="block text-xs font-semibold text-slate-700 mb-1.5">原密码</label><input type="password" value={oldPassword} readOnly className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-sm outline-none focus:border-indigo-400 focus:bg-white focus:ring-[3px] focus:ring-indigo-50 transition" /></div>
+            <div className="mb-4"><label className="block text-xs font-semibold text-slate-700 mb-1.5">新密码</label><input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-sm outline-none focus:border-indigo-400 focus:bg-white focus:ring-[3px] focus:ring-indigo-50 transition" placeholder="至少6位" /></div>
+            <div className="mb-6"><label className="block text-xs font-semibold text-slate-700 mb-1.5">确认密码</label><input type="password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-sm outline-none focus:border-indigo-400 focus:bg-white focus:ring-[3px] focus:ring-indigo-50 transition" /></div>
+            <button type="submit" disabled={chgLoading} className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold text-sm tracking-wider hover:bg-indigo-700 transition shadow-[0_2px_8px_rgba(79,70,229,0.18)] disabled:opacity-50">{chgLoading ? "修改中..." : "修改并登录"}</button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col items-center mb-8">
+              <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-[0_4px_16px_rgba(79,70,229,0.2)]">
+                <KeyRound className="w-7 h-7 text-white" />
+              </div>
+              <h1 className="text-xl font-bold text-slate-900">新辰未来</h1>
+              <p className="text-slate-400 text-xs mt-1 tracking-widest">企业管理系统</p>
+            </div>
+            {error && <div className="bg-red-50 text-red-600 text-sm px-4 py-2 rounded-lg mb-4">{error}</div>}
+            <div className="mb-4"><label className="block text-xs font-semibold text-slate-700 mb-1.5">用户名</label><input type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-sm outline-none focus:border-indigo-400 focus:bg-white focus:ring-[3px] focus:ring-indigo-50 transition" placeholder="手机号 / 用户名" /></div>
+            <div className="mb-6"><label className="block text-xs font-semibold text-slate-700 mb-1.5">密码</label><input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-sm outline-none focus:border-indigo-400 focus:bg-white focus:ring-[3px] focus:ring-indigo-50 transition" placeholder="输入密码" /></div>
+            <button type="submit" disabled={loading} className="w-full py-3 bg-indigo-600 text-white rounded-xl font-semibold text-sm tracking-widest hover:bg-indigo-700 transition shadow-[0_2px_8px_rgba(79,70,229,0.18)] disabled:opacity-50">{loading ? "登录中..." : "登 录 系 统"}</button>
+          </form>
+        )}
       </div>
     </div>
   );
