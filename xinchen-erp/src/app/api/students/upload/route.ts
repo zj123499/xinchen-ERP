@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
     const result = await storage.save({
       buffer, originalName: file.name, mimeType: file.type,
       businessType: "student_material", businessId: String(studentId), category,
+      businessName: student.name || "",
     });
 
     if (!result.success) throw new Error(result.error || "存储失败");

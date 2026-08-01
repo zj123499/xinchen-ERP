@@ -22,6 +22,7 @@ export interface UploadParams {
   mimeType: string;
   businessType: string;  // 如 student_material / partner_contract
   businessId: string;     // 如学生ID / 合作方ID
+  businessName?: string;  // 如学生姓名 / 合作方名称，用于文件夹命名
   category?: string;      // 子分类，如 文书 / 申请材料
 }
 
@@ -53,7 +54,10 @@ class LocalStorage implements StorageBackend {
     const timestamp = Date.now();
     const safeName = params.originalName.replace(/[^a-zA-Z0-9._\-\u4e00-\u9fff]/g, "_");
     const catDir = params.category || "other";
-    const dirPath = path.join(this.basePath, params.businessType, params.businessId, catDir);
+    const bizFolder = params.businessName
+      ? `${params.businessId}_${params.businessName.replace(/[\/\\:*?"<>|]/g, "_")}`
+      : params.businessId;
+    const dirPath = path.join(this.basePath, params.businessType, bizFolder, catDir);
     const fileName = `${timestamp}_${safeName}`;
     const fullPath = path.join(dirPath, fileName);
 
@@ -93,7 +97,10 @@ class NextcloudStorage implements StorageBackend {
     const timestamp = Date.now();
     const safeName = params.originalName.replace(/[^a-zA-Z0-9._\-\u4e00-\u9fff]/g, "_");
     const catDir = params.category || "other";
-    const remotePath = `erp/${params.businessType}/${params.businessId}/${catDir}`;
+    const bizFolder = params.businessName
+      ? `${params.businessId}_${params.businessName.replace(/[\/\\:*?"<>|]/g, "_")}`
+      : params.businessId;
+    const remotePath = `erp/${params.businessType}/${bizFolder}/${catDir}`;
     const remoteFile = `${remotePath}/${timestamp}_${safeName}`;
 
     try {

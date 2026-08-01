@@ -35,8 +35,9 @@ export async function POST(request: NextRequest) {
     if (!contractIdStr) return NextResponse.json({ error: "缺少合同ID" }, { status: 400 });
 
     const contractId = parseInt(contractIdStr);
-    const contract = await prisma.contract.findFirst({ where: { id: contractId, tenantId } });
+    const contract = await prisma.contract.findFirst({ where: { id: contractId, tenantId }, include: { partner: { select: { name: true } }, student: { select: { name: true } } } });
     if (!contract) return NextResponse.json({ error: "合同不存在" }, { status: 404 });
+    const bizName = contract.partner?.name || contract.student?.name || "";
     if (!ALLOWED_TYPES.includes(file.type)) return NextResponse.json({ error: `不支持的文件类型: ${file.type}` }, { status: 400 });
     if (file.size > MAX_SIZE) return NextResponse.json({ error: "文件超过 20MB 限制" }, { status: 400 });
 
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
       mimeType: file.type,
       businessType: "contract_file",
       businessId: String(contractId),
+      businessName: bizName,
     });
 
     if (!result.success) throw new Error(result.error || "存储失败");

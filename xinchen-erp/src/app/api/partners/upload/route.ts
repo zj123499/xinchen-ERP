@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       mimeType: file.type,
       businessType: "partner_contract",
       businessId: String(partnerId),
+      businessName: partner.name || "",
     });
 
     if (!result.success) throw new Error(result.error || "存储失败");
