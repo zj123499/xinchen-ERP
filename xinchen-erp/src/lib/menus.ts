@@ -1,8 +1,7 @@
 /**
- * 全局菜单树 + 角色-部门映射
+ * 全局菜单树 + 角色-部门映射 + 权限映射
  *
- * - MENU_TREE: 全量菜单（与部门架构.docx 完全一致）
- * - ROLE_DEPARTMENT_MAP: 角色→部门（用于 WorkRecord 归属，不影响菜单可见性）
+ * - 同一功能表单不按部门重复挂载，升为共享一级菜单
  * - 菜单可见性 100% 由 admin 在「角色权限→菜单配置」中设置
  */
 
@@ -15,7 +14,7 @@ export interface MenuNode {
 }
 
 // ============================================
-// 角色 → 部门映射（仅用于业绩记录 WorkRecord）
+// 角色 → 部门映射（仅用于 WorkRecord）
 // ============================================
 export const ROLE_DEPARTMENT_MAP: Record<string, { dept: string; isManagement: boolean }> = {
   admin:                 { dept: "管理", isManagement: true },
@@ -32,25 +31,18 @@ export const ROLE_DEPARTMENT_MAP: Record<string, { dept: string; isManagement: b
 };
 
 // ============================================
-// 全量菜单树（与 部门架构.docx 一致）
+// 全量菜单树
 // ============================================
 export const MENU_TREE: MenuNode[] = [
   { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
 
-  // === 新媒体部 ===
-  {
-    name: "新媒体部", code: "dept_newmedia", icon: "media",
-    children: [
-      { name: "线索管理", code: "leads_newmedia", path: "/leads", icon: "leads" },
-      { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
-    ],
-  },
+  // === 共享一级：线索录入 ===
+  { name: "线索录入", code: "leads", path: "/leads", icon: "leads" },
 
-  // === 市场部 ===
+  // === 共享一级：客户管理 ===
   {
-    name: "市场部", code: "dept_marketing", icon: "marketing",
+    name: "客户管理", code: "customer_mgmt", icon: "customer",
     children: [
-      { name: "线索管理", code: "leads_marketing", path: "/leads", icon: "leads" },
       { name: "待跟进", code: "followup_pending", path: "/followups/pending", icon: "followup" },
       { name: "意向客户", code: "followup_interested", path: "/followups/interested", icon: "followup" },
       { name: "已签约客户", code: "followup_signed", path: "/followups/signed", icon: "followup" },
@@ -58,34 +50,9 @@ export const MENU_TREE: MenuNode[] = [
     ],
   },
 
-  // === 网络部 ===
+  // === 共享一级：线索管理（原客户管理） ===
   {
-    name: "网络部", code: "dept_network", icon: "sites",
-    children: [
-      { name: "线索管理", code: "leads_network", path: "/leads", icon: "leads" },
-      { name: "站群管理", code: "sites_mgmt", icon: "sites", children: [
-        { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
-        { name: "公司模版", code: "company_templates", path: "/company-templates", icon: "template" },
-        { name: "服务器", code: "servers", path: "/servers", icon: "server" },
-      ]},
-    ],
-  },
-
-  // === 咨询部 ===
-  {
-    name: "咨询部", code: "dept_consulting", icon: "leads",
-    children: [
-      { name: "线索管理", code: "leads_consulting", path: "/leads", icon: "leads" },
-      { name: "待跟进", code: "consulting_pending", path: "/followups/pending", icon: "followup" },
-      { name: "意向客户", code: "consulting_interested", path: "/followups/interested", icon: "followup" },
-      { name: "已签约客户", code: "consulting_signed", path: "/followups/signed", icon: "followup" },
-      { name: "无意向客户", code: "consulting_uninterested", path: "/followups/uninterested", icon: "followup" },
-    ],
-  },
-
-  // === 客户管理（独立一级菜单） ===
-  {
-    name: "客户管理", code: "customer_mgmt", icon: "customer",
+    name: "线索管理", code: "lead_mgmt", icon: "leadFlow",
     children: [
       { name: "线索流转", code: "leadflow", path: "/lead-flow", icon: "leadFlow" },
       { name: "回访记录", code: "visit_records", path: "/visit-records", icon: "visits" },
@@ -95,7 +62,27 @@ export const MENU_TREE: MenuNode[] = [
     ],
   },
 
-  // === 文书部 ===
+  // === 部门专属：新媒体部 ===
+  {
+    name: "新媒体部", code: "dept_newmedia", icon: "media",
+    children: [
+      { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
+    ],
+  },
+
+  // === 部门专属：网络部 ===
+  {
+    name: "网络部", code: "dept_network", icon: "sites",
+    children: [
+      { name: "站群管理", code: "sites_mgmt", icon: "sites", children: [
+        { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
+        { name: "公司模版", code: "company_templates", path: "/company-templates", icon: "template" },
+        { name: "服务器", code: "servers", path: "/servers", icon: "server" },
+      ]},
+    ],
+  },
+
+  // === 部门专属：文书部 ===
   {
     name: "文书部", code: "dept_document", icon: "applications",
     children: [
@@ -105,16 +92,7 @@ export const MENU_TREE: MenuNode[] = [
     ],
   },
 
-  // === 合作方管理 ===
-  {
-    name: "合作方管理", code: "partners_mgmt", icon: "partners",
-    children: [
-      { name: "合作院校", code: "partner_schools", path: "/partner-schools", icon: "partners" },
-      { name: "合作方", code: "partners", path: "/partners", icon: "partners" },
-    ],
-  },
-
-  // === 财务部 ===
+  // === 部门专属：财务部 ===
   {
     name: "财务部", code: "dept_finance", icon: "payments",
     children: [
@@ -134,10 +112,15 @@ export const MENU_TREE: MenuNode[] = [
     ],
   },
 
-  // === 合同管理 ===
+  // === 共享一级 ===
   { name: "合同管理", code: "contracts", path: "/contracts", icon: "contracts" },
-
-  // === 扩展业务 ===
+  {
+    name: "合作方管理", code: "partners_mgmt", icon: "partners",
+    children: [
+      { name: "合作院校", code: "partner_schools", path: "/partner-schools", icon: "partners" },
+      { name: "合作方", code: "partners", path: "/partners", icon: "partners" },
+    ],
+  },
   {
     name: "扩展业务", code: "extended", icon: "rental",
     children: [
@@ -145,8 +128,6 @@ export const MENU_TREE: MenuNode[] = [
       { name: "境外服务", code: "overseas", path: "/overseas-services", icon: "overseas" },
     ],
   },
-
-  // === 产品资源 ===
   {
     name: "产品资源", code: "product", icon: "product",
     children: [
@@ -157,8 +138,6 @@ export const MENU_TREE: MenuNode[] = [
       { name: "产品套餐", code: "product_packages", path: "/product/packages", icon: "product" },
     ],
   },
-
-  // === 风险管理 ===
   {
     name: "风险管理", code: "risk", icon: "risk",
     children: [
@@ -166,11 +145,7 @@ export const MENU_TREE: MenuNode[] = [
       { name: "风险规则", code: "risk_rules", path: "/risk/rules", icon: "risk" },
     ],
   },
-
-  // === 数据大屏 ===
   { name: "数据大屏", code: "bi_screen", path: "/bi/screen", icon: "screen" },
-
-  // === 系统设置 ===
   {
     name: "系统设置", code: "settings", icon: "settings",
     children: [
@@ -187,41 +162,30 @@ export const MENU_TREE: MenuNode[] = [
   },
 ];
 
-/**
- * 根据可见 code 数组过滤并排序菜单树。
- * codes 的顺序即排序依据（位置越小越靠前）。
- */
 // ============================================
-// 菜单 → 权限映射（权限管理按菜单层级展示）
+// 菜单 → 权限映射
 // ============================================
 export const MENU_PERMISSION_MAP: Record<string, string[]> = {
   dashboard: ["dashboard:leads", "dashboard:contracts", "dashboard:finance", "dashboard:students", "dashboard:applications", "dashboard:visits"],
-  // 新媒体部
-  leads_newmedia:     ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
-  media:              ["media:view", "media:create", "media:update", "media:delete"],
-  // 市场部
-  leads_marketing:    ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
+  // 线索录入
+  leads:              ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
+  // 客户管理
   followup_pending:   ["leads:view", "leads:update"],
   followup_interested:["leads:view", "leads:update"],
   followup_signed:    ["leads:view", "contracts:view"],
   followup_uninterested: ["leads:view", "leads:update"],
-  // 网络部
-  leads_network:      ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
-  sites:              ["sites:view", "sites:create", "sites:update", "sites:delete"],
-  company_templates:  ["company_templates:view", "company_templates:create", "company_templates:update", "company_templates:delete"],
-  servers:            ["servers:view", "servers:create", "servers:update", "servers:delete"],
-  // 咨询部
-  leads_consulting:   ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
-  consulting_pending: ["leads:view", "leads:update"],
-  consulting_interested: ["leads:view", "leads:update"],
-  consulting_signed:  ["leads:view", "contracts:view"],
-  consulting_uninterested: ["leads:view", "leads:update"],
-  // 客户管理
+  // 线索管理
   leadflow:           ["leadflow:view"],
   visit_records:      ["visits:view", "visits:create", "visits:update", "visits:delete"],
   visit_plans:        ["visit_plans:view", "visit_plans:create", "visit_plans:update", "visit_plans:delete"],
   touchpoints:        ["touchpoints:view", "touchpoints:create", "touchpoints:update", "touchpoints:delete"],
   attributions:       ["leads:view"],
+  // 新媒体部
+  media:              ["media:view", "media:create", "media:update", "media:delete"],
+  // 网络部
+  sites:              ["sites:view", "sites:create", "sites:update", "sites:delete"],
+  company_templates:  ["company_templates:view", "company_templates:create", "company_templates:update", "company_templates:delete"],
+  servers:            ["servers:view", "servers:create", "servers:update", "servers:delete"],
   // 文书部
   students:           ["students:view", "students:create", "students:update", "students:delete"],
   applications:       ["applications:view", "applications:create", "applications:update"],
@@ -243,7 +207,7 @@ export const MENU_PERMISSION_MAP: Record<string, string[]> = {
   reimbursements:     ["payments:view"],
   channel_roi:        ["reports:view"],
   profit_reports:     ["reports:view"],
-  // 合同管理
+  // 合同
   contracts:          ["contracts:view", "contracts:create", "contracts:update", "contracts:approve"],
   // 扩展
   rental:             ["rental:view", "rental:manage"],
@@ -289,7 +253,6 @@ export function filterMenusByCodes(codes: string[], nodes: MenuNode[] = MENU_TRE
         result.push(n);
       }
     }
-    // 按 code 在 codes 数组中的位置排序
     result.sort((a, b) => {
       const aIdx = codeOrder.get(a.code) ?? 9999;
       const bIdx = codeOrder.get(b.code) ?? 9999;

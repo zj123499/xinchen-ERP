@@ -87,39 +87,73 @@ async function main() {
 
   console.log("✅ 角色: admin/sales/delivery/finance/manager");
 
-  // 3. 创建菜单
+  // 3. 创建菜单（与 MENU_TREE 一致）
   const menuData = [
-    { code: "dashboard", name: "工作台", path: "/", icon: "BarChart3", sort: 1, type: "menu" },
-    { code: "sales", name: "销售管理", path: null, icon: "Users", sort: 2, type: "menu" },
-    { code: "sales_leads", name: "线索管理", path: "/leads", icon: null, sort: 1, type: "menu", parentCode: "sales" },
-    { code: "sales_students", name: "学生档案", path: "/students", icon: null, sort: 2, type: "menu", parentCode: "sales" },
-    { code: "sales_followups", name: "跟进记录", path: "/followups", icon: null, sort: 3, type: "menu", parentCode: "sales" },
-    { code: "contracts", name: "合同订单", path: null, icon: "FileText", sort: 3, type: "menu" },
-    { code: "contracts_list", name: "合同管理", path: "/contracts", icon: null, sort: 1, type: "menu", parentCode: "contracts" },
-    { code: "orders_list", name: "订单管理", path: "/orders", icon: null, sort: 2, type: "menu", parentCode: "contracts" },
-    { code: "delivery", name: "交付管理", path: null, icon: "ClipboardCheck", sort: 4, type: "menu" },
-    { code: "delivery_apps", name: "申请管理", path: "/applications", icon: null, sort: 1, type: "menu", parentCode: "delivery" },
-    { code: "delivery_offers", name: "Offer管理", path: "/offers", icon: null, sort: 2, type: "menu", parentCode: "delivery" },
-    { code: "delivery_visas", name: "签证管理", path: "/visas", icon: null, sort: 3, type: "menu", parentCode: "delivery" },
-    { code: "visits", name: "客户回访", path: "/visits", icon: "PhoneCall", sort: 5, type: "menu" },
-    { code: "finance", name: "财务管理", path: null, icon: "DollarSign", sort: 6, type: "menu" },
-    { code: "finance_payments", name: "收款管理", path: "/payments", icon: null, sort: 1, type: "menu", parentCode: "finance" },
-    { code: "finance_costs", name: "成本管理", path: "/costs", icon: null, sort: 2, type: "menu", parentCode: "finance" },
-    { code: "finance_commissions", name: "提成管理", path: "/commissions", icon: null, sort: 3, type: "menu", parentCode: "finance" },
-    { code: "finance_salaries", name: "薪资管理", path: "/salaries", icon: null, sort: 4, type: "menu", parentCode: "finance" },
-    { code: "finance_reimbursements", name: "报销管理", path: "/reimbursements", icon: null, sort: 5, type: "menu", parentCode: "finance" },
-    { code: "extended", name: "扩展业务", path: null, icon: "Home", sort: 7, type: "menu" },
-    { code: "extended_rental", name: "租房管理", path: "/rental", icon: null, sort: 1, type: "menu", parentCode: "extended" },
-    { code: "extended_overseas", name: "境外服务", path: "/overseas", icon: null, sort: 2, type: "menu", parentCode: "extended" },
-    { code: "extended_partners", name: "合作方", path: "/partners", icon: null, sort: 3, type: "menu", parentCode: "extended" },
-    { code: "marketing", name: "营销管理", path: null, icon: "Share2", sort: 8, type: "menu" },
-    { code: "marketing_sites", name: "站群管理", path: "/sites", icon: null, sort: 1, type: "menu", parentCode: "marketing" },
-    { code: "marketing_media", name: "新媒体账号", path: "/media", icon: null, sort: 2, type: "menu", parentCode: "marketing" },
-    { code: "settings", name: "系统设置", path: null, icon: "Settings", sort: 99, type: "menu" },
-    { code: "settings_org", name: "组织架构", path: "/settings/org", icon: null, sort: 1, type: "menu", parentCode: "settings" },
-    { code: "settings_roles", name: "角色权限", path: "/settings/roles", icon: null, sort: 2, type: "menu", parentCode: "settings" },
-    { code: "settings_dicts", name: "数据字典", path: "/settings/dicts", icon: null, sort: 3, type: "menu", parentCode: "settings" },
-    { code: "settings_configs", name: "系统配置", path: "/settings/configs", icon: null, sort: 4, type: "menu", parentCode: "settings" },
+    { code: "dashboard", name: "工作台", path: "/", sort: 1 },
+    { code: "leads", name: "线索录入", path: "/leads", sort: 2 },
+    { code: "customer_mgmt", name: "客户管理", path: null, sort: 3 },
+    { code: "followup_pending", name: "待跟进", path: "/followups/pending", sort: 1, parentCode: "customer_mgmt" },
+    { code: "followup_interested", name: "意向客户", path: "/followups/interested", sort: 2, parentCode: "customer_mgmt" },
+    { code: "followup_signed", name: "已签约客户", path: "/followups/signed", sort: 3, parentCode: "customer_mgmt" },
+    { code: "followup_uninterested", name: "无意向客户", path: "/followups/uninterested", sort: 4, parentCode: "customer_mgmt" },
+    { code: "lead_mgmt", name: "线索管理", path: null, sort: 4 },
+    { code: "leadflow", name: "线索流转", path: "/lead-flow", sort: 1, parentCode: "lead_mgmt" },
+    { code: "visit_records", name: "回访记录", path: "/visit-records", sort: 2, parentCode: "lead_mgmt" },
+    { code: "visit_plans", name: "回访计划", path: "/visit-plans", sort: 3, parentCode: "lead_mgmt" },
+    { code: "touchpoints", name: "触点管理", path: "/touchpoints", sort: 4, parentCode: "lead_mgmt" },
+    { code: "attributions", name: "归因结果", path: "/attributions", sort: 5, parentCode: "lead_mgmt" },
+    { code: "dept_newmedia", name: "新媒体部", path: null, sort: 5 },
+    { code: "media", name: "新媒体账号", path: "/media-accounts", sort: 1, parentCode: "dept_newmedia" },
+    { code: "dept_network", name: "网络部", path: null, sort: 6 },
+    { code: "sites_mgmt", name: "站群管理", path: null, sort: 1, parentCode: "dept_network" },
+    { code: "sites", name: "站点列表", path: "/sites", sort: 1, parentCode: "sites_mgmt" },
+    { code: "company_templates", name: "公司模版", path: "/company-templates", sort: 2, parentCode: "sites_mgmt" },
+    { code: "servers", name: "服务器", path: "/servers", sort: 3, parentCode: "sites_mgmt" },
+    { code: "dept_document", name: "文书部", path: null, sort: 7 },
+    { code: "students", name: "学生档案", path: "/students", sort: 1, parentCode: "dept_document" },
+    { code: "applications", name: "申请管理", path: "/applications", sort: 2, parentCode: "dept_document" },
+    { code: "visas", name: "签证管理", path: "/visas", sort: 3, parentCode: "dept_document" },
+    { code: "partners_mgmt", name: "合作方管理", path: null, sort: 8 },
+    { code: "partner_schools", name: "合作院校", path: "/partner-schools", sort: 1, parentCode: "partners_mgmt" },
+    { code: "partners", name: "合作方", path: "/partners", sort: 2, parentCode: "partners_mgmt" },
+    { code: "dept_finance", name: "财务部", path: null, sort: 9 },
+    { code: "payments", name: "收款管理", path: "/payments", sort: 1, parentCode: "dept_finance" },
+    { code: "incomes", name: "收入确认", path: "/incomes", sort: 2, parentCode: "dept_finance" },
+    { code: "receivables", name: "应收账款", path: "/receivables", sort: 3, parentCode: "dept_finance" },
+    { code: "payables", name: "应付账款", path: "/payables", sort: 4, parentCode: "dept_finance" },
+    { code: "invoices", name: "发票管理", path: "/invoices", sort: 5, parentCode: "dept_finance" },
+    { code: "refunds", name: "退费管理", path: "/refunds", sort: 6, parentCode: "dept_finance" },
+    { code: "costs", name: "成本管理", path: "/costs", sort: 7, parentCode: "dept_finance" },
+    { code: "commissions", name: "提成管理", path: "/commissions", sort: 8, parentCode: "dept_finance" },
+    { code: "commission_rules", name: "提成规则", path: "/commission-rules", sort: 9, parentCode: "dept_finance" },
+    { code: "salaries", name: "薪资管理", path: "/salaries", sort: 10, parentCode: "dept_finance" },
+    { code: "reimbursements", name: "报销管理", path: "/reimbursements", sort: 11, parentCode: "dept_finance" },
+    { code: "channel_roi", name: "渠道ROI", path: "/channel-roi", sort: 12, parentCode: "dept_finance" },
+    { code: "profit_reports", name: "利润报表", path: "/profit-reports", sort: 13, parentCode: "dept_finance" },
+    { code: "contracts", name: "合同管理", path: "/contracts", sort: 10 },
+    { code: "extended", name: "扩展业务", path: null, sort: 11 },
+    { code: "rental", name: "租房管理", path: "/rental", sort: 1, parentCode: "extended" },
+    { code: "overseas", name: "境外服务", path: "/overseas-services", sort: 2, parentCode: "extended" },
+    { code: "product", name: "产品资源", path: null, sort: 12 },
+    { code: "countries", name: "国家管理", path: "/product/countries", sort: 1, parentCode: "product" },
+    { code: "institutions", name: "院校管理", path: "/product/institutions", sort: 2, parentCode: "product" },
+    { code: "majors", name: "专业管理", path: "/product/majors", sort: 3, parentCode: "product" },
+    { code: "products", name: "产品管理", path: "/product/products", sort: 4, parentCode: "product" },
+    { code: "product_packages", name: "产品套餐", path: "/product/packages", sort: 5, parentCode: "product" },
+    { code: "risk", name: "风险管理", path: null, sort: 13 },
+    { code: "risk_dashboard", name: "风险看板", path: "/risk/dashboard", sort: 1, parentCode: "risk" },
+    { code: "risk_rules", name: "风险规则", path: "/risk/rules", sort: 2, parentCode: "risk" },
+    { code: "bi_screen", name: "数据大屏", path: "/bi/screen", sort: 14 },
+    { code: "settings", name: "系统设置", path: null, sort: 99 },
+    { code: "employees", name: "员工信息", path: "/employees", sort: 1, parentCode: "settings" },
+    { code: "organization", name: "组织架构", path: "/settings/org", sort: 2, parentCode: "settings" },
+    { code: "roles", name: "角色权限", path: "/settings/roles", sort: 3, parentCode: "settings" },
+    { code: "dingtalk", name: "钉钉集成", path: "/settings/dingtalk", sort: 4, parentCode: "settings" },
+    { code: "dicts", name: "数据字典", path: "/settings/dicts", sort: 5, parentCode: "settings" },
+    { code: "configs", name: "系统配置", path: "/settings/configs", sort: 6, parentCode: "settings" },
+    { code: "audit", name: "审计日志", path: "/audit-logs", sort: 7, parentCode: "settings" },
+    { code: "operation-logs", name: "操作日志", path: "/settings/operation-logs", sort: 8, parentCode: "settings" },
+    { code: "login-logs", name: "登录日志", path: "/settings/login-logs", sort: 9, parentCode: "settings" },
   ];
 
   const menuMap = new Map<string, number>();
@@ -128,15 +162,8 @@ async function main() {
     if (!m.parentCode) {
       const menu = await prisma.menu.upsert({
         where: { code: m.code },
-        update: {},
-        create: {
-          name: m.name,
-          code: m.code,
-          path: m.path,
-          icon: m.icon,
-          sort: m.sort,
-          type: m.type,
-        },
+        update: { name: m.name, path: m.path || null, sort: m.sort },
+        create: { name: m.name, code: m.code, path: m.path || null, sort: m.sort, icon: "", type: "menu" },
       });
       menuMap.set(m.code, menu.id);
     }
@@ -144,23 +171,18 @@ async function main() {
 
   for (const m of menuData) {
     if (m.parentCode) {
-      await prisma.menu.upsert({
-        where: { code: m.code },
-        update: {},
-        create: {
-          parentId: menuMap.get(m.parentCode)!,
-          name: m.name,
-          code: m.code,
-          path: m.path,
-          icon: m.icon,
-          sort: m.sort,
-          type: m.type,
-        },
-      });
+      const parentId = menuMap.get(m.parentCode);
+      if (parentId) {
+        await prisma.menu.upsert({
+          where: { code: m.code },
+          update: { parentId, name: m.name, path: m.path || null, sort: m.sort },
+          create: { parentId, name: m.name, code: m.code, path: m.path || null, sort: m.sort, icon: "", type: "menu" },
+        });
+      }
     }
   }
 
-  console.log("✅ 菜单: 31 项");
+  console.log(`✅ 菜单: ${menuData.length} 项`);
 
   // 4. 创建权限
   const permData = [
