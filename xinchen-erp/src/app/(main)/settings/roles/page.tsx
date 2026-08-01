@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Shield, Plus, Edit2, Trash2, RefreshCw, Users, Lock, UserPlus, X, SlidersHorizontal, Check } from "lucide-react";
+import { MENU_TREE, MENU_PERMISSION_MAP } from "@/lib/menus";
 
 interface Role {
   id: number;
@@ -247,10 +248,20 @@ export default function RolesPage() {
       setSorting(false);
     }
   }
-  const permGroups: Record<string, any[]> = allPerms.reduce((acc: Record<string, any[]>, p: any) => {
-    (acc[p.groupName] = acc[p.groupName] || []).push(p);
-    return acc;
-  }, {});
+  // 按菜单层级构建权限树：一级菜单 → 二级菜单 → 权限列表
+  type PermTreeNode = { menu: any; children: PermTreeNode[]; permIds: number[]; perms: any[] };
+  function buildPermTree(nodes: any[]): PermTreeNode[] {
+    return nodes.map(n => {
+      const perms = allPerms.filter(p => (MENU_PERMISSION_MAP[n.code] || []).includes(p.code));
+      return {
+        menu: n,
+        children: n.children ? buildPermTree(n.children) : [],
+        permIds: perms.map(p => p.id),
+        perms,
+      };
+    });
+  }
+  const permTree = buildPermTree(MENU_TREE as any[]);
 
   async function saveAccess() {
     if (!accessRole) return;
@@ -621,44 +632,94 @@ export default function RolesPage() {
                   </div>
                 </section>
 
-                {/* 接口(API)权限 */}
+                {/* 操作权限（按菜单层级） */}
                 <section>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-gray-800">接口 / 操作权限（API）</h3>
+                    <h3 className="text-sm font-semibold text-gray-800">操作权限（按菜单层级管理）</h3>
                     <div className="flex gap-2 text-xs">
-                      <button onClick={() => setPermGroup(allPerms.map((p) => p.id), true)} className="px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100">全选</button>
-                      <button onClick={() => setPermGroup(allPerms.map((p) => p.id), false)} className="px-2 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200">清空</button>
+                      <button onClick={() => setPermGroup(allPerms.map((p: any) => p.id), true)} className="px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100">全选</button>
+                      <button onClick={() => setPermGroup(allPerms.map((p: any) => p.id), false)} className="px-2 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200">清空</button>
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    {Object.keys(permGroups).map((g) => {
-                      const gIds = permGroups[g].map((p: any) => p.id);
-                      const gAll = gIds.length > 0 && gIds.every((id) => checkedPerms.has(id));
+                  <div className="space-y-4">
+                    {permTree.map(l1 => {
+                      // 只显示有权限的一级菜单
+                      if (l1.perms.length === 0 && l1.children.every(ch => ch.perms.length === 0)) return null;
                       return (
-                        <div key={g} className="border border-gray-200 rounded-lg p-3">
-                          <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer mb-2">
-                            <input
-                              type="checkbox"
-                              className="w-4 h-4 accent-purple-600"
-                              checked={gAll}
-                              onChange={() => setPermGroup(gIds, !gAll)}
-                            />
-                            {g}
-                          </label>
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                            {permGroups[g].map((p: any) => (
-                              <label key={p.id} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  className="w-4 h-4 accent-purple-600"
-                                  checked={checkedPerms.has(p.id)}
-                                  onChange={() => togglePerm(p.id)}
-                                />
-                                <span>{p.name}</span>
-                                <code className="text-[10px] text-gray-400">{p.code}</code>
-                              </label>
-                            ))}
+                        <div key={l1.menu.code} className="border border-gray-300 rounded-lg overflow-hidden">
+                          {/* 一级菜单标题 */}
+                          <div className="bg-gray-100 px-4 py-2 font-semibold text-sm text-gray-800 flex items-center justify-between">
+                            <span className="flex items-center gap-2">
+                              {l1.menu.children ? <span className="text-gray-400">▼</span> : null}
+                              {l1.menu.name}
+                            </span>
+                            {l1.perms.length > 0 && (
+                              <span className="text-xs text-gray-400">{l1.perms.length} 个权限</span>
+                            )}
                           </div>
+                          {/* 一级菜单自身的权限 */}
+                          {l1.perms.length > 0 && (
+                            <div className="px-4 py-2 flex flex-wrap gap-2 bg-white">
+                              {l1.perms.map((p: any) => (
+                                <label key={p.id} className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded">
+                                  <input
+                                    type="checkbox"
+                                    className="w-3.5 h-3.5 accent-purple-600"
+                                    checked={checkedPerms.has(p.id)}
+                                    onChange={() => togglePerm(p.id)}
+                                  />
+                                  <span>{p.name}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                          {/* 二级菜单 */}
+                          {l1.children.map(l2 => {
+                            if (l2.perms.length === 0) return null;
+                            return (
+                              <div key={l2.menu.code} className="border-t border-gray-200 px-4 py-2 pl-8 bg-white">
+                                <div className="text-sm text-gray-700 font-medium mb-1">{l2.menu.name}</div>
+                                <div className="flex flex-wrap gap-2">
+                                  {l2.perms.map((p: any) => (
+                                    <label key={p.id} className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded">
+                                      <input
+                                        type="checkbox"
+                                        className="w-3.5 h-3.5 accent-purple-600"
+                                        checked={checkedPerms.has(p.id)}
+                                        onChange={() => togglePerm(p.id)}
+                                      />
+                                      <span>{p.name}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {/* 三级菜单（如站群管理） */}
+                          {l1.children.map(l2 =>
+                            (l2.menu.children || []).map((l3m: any) => {
+                              const l3Perms = allPerms.filter((p: any) => (MENU_PERMISSION_MAP[l3m.code] || []).includes(p.code));
+                              if (l3Perms.length === 0) return null;
+                              return (
+                                <div key={l3m.code} className="border-t border-gray-100 px-4 py-2 pl-12 bg-gray-50">
+                                  <div className="text-xs text-gray-600 font-medium mb-1">{l3m.name}</div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {l3Perms.map((p: any) => (
+                                      <label key={p.id} className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer hover:bg-white px-2 py-1 rounded">
+                                        <input
+                                          type="checkbox"
+                                          className="w-3 h-3 accent-purple-600"
+                                          checked={checkedPerms.has(p.id)}
+                                          onChange={() => togglePerm(p.id)}
+                                        />
+                                        <span>{p.name}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
                         </div>
                       );
                     })}

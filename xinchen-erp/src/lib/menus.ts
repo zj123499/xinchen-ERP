@@ -191,6 +191,90 @@ export const MENU_TREE: MenuNode[] = [
  * 根据可见 code 数组过滤并排序菜单树。
  * codes 的顺序即排序依据（位置越小越靠前）。
  */
+// ============================================
+// 菜单 → 权限映射（权限管理按菜单层级展示）
+// ============================================
+export const MENU_PERMISSION_MAP: Record<string, string[]> = {
+  dashboard: ["dashboard:leads", "dashboard:contracts", "dashboard:finance", "dashboard:students", "dashboard:applications", "dashboard:visits"],
+  // 新媒体部
+  leads_newmedia:     ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
+  media:              ["media:view", "media:create", "media:update", "media:delete"],
+  // 市场部
+  leads_marketing:    ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
+  followup_pending:   ["leads:view", "leads:update"],
+  followup_interested:["leads:view", "leads:update"],
+  followup_signed:    ["leads:view", "contracts:view"],
+  followup_uninterested: ["leads:view", "leads:update"],
+  // 网络部
+  leads_network:      ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
+  sites:              ["sites:view", "sites:create", "sites:update", "sites:delete"],
+  company_templates:  ["company_templates:view", "company_templates:create", "company_templates:update", "company_templates:delete"],
+  servers:            ["servers:view", "servers:create", "servers:update", "servers:delete"],
+  // 咨询部
+  leads_consulting:   ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
+  consulting_pending: ["leads:view", "leads:update"],
+  consulting_interested: ["leads:view", "leads:update"],
+  consulting_signed:  ["leads:view", "contracts:view"],
+  consulting_uninterested: ["leads:view", "leads:update"],
+  // 客户管理
+  leadflow:           ["leadflow:view"],
+  visit_records:      ["visits:view", "visits:create", "visits:update", "visits:delete"],
+  visit_plans:        ["visit_plans:view", "visit_plans:create", "visit_plans:update", "visit_plans:delete"],
+  touchpoints:        ["touchpoints:view", "touchpoints:create", "touchpoints:update", "touchpoints:delete"],
+  attributions:       ["leads:view"],
+  // 文书部
+  students:           ["students:view", "students:create", "students:update", "students:delete"],
+  applications:       ["applications:view", "applications:create", "applications:update"],
+  visas:              ["applications:view", "applications:update"],
+  // 合作方
+  partner_schools:    ["partners:view", "partners:manage"],
+  partners:           ["partners:view", "partners:manage"],
+  // 财务部
+  payments:           ["payments:view", "payments:create", "payments:export"],
+  incomes:            ["payments:view"],
+  receivables:        ["payments:view"],
+  payables:           ["payments:view"],
+  invoices:           ["payments:view"],
+  refunds:            ["payments:view"],
+  costs:              ["payments:view"],
+  commissions:        ["payments:view"],
+  commission_rules:   ["settings:manage"],
+  salaries:           ["payments:view"],
+  reimbursements:     ["payments:view"],
+  channel_roi:        ["reports:view"],
+  profit_reports:     ["reports:view"],
+  // 合同管理
+  contracts:          ["contracts:view", "contracts:create", "contracts:update", "contracts:approve"],
+  // 扩展
+  rental:             ["rental:view", "rental:manage"],
+  overseas:           ["overseas:view", "overseas:manage"],
+  // 产品
+  countries:          ["countries:view", "countries:create", "countries:update", "countries:delete"],
+  institutions:       ["institutions:view", "institutions:create", "institutions:update", "institutions:delete"],
+  majors:             ["majors:view", "majors:create", "majors:update", "majors:delete"],
+  products:           ["products:view", "products:create", "products:update", "products:delete"],
+  product_packages:   ["product_packages:view", "product_packages:create", "product_packages:update", "product_packages:delete"],
+  // 风险
+  risk_dashboard:     ["risk:view"],
+  risk_rules:         ["risk:view", "risk:manage"],
+  // 数据大屏
+  bi_screen:          ["reports:view"],
+  // 系统
+  settings:           ["settings:manage"],
+  employees:          ["settings:manage"],
+  organization:       ["settings:manage"],
+  roles:              ["settings:manage"],
+  dingtalk:           ["settings:manage"],
+  dicts:              ["settings:manage"],
+  configs:            ["settings:manage"],
+  audit:              ["settings:manage"],
+  "operation-logs":   ["settings:manage"],
+  "login-logs":       ["settings:manage"],
+};
+
+// ============================================
+// 菜单树过滤与排序
+// ============================================
 export function filterMenusByCodes(codes: string[], nodes: MenuNode[] = MENU_TREE): MenuNode[] {
   const codeOrder = new Map<string, number>();
   codes.forEach((c, i) => codeOrder.set(c, i));
