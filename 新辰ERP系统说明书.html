@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新辰ERP 系统说明书 v1.0</title>
+<style>
+:root {
+  --primary: #1e3a5f;
+  --primary-light: #2d5f9e;
+  --accent: #0ea5e9;
+  --bg: #f8fafc;
+  --card: #fff;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); line-height:1.8; }
+.container { max-width:1200px; margin:0 auto; padding:20px; }
+/* Header */
+.header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color:#fff; padding:60px 20px; text-align:center; position:relative; overflow:hidden; }
+.header::after { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+.header h1 { font-size:2.8em; margin-bottom:10px; letter-spacing:2px; }
+.header .subtitle { font-size:1.1em; opacity:.85; }
+.header .version { display:inline-block; background:rgba(255,255,255,.15); padding:4px 16px; border-radius:20px; font-size:.85em; margin-top:15px; }
+/* Nav */
+.nav { position:sticky; top:0; z-index:100; background:var(--card); border-bottom:1px solid var(--border); padding:12px 0; backdrop-filter:blur(10px); }
+.nav-inner { max-width:1200px; margin:0 auto; display:flex; gap:8px; flex-wrap:wrap; padding:0 20px; }
+.nav a { text-decoration:none; color:var(--text-muted); padding:6px 14px; border-radius:6px; font-size:.9em; transition:all .2s; white-space:nowrap; }
+.nav a:hover, .nav a.active { background:var(--accent); color:#fff; }
+/* Section */
+.section { margin:40px auto; max-width:1200px; padding:0 20px; }
+.section h2 { font-size:1.8em; color:var(--primary); margin-bottom:24px; padding-bottom:12px; border-bottom:3px solid var(--accent); display:flex; align-items:center; gap:12px; }
+.section h2 .icon { font-size:.7em; }
+.section h3 { font-size:1.3em; color:var(--primary-light); margin:24px 0 12px; }
+.section h4 { font-size:1.05em; color:var(--text); margin:16px 0 8px; }
+/* Cards */
+.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin:16px 0; }
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
+/* Stats */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:16px; margin:20px 0; }
+.stat { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:center; }
+.stat .num { font-size:2em; font-weight:700; color:var(--accent); }
+.stat .label { color:var(--text-muted); font-size:.9em; margin-top:4px; }
+/* Tables */
+table { width:100%; border-collapse:collapse; margin:16px 0; font-size:.95em; }
+th { background:var(--primary); color:#fff; padding:10px 14px; text-align:left; font-weight:500; }
+td { padding:10px 14px; border-bottom:1px solid var(--border); }
+tr:nth-child(even) td { background:#f8fafc; }
+tr:hover td { background:#f1f5f9; }
+/* Tags */
+.tag { display:inline-block; padding:2px 10px; border-radius:12px; font-size:.8em; font-weight:500; }
+.tag-success { background:#d1fae5; color:#065f46; }
+.tag-warning { background:#fef3c7; color:#92400e; }
+.tag-info { background:#dbeafe; color:#1e40af; }
+.tag-danger { background:#fee2e2; color:#991b1b; }
+.tag-gray { background:#f1f5f9; color:#64748b; }
+/* Code */
+code { background:#f1f5f9; padding:2px 8px; border-radius:4px; font-family:"Fira Code","JetBrains Mono",monospace; font-size:.9em; }
+pre { background:#1e293b; color:#e2e8f0; padding:20px; border-radius:8px; overflow-x:auto; font-size:.85em; line-height:1.6; margin:12px 0; }
+pre code { background:none; padding:0; color:inherit; }
+/* Feature list */
+.feature-list { list-style:none; }
+.feature-list li { padding:8px 0 8px 28px; position:relative; }
+.feature-list li::before { content:'▸'; position:absolute; left:4px; color:var(--accent); font-weight:bold; }
+/* Alert */
+.alert { padding:16px 20px; border-radius:8px; margin:16px 0; }
+.alert-info { background:#dbeafe; border-left:4px solid var(--accent); color:#1e40af; }
+.alert-success { background:#d1fae5; border-left:4px solid var(--success); color:#065f46; }
+.alert-warning { background:#fef3c7; border-left:4px solid var(--warning); color:#92400e; }
+/* Footer */
+.footer { background:var(--primary); color:rgba(255,255,255,.7); text-align:center; padding:30px 20px; margin-top:60px; font-size:.9em; }
+.footnote { color:var(--text-muted); font-size:.85em; margin-top:4px; }
+/* Responsive */
+@media (max-width:768px) {
+  .header h1 { font-size:1.8em; }
+  .card-grid { grid-template-columns:1fr; }
+  .stats-grid { grid-template-columns:repeat(2, 1fr); }
+  table { font-size:.8em; }
+  th,td { padding:8px 10px; }
+}
+.print-only { display:none; }
+@media print {
+  .nav, .header { position:static; }
+  .print-only { display:block; }
+}
+</style>
+</head>
+<body>
+
+<!-- 头部 -->
+<header class="header">
+  <h1>新辰 ERP 系统说明书</h1>
+  <p class="subtitle">新辰留学 · 企业资源管理系统</p>
+  <span class="version">v1.0 · 2026-07-21</span>
+</header>
+
+<!-- 导航 -->
+<nav class="nav" id="top-nav">
+  <div class="nav-inner">
+    <a href="#overview">系统概述</a>
+    <a href="#architecture">技术架构</a>
+    <a href="#deploy">部署指南</a>
+    <a href="#modules">功能模块</a>
+    <a href="#roles">角色权限</a>
+    <a href="#api">API接口</a>
+    <a href="#database">数据库</a>
+    <a href="#faq">运维FAQ</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ====== 一、系统概述 ====== -->
+<section class="section" id="overview">
+<h2><span class="icon">📋</span> 一、系统概述</h2>
+
+<div class="stats-grid">
+  <div class="stat"><div class="num">15</div><div class="label">一级功能模块</div></div>
+  <div class="stat"><div class="num">66+</div><div class="label">功能页面</div></div>
+  <div class="stat"><div class="num">143</div><div class="label">API 接口</div></div>
+  <div class="stat"><div class="num">79</div><div class="label">数据模型</div></div>
+  <div class="stat"><div class="num">11</div><div class="label">预置角色</div></div>
+  <div class="stat"><div class="num">24</div><div class="label">权限编码</div></div>
+</div>
+
+<div class="card">
+  <h3>系统定位</h3>
+  <p>新辰ERP是为<strong>新辰留学</strong>量身定制的一站式企业资源管理系统，覆盖留学服务全业务流程：从<strong>市场获客→销售转化→合同签约→交付执行→客户回访→财务核算→风险管控</strong>，实现数据驱动的精细化运营。</p>
+</div>
+
+<div class="card-grid">
+  <div class="card">
+    <h4>🎯 核心目标</h4>
+    <ul class="feature-list">
+      <li>业务流程全覆盖：线索→合同→交付→财务</li>
+      <li>角色权限精细化：15个角色按模块隔离数据</li>
+      <li>经营数据可视化：实时驾驶舱+数据大屏</li>
+      <li>自动化工作流：审批、提醒、定时任务</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>👥 用户群体</h4>
+    <ul class="feature-list">
+      <li>市场团队：线索采集、新媒体运营</li>
+      <li>销售团队：客户跟进、合同签约</li>
+      <li>交付团队：申请递交、签证办理</li>
+      <li>财务团队：收款核算、报表分析</li>
+      <li>管理层：经营驾驶舱、全局把控</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<!-- ====== 二、技术架构 ====== -->
+<section class="section" id="architecture">
+<h2><span class="icon">⚙️</span> 二、技术架构</h2>
+
+<div class="card">
+  <h3>技术栈</h3>
+  <table>
+    <tr><th style="width:140px">层级</th><th>技术选型</th><th>说明</th></tr>
+    <tr><td>前端框架</td><td>Next.js 16 (App Router)</td><td>React 19, TypeScript, 服务端组件</td></tr>
+    <tr><td>UI 库</td><td>Tailwind CSS + Lucide Icons</td><td>原子化样式，无障碍图标</td></tr>
+    <tr><td>图表</td><td>ECharts 5</td><td>数据大屏、驾驶舱图表</td></tr>
+    <tr><td>后端运行时</td><td>Next.js API Routes</td><td>Edge + Node.js Runtime</td></tr>
+    <tr><td>ORM</td><td>Prisma 7.8</td><td>类型安全的数据库客户端</td></tr>
+    <tr><td>数据库</td><td>PostgreSQL 16</td><td>主数据存储（1Panel托管）</td></tr>
+    <tr><td>缓存</td><td>Redis（可扩展）</td><td>分布式缓存支持</td></tr>
+    <tr><td>认证</td><td>JWT (jose)</td><td>HS256签名，7天过期</td></tr>
+    <tr><td>部署</td><td>Docker + 1Panel</td><td>容器化部署，Nginx反向代理</td></tr>
+    <tr><td>构建</td><td>Next.js Webpack Build</td><td>Alpine Linux 兼容</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>部署架构</h3>
+  <pre><code>┌─────────────────────────────────────┐
+│  用户浏览器 (HTTPS)                  │
+├─────────────┬───────────────────────┤
+│  Nginx      │  1Panel 反向代理       │
+├─────────────┴───────────────────────┤
+│  Docker: xinchen-erp (Next.js 16)   │
+│  Port: 3000                         │
+├─────────────────────────────────────┤
+│  Docker: 1Panel-postgresql-Bq8Z     │
+│  Port: 5432                         │
+├─────────────────────────────────────┤
+│  共享网络: 1panel-network           │
+└─────────────────────────────────────┘</code></pre>
+</div>
+</section>
+
+<!-- ====== 三、部署指南 ====== -->
+<section class="section" id="deploy">
+<h2><span class="icon">🚀</span> 三、部署指南</h2>
+
+<div class="card">
+  <h3>服务器信息</h3>
+  <table>
+    <tr><td>服务器地址</td><td><code>111.229.72.128</code></td></tr>
+    <tr><td>SSH 账号</td><td><code>ubuntu</code></td></tr>
+    <tr><td>应用端口</td><td><code>3000</code></td></tr>
+    <tr><td>数据库</td><td><code>1Panel-postgresql-Bq8Z</code></td></tr>
+    <tr><td>容器网络</td><td><code>1panel-network</code></td></tr>
+    <tr><td>源码路径</td><td><code>/home/ubuntu/xinchen-erp</code></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>部署命令</h3>
+  <pre><code># 1. 打包本地源码
+cd xinchen-erp
+tar -cf /tmp/xinchen_src.tar --exclude=node_modules --exclude=.next \
+  --exclude=.git --exclude=.env --exclude=.env.local .
+
+# 2. 上传到服务器
+scp /tmp/xinchen_src.tar ubuntu@111.229.72.128:/home/ubuntu/
+
+# 3. 解压并构建
+ssh ubuntu@111.229.72.128
+cd /home/ubuntu/xinchen-erp
+tar -xf ../xinchen_src.tar
+docker compose build
+docker compose up -d
+
+# 4. 查看日志
+docker compose logs -f --tail=50</code></pre>
+</div>
+
+<div class="alert alert-info">
+  <strong>注意：</strong>首次部署需确保 <code>ansible </code>已在服务器上完成用户创建。日常更新使用 <code>docker compose build</code>（保留缓存），<code>prisma db push</code> 会在容器启动时自动执行。
+</div>
+
+<div class="card">
+  <h3>Docker Compose 配置</h3>
+  <pre><code>services:
+  xinchen-erp:
+    build: .
+    container_name: xinchen-erp
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user:pass@1Panel-postgresql-Bq8Z:5432/erp
+      - JWT_SECRET=your-secret
+    networks:
+      - 1panel-network
+    restart: always</code></pre>
+</div>
+
+<div class="card">
+  <h3>环境变量</h3>
+  <table>
+    <tr><th>变量名</th><th>说明</th><th>示例值</th></tr>
+    <tr><td><code>DATABASE_URL</code></td><td>PostgreSQL 连接串</td><td><code>postgresql://.../erp</code></td></tr>
+    <tr><td><code>JWT_SECRET</code></td><td>JWT 签名密钥</td><td><code>随机32位字符串</code></td></tr>
+    <tr><td><code>NEXT_PUBLIC_APP_URL</code></td><td>应用地址</td><td><code>https://erp.example.com</code></td></tr>
+  </table>
+</div>
+</section>
+
+<!-- ====== 四、功能模块 ====== -->
+<section class="section" id="modules">
+<h2><span class="icon">📦</span> 四、功能模块详解</h2>
+
+<div class="card">
+  <h3>模块总览</h3>
+  <table>
+    <tr><th>模块</th><th>路径</th><th>核心功能</th><th>主要用户</th></tr>
+    <tr><td>🏠 工作台</td><td><code>/</code></td><td>数据总览、今日指标、线索分布、收款趋势、最近动态</td><td>全员</td></tr>
+    <tr><td>📊 销售管理</td><td><code>/leads</code></td><td>线索采集/分配/跟进/转化、学生档案、跟进记录</td><td>市场专员、销售</td></tr>
+    <tr><td>📝 合同订单</td><td><code>/contracts</code></td><td>合同创建/审批/归档、订单管理、服务项</td><td>销售、经理</td></tr>
+    <tr><td>📬 交付管理</td><td><code>/applications</code></td><td>申请管理、文书工作台、Offer管理、签证管理</td><td>升学顾问、文书专员</td></tr>
+    <tr><td>📞 客户回访</td><td><code>/visit-records</code></td><td>回访记录、回访计划、满意度</td><td>市场、客服</td></tr>
+    <tr><td>💰 财务管理</td><td><code>/payments</code></td><td>收款、付款、成本、发票、退费、提成、薪资、报销、利润报表</td><td>财务</td></tr>
+    <tr><td>🤝 扩展业务</td><td><code>/partners</code></td><td>合作方管理、合作协议、返佣、租房、境外服务</td><td>运营</td></tr>
+    <tr><td>📱 营销管理</td><td><code>/media-accounts</code></td><td>站群、新媒体账号、触点、归因、渠道ROI</td><td>新媒体运营</td></tr>
+    <tr><td>🎓 产品资源</td><td><code>/product</code></td><td>国家、院校、专业、产品、套餐管理</td><td>产品经理</td></tr>
+    <tr><td>✅ 审批中心</td><td><code>/approval</code></td><td>审批流配置、提交、审批</td><td>全员</td></tr>
+    <tr><td>⭐ 客户成功</td><td><code>/success</code></td><td>满意度调查、投诉管理、转介绍</td><td>客服</td></tr>
+    <tr><td>🛡️ 风险管理</td><td><code>/risk</code></td><td>风险看板、风险规则配置</td><td>运营总监</td></tr>
+    <tr><td>🤖 AI 智能</td><td><code>/ai</code></td><td>AI选校顾问、AI文书助手、AI客服助手</td><td>顾问、文书</td></tr>
+    <tr><td>📈 经营驾驶舱</td><td><code>/bi</code></td><td>经营驾驶舱、数据大屏</td><td>管理层</td></tr>
+    <tr><td>⚙️ 系统设置</td><td><code>/employees</code></td><td>员工管理、角色权限、钉钉集成、字典、审计日志</td><td>管理员</td></tr>
+  </table>
+</div>
+
+<!-- 销售管理详细 -->
+<div class="card">
+  <h3>1. 销售管理</h3>
+  <p>从线索获取到学生转化的全流程管理。</p>
+  <table>
+    <tr><th>功能</th><th>说明</th></tr>
+    <tr><td>线索管理</td><td>多渠道线索录入（新媒体/转介绍/搜索引擎/展会等），线索分配、跟进、转化、流转</td></tr>
+    <tr><td>线索流转</td><td>线索公海、自取、分配、申诉机制</td></tr>
+    <tr><td>学生档案</td><td>学生基本信息、目标国家/院校/专业/学位、关联合同/订单/申请</td></tr>
+    <tr><td>跟进记录</td><td>电话/微信/面谈等多类型跟进，下次联系提醒</td></tr>
+  </table>
+</div>
+
+<!-- 财务管理详细 -->
+<div class="card">
+  <h3>2. 财务管理（13个子模块）</h3>
+  <table>
+    <tr><th>功能</th><th>说明</th></tr>
+    <tr><td>收款管理</td><td>客户服务费、学校返佣、合作方费用，支持多付款方式</td></tr>
+    <tr><td>收入确认</td><td>按履约进度确认收入</td></tr>
+    <tr><td>应收账款</td><td>客户欠款跟踪、账龄分析</td></tr>
+    <tr><td>应付账款</td><td>供应商/合作方应付款管理</td></tr>
+    <tr><td>发票管理</td><td>发票开具、登记、查询</td></tr>
+    <tr><td>退费管理</td><td>退费申请、审批、退款</td></tr>
+    <tr><td>成本管理</td><td>各项运营成本录入与统计</td></tr>
+    <tr><td>提成/佣金</td><td>销售提成规则配置、佣金计算与发放</td></tr>
+    <tr><td>薪资管理</td><td>员工薪资计算，关联异动记录</td></tr>
+    <tr><td>报销管理</td><td>费用报销申请与审批</td></tr>
+    <tr><td>利润报表</td><td>按月度/年度/业务线统计毛利润</td></tr>
+  </table>
+</div>
+
+<!-- 工作台 -->
+<div class="card">
+  <h3>3. 工作台（仪表盘）</h3>
+  <p>按<strong>角色模块权限</strong>展示数据。有 <code>leads:view</code> 的角色看到线索统计，有 <code>payments:view</code> 的看到财务数据。</p>
+  <table>
+    <tr><th>指标类别</th><th>内容</th></tr>
+    <tr><td>核心指标</td><td>今日新线索、待跟进线索、本月合同数、本月收款额、完成率</td></tr>
+    <tr><td>线索分析</td><td>按来源/状态/负责人分布</td></tr>
+    <tr><td>收款分析</td><td>按类型/月份分布</td></tr>
+    <tr><td>合同分析</td><td>按月趋势、按业务线分布</td></tr>
+    <tr><td>申请分析</td><td>按状态/院校分布</td></tr>
+    <tr><td>学生分析</td><td>按目标国家/学位分布</td></tr>
+    <tr><td>最近动态</td><td>最新线索、最新收款</td></tr>
+  </table>
+</div>
+</section>
+
+<!-- ====== 五、角色权限 ====== -->
+<section class="section" id="roles">
+<h2><span class="icon">🔐</span> 五、角色与权限体系</h2>
+
+<div class="card">
+  <h3>预置角色</h3>
+  <table>
+    <tr><th>角色</th><th>Code</th><th>看板可见模块</th><th>说明</th></tr>
+    <tr><td><span class="tag tag-danger">超级管理员</span></td><td><code>admin</code></td><td>全部 7 模块</td><td>系统最高权限，跳过所有校验</td></tr>
+    <tr><td><span class="tag tag-info">总经理</span></td><td><code>general_manager</code></td><td>全部 7 模块</td><td>全公司数据视野</td></tr>
+    <tr><td><span class="tag tag-info">运营总监</span></td><td><code>operations_director</code></td><td>全部 7 模块</td><td>运营全局管理</td></tr>
+    <tr><td><span class="tag tag-success">市场专员</span></td><td><code>marketing_specialist</code></td><td>线索、学生、合同、回访</td><td>获客与跟进</td></tr>
+    <tr><td><span class="tag tag-success">升学顾问</span></td><td><code>academic_advisor</code></td><td>学生、申请、合同、回访</td><td>升学规划与申请交付</td></tr>
+    <tr><td><span class="tag tag-success">文书申请</span></td><td><code>document_application</code></td><td>学生、申请、回访</td><td>文书撰写与递交</td></tr>
+    <tr><td><span class="tag tag-gray">网络运营</span></td><td><code>network_operator</code></td><td>线索、学生、合同、回访</td><td>网络渠道获客</td></tr>
+    <tr><td><span class="tag tag-gray">直播</span></td><td><code>live_streamer</code></td><td>线索、回访</td><td>直播获客</td></tr>
+    <tr><td><span class="tag tag-gray">新媒体主管</span></td><td><code>newmedia_manager</code></td><td>线索、学生、回访、报表</td><td>新媒体矩阵管理</td></tr>
+    <tr><td><span class="tag tag-gray">新媒体运营</span></td><td><code>newmedia_operator</code></td><td>线索、回访</td><td>日常内容发布</td></tr>
+    <tr><td><span class="tag tag-warning">财务</span></td><td><code>finance</code></td><td>财务、合同、报表</td><td>收款核算</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>权限编码体系（24 项）</h3>
+  <table>
+    <tr><th>模块</th><th>权限编码</th><th>说明</th></tr>
+    <tr><td>线索</td><td><code>leads:view</code> <code>leads:create</code> <code>leads:update</code> <code>leads:delete</code> <code>leads:assign</code> <code>leads:export</code></td><td>线索CRUD+分配+导出</td></tr>
+    <tr><td>学生</td><td><code>students:view</code> <code>students:create</code> <code>students:update</code></td><td>学生档案管理</td></tr>
+    <tr><td>合同</td><td><code>contracts:view</code> <code>contracts:create</code></td><td>合同查建</td></tr>
+    <tr><td>收款</td><td><code>payments:view</code> <code>payments:create</code> <code>payments:export</code></td><td>收款记录+导出</td></tr>
+    <tr><td>申请</td><td><code>applications:view</code> <code>applications:create</code> <code>applications:update</code></td><td>申请管理</td></tr>
+    <tr><td>回访</td><td><code>visits:view</code> <code>visits:create</code></td><td>回访记录</td></tr>
+    <tr><td>报表</td><td><code>reports:view</code></td><td>报表查看</td></tr>
+    <tr><td>系统</td><td><code>settings:manage</code></td><td>系统设置管理</td></tr>
+  </table>
+</div>
+
+<div class="alert alert-success">
+  <strong>配置方式：</strong>管理员在「员工管理」页面点击 <strong>配置权限</strong> 按钮，系统自动为每个角色按业务语义分配相应 view 权限。也可在「系统设置→角色权限」手动调整。
+</div>
+</section>
+
+<!-- ====== 六、API接口 ====== -->
+<section class="section" id="api">
+<h2><span class="icon">🔌</span> 六、API 接口清单</h2>
+
+<div class="card">
+  <h3>认证接口</h3>
+  <table>
+    <tr><th>方法</th><th>路径</th><th>说明</th></tr>
+    <tr><td><span class="tag tag-info">POST</span></td><td><code>/api/auth/login</code></td><td>手机号/用户名 + 密码登录</td></tr>
+    <tr><td><span class="tag tag-info">GET</span></td><td><code>/api/auth/me</code></td><td>获取当前用户信息</td></tr>
+    <tr><td><span class="tag tag-info">PUT</span></td><td><code>/api/auth/profile</code></td><td>更新个人资料</td></tr>
+    <tr><td><span class="tag tag-info">POST</span></td><td><code>/api/auth/change-password</code></td><td>修改密码</td></tr>
+  </table>
+
+  <h3>核心业务接口</h3>
+  <table>
+    <tr><th>资源</th><th>路径</th><th>方法</th></tr>
+    <tr><td>仪表盘</td><td><code>/api/dashboard</code></td><td><span class="tag tag-info">GET</span></td></tr>
+    <tr><td>线索</td><td><code>/api/leads</code> <code>/api/leads/[id]</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span> <span class="tag tag-warning">PUT</span></td></tr>
+    <tr><td>学生</td><td><code>/api/students</code> <code>/api/students/[id]</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span> <span class="tag tag-warning">PUT</span></td></tr>
+    <tr><td>合同</td><td><code>/api/contracts</code> <code>/api/contracts/[id]</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span> <span class="tag tag-warning">PUT</span></td></tr>
+    <tr><td>订单</td><td><code>/api/orders</code> <code>/api/orders/[id]</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>申请</td><td><code>/api/applications</code> <code>/api/applications/[id]</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span> <span class="tag tag-warning">PUT</span></td></tr>
+    <tr><td>收款</td><td><code>/api/payments</code> <code>/api/payments/[id]</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span> <span class="tag tag-warning">PUT</span></td></tr>
+    <tr><td>成本</td><td><code>/api/costs</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>佣金</td><td><code>/api/commissions</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>回访</td><td><code>/api/followups</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>员工</td><td><code>/api/employees</code> <code>/api/employees/[id]</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span> <span class="tag tag-warning">PUT</span></td></tr>
+    <tr><td>员工异动</td><td><code>/api/employees/[id]/changes</code></td><td><span class="tag tag-info">GET</span></td></tr>
+    <tr><td>数据重分配</td><td><code>/api/employees/reassign</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>账号迁移</td><td><code>/api/employees/migrate-accounts</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>权限配置</td><td><code>/api/employees/ensure-view-permissions</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>合作协议</td><td><code>/api/partners/[id]/agreements</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>合作返佣</td><td><code>/api/partners/[id]/commissions</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>BI大屏</td><td><code>/api/bi/applications-progress</code></td><td><span class="tag tag-info">GET</span></td></tr>
+    <tr><td>审批</td><td><code>/api/approval-flows</code> <code>/api/approval-records</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+    <tr><td>系统</td><td><code>/api/departments</code> <code>/api/roles</code> <code>/api/dicts</code> <code>/api/audit-logs</code> <code>/api/login-logs</code></td><td><span class="tag tag-info">GET</span> <span class="tag tag-success">POST</span></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>通用规范</h3>
+  <ul class="feature-list">
+    <li><strong>认证</strong>：除 <code>/api/auth/login</code> 外全部接口需携带 <code>Authorization: Bearer &lt;token&gt;</code> 或 Cookie <code>token</code></li>
+    <li><strong>租户隔离</strong>：所有数据根据 JWT 中的 <code>tenantId</code> 自动过滤</li>
+    <li><strong>分页</strong>：列表接口支持 <code>?page=1&pageSize=20</code> 查询参数</li>
+    <li><strong>权限</strong>：操作类接口（create/update/delete）校验角色权限编码，无权限返回 403</li>
+    <li><strong>响应格式</strong>：<code>{ list: [], total: N, page: P }</code> 或 <code>{ error: "message" }</code></li>
+  </ul>
+</div>
+</section>
+
+<!-- ====== 七、数据库 ====== -->
+<section class="section" id="database">
+<h2><span class="icon">🗄️</span> 七、数据库结构</h2>
+
+<div class="card-grid">
+  <div class="card">
+    <h3>核心业务表</h3>
+    <table>
+      <tr><th>表名</th><th>说明</th></tr>
+      <tr><td><code>tenants</code></td><td>租户（多公司隔离）</td></tr>
+      <tr><td><code>users</code></td><td>系统用户（登录账号）</td></tr>
+      <tr><td><code>employees</code></td><td>员工信息（含钉钉集成）</td></tr>
+      <tr><td><code>employee_changes</code></td><td>员工异动记录</td></tr>
+      <tr><td><code>departments</code></td><td>组织部门</td></tr>
+      <tr><td><code>positions</code></td><td>岗位</td></tr>
+      <tr><td><code>roles</code></td><td>角色定义</td></tr>
+      <tr><td><code>permissions</code></td><td>权限编码</td></tr>
+      <tr><td><code>role_permissions</code></td><td>角色-权限关联</td></tr>
+      <tr><td><code>leads</code></td><td>线索</td></tr>
+      <tr><td><code>students</code></td><td>学生档案</td></tr>
+      <tr><td><code>followups</code></td><td>跟进记录</td></tr>
+      <tr><td><code>contracts</code></td><td>合同</td></tr>
+      <tr><td><code>orders</code></td><td>订单</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>交付与财务表</h3>
+    <table>
+      <tr><th>表名</th><th>说明</th></tr>
+      <tr><td><code>applications</code></td><td>留学申请</td></tr>
+      <tr><td><code>offers</code></td><td>Offer 管理</td></tr>
+      <tr><td><code>visas</code></td><td>签证管理</td></tr>
+      <tr><td><code>payments</code></td><td>收款记录</td></tr>
+      <tr><td><code>payables</code></td><td>应付账款</td></tr>
+      <tr><td><code>costs</code></td><td>成本记录</td></tr>
+      <tr><td><code>commissions</code></td><td>佣金/提成</td></tr>
+      <tr><td><code>invoices</code></td><td>发票</td></tr>
+      <tr><td><code>reimbursements</code></td><td>报销</td></tr>
+      <tr><td><code>salaries</code></td><td>薪资</td></tr>
+      <tr><td><code>partners</code></td><td>合作方</td></tr>
+      <tr><td><code>partner_agreements</code></td><td>合作协议</td></tr>
+      <tr><td><code>partner_commissions</code></td><td>合作返佣</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Schema 迁移</h3>
+  <p>每次部署时，容器入口脚本自动执行 <code>npx prisma db push --accept-data-loss</code> 同步 Schema 到数据库。新增表、字段会自动创建，不会丢失已有数据。</p>
+  <pre><code># 手动迁移（开发环境）
+cd xinchen-erp
+npx prisma db push
+npx prisma generate</code></pre>
+</div>
+</section>
+
+<!-- ====== 八、运维FAQ ====== -->
+<section class="section" id="faq">
+<h2><span class="icon">🛠️</span> 八、运维常见问题</h2>
+
+<div class="card">
+  <h3>Q1: 部署后页面 404？</h3>
+  <p>检查 Nginx 是否指向正确端口（3000），Docker 容器是否运行：<code>docker ps | grep xinchen</code></p>
+
+  <h3>Q2: 数据库连接失败？</h3>
+  <p>检查容器是否在同一网络：<code>docker network inspect 1panel-network</code>。确认 <code>DATABASE_URL</code> 中的主机名与数据库容器名一致。</p>
+
+  <h3>Q3: 磁盘空间满？</h3>
+  <pre><code># 定期清理 Docker 缓存
+docker builder prune -af
+docker image prune -af
+df -h /</code></pre>
+
+  <h3>Q4: 构建失败（Prisma 错误）？</h3>
+  <p>检查 Schema 文件是否有双向关系缺失。Prisma 7.8 要求所有 <code>@relation</code> 必须有反向字段。</p>
+
+  <h3>Q5: 新员工如何创建登录账号？</h3>
+  <p>在「员工管理」新增员工时填写手机号，系统自动创建账号（用户名=手机号，默认密码 <code>Xc@123456</code>，首次登录强制改密码）。</p>
+
+  <h3>Q6: 员工离职怎么处理数据？</h3>
+  <p>将员工状态改为「离职」，系统自动停用登录权限。管理员在员工列表点击「重新分配数据」将离职员工名下的线索/学生/订单转给在职员工。</p>
+
+  <h3>Q7: 看板数据看不到？</h3>
+  <p>确认角色已配置 view 权限。管理员在「员工管理」点击「配置权限」一键补全。</p>
+
+  <h3>Q8: 构建卡住 / npm ci 超时？</h3>
+  <p>去掉 <code>--no-cache</code> 参数，使用缓存构建。仅更新源码文件时 Docker 层缓存可复用。</p>
+
+  <h3>Q9: Turbopack 构建失败（Alpine）？</h3>
+  <p>Next.js 16 默认 Turbopack 在 Alpine (musl) 上无原生绑定。需确保 <code>package.json</code> 中 <code>"build": "next build --webpack"</code>。</p>
+
+  <h3>Q10: 查看容器日志？</h3>
+  <pre><code>docker compose logs -f --tail=100 xinchen-erp</code></pre>
+</div>
+
+<div class="card">
+  <h3>日常运维检查清单</h3>
+  <table>
+    <tr><th>频率</th><th>操作</th></tr>
+    <tr><td>每日</td><td>检查 <code>docker ps</code> 确保容器运行</td></tr>
+    <tr><td>每周</td><td>清理 Docker 构建缓存 <code>docker builder prune -af</code></td></tr>
+    <tr><td>每月</td><td>检查磁盘使用 <code>df -h</code></td></tr>
+    <tr><td>按需</td><td>数据库备份、日志归档</td></tr>
+  </table>
+</div>
+</section>
+
+<!-- ====== 版本历史 ====== -->
+<section class="section">
+<h2><span class="icon">📜</span> 版本历史</h2>
+
+<table>
+  <tr><th>版本</th><th>日期</th><th>更新内容</th></tr>
+  <tr><td>v1.0</td><td>2026-07-21</td><td>初始版本：13个核心模块，79个数据模型，143个API接口<br>
+    ✅ 多角色权限体系（11个预置角色，24项权限编码）<br>
+    ✅ 模块级数据隔离（看板按角色 view 权限展示）<br>
+    ✅ 手机号登录 + 自动建号<br>
+    ✅ 员工异动记录<br>
+    ✅ 经营驾驶舱 + 数据大屏<br>
+    ✅ 合作方协议/返佣管理</td></tr>
+</table>
+</section>
+
+</div>
+
+<!-- 页脚 -->
+<footer class="footer">
+  <p>新辰ERP 系统说明书 · v1.0 · 2026-07-21</p>
+  <p style="margin-top:8px;opacity:.6">新辰留学 · XINCHEN ERP — Enterprise Resource Planning System</p>
+</footer>
+
+<script>
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>
