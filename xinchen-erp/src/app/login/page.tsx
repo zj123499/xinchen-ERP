@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { KeyRound, GraduationCap, TrendingUp, Users, Globe } from "lucide-react";
+import { KeyRound, GraduationCap } from "lucide-react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -80,27 +80,8 @@ export default function LoginPage() {
           <h1 className="text-3xl font-black text-white mb-3 tracking-tight">新辰未来</h1>
           <p className="text-indigo-200 text-sm mb-12 leading-relaxed">企业管理系统</p>
 
-          {/* 卖点 */}
-          <div className="space-y-4 text-left">
-            <div className="flex items-center gap-3 text-indigo-100">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                <Users className="w-4 h-4" />
-              </div>
-              <span className="text-sm">多部门协同 · 全流程数据打通</span>
-            </div>
-            <div className="flex items-center gap-3 text-indigo-100">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-              <span className="text-sm">实时经营数据 · 自动化报表</span>
-            </div>
-            <div className="flex items-center gap-3 text-indigo-100">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                <Globe className="w-4 h-4" />
-              </div>
-              <span className="text-sm">智能权限管控 · 数据安全隔离</span>
-            </div>
-          </div>
+          {/* Slogan */}
+          <p className="text-indigo-200 text-base font-light tracking-[0.3em] uppercase">New Light · New Future</p>
         </div>
 
         {/* 底部波浪 */}
