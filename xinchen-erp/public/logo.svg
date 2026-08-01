@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80" width="280" height="80">
-  <!-- 新辰未来 Logo -->
-  <!-- 纯 N 字形（左竖 + 斜线 + 右竖） -->
-  <g transform="translate(8, 5)">
-    <rect x="0" y="0" width="14" height="70" fill="#2563EB"/>
-    <polygon points="0,0 20,0 70,70 50,70" fill="#2563EB"/>
-    <rect x="56" y="0" width="14" height="70" fill="#2563EB"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 110" width="310" height="110">
+  <!-- ewill 新辰未来 Logo -->
+  <g transform="translate(8, 10)">
+    <rect x="0" y="0" width="13" height="80" fill="#2563EB"/>
+    <polygon points="0,0 18,0 70,80 52,80" fill="#2563EB"/>
+    <rect x="57" y="0" width="13" height="80" fill="#2563EB"/>
+    <polygon points="5,15 35,15 35,8 50,22 35,36 35,29 5,29" fill="#3B82F6"/>
+    <polygon points="28,55 56,55 56,48 71,62 56,76 56,69 28,69" fill="#93C5FD"/>
   </g>
-  <!-- 新辰未来 -->
-  <text x="92" y="52" font-family="PingFang SC, Microsoft YaHei, Heiti SC, sans-serif" font-size="30" font-weight="700" fill="#2563EB" letter-spacing="4">新辰未来</text>
+  <text x="100" y="58" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#2563EB" letter-spacing="-1">ewill</text>
+  <text x="100" y="92" font-family="PingFang SC, Microsoft YaHei, sans-serif" font-size="22" font-weight="600" fill="#2563EB" letter-spacing="3">新辰未来</text>
 </svg>
