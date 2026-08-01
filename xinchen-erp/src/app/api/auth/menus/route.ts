@@ -28,9 +28,15 @@ export async function GET(request: NextRequest) {
 
   const roleMenus = await prisma.roleMenu.findMany({
     where: { role: { code: { in: roles }, tenantId } },
-    select: { menu: { select: { code: true } } },
+    select: { menu: { select: { code: true, sort: true } } },
+    orderBy: { menu: { sort: "asc" } },
   });
 
-  const codes = Array.from(new Set(roleMenus.map((rm) => rm.menu.code)));
+  // 去重并按 sort 排序
+  const seen = new Set<string>();
+  const codes: string[] = [];
+  for (const rm of roleMenus) {
+    if (!seen.has(rm.menu.code)) { seen.add(rm.menu.code); codes.push(rm.menu.code); }
+  }
   return NextResponse.json({ isAdmin: false, codes, roles, department });
 }

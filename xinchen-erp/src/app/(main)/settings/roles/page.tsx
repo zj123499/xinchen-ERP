@@ -49,6 +49,9 @@ export default function RolesPage() {
   const [checkedMenus, setCheckedMenus] = useState<Set<number>>(new Set());
   const [checkedPerms, setCheckedPerms] = useState<Set<number>>(new Set());
   const [savingAccess, setSavingAccess] = useState(false);
+  const [sortMode, setSortMode] = useState(false);
+  const [sorting, setSorting] = useState(false);
+  const [localMenus, setLocalMenus] = useState<any[]>([]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -158,6 +161,7 @@ export default function RolesPage() {
       const m = await mRes.json();
       const p = await pRes.json();
       setAllMenus(m.menus || []);
+      setLocalMenus(m.menus || []);
       setCheckedMenus(new Set(m.checked || []));
       setAllPerms(p.permissions || []);
       setCheckedPerms(new Set(p.checked || []));
@@ -202,6 +206,47 @@ export default function RolesPage() {
 
   const topMenus = allMenus.filter((m) => !m.parentId);
   const childrenOf = (pid: number) => allMenus.filter((m) => m.parentId === pid);
+
+  // 排序：获取同级菜单列表
+  function getSiblings(id: number): any[] {
+    const menu = localMenus.find(m => m.id === id);
+    if (!menu) return [];
+    return localMenus.filter(m => m.parentId === menu.parentId);
+  }
+
+  function moveMenu(id: number, delta: number) {
+    const siblings = [...getSiblings(id)];
+    const idx = siblings.findIndex(m => m.id === id);
+    if (idx < 0) return;
+    const newIdx = idx + delta;
+    if (newIdx < 0 || newIdx >= siblings.length) return;
+    // swap
+    [siblings[idx], siblings[newIdx]] = [siblings[newIdx], siblings[idx]];
+    // recalc sort order
+    const updated = siblings.map((m, i) => ({ ...m, sort: i }));
+    const updatedMap = new Map(updated.map(m => [m.id, m]));
+    setLocalMenus(localMenus.map(m => updatedMap.get(m.id) || m));
+  }
+
+  async function saveSort() {
+    setSorting(true);
+    try {
+      const items = localMenus.map(m => ({ id: m.id, sort: m.sort }));
+      const res = await fetch('/api/menus/reorder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      });
+      if (!res.ok) { alert('保存失败'); return; }
+      setAllMenus(localMenus);
+      setSortMode(false);
+      alert('排序已保存，刷新页面生效');
+    } catch {
+      alert('网络错误');
+    } finally {
+      setSorting(false);
+    }
+  }
   const permGroups: Record<string, any[]> = allPerms.reduce((acc: Record<string, any[]>, p: any) => {
     (acc[p.groupName] = acc[p.groupName] || []).push(p);
     return acc;
@@ -517,8 +562,16 @@ export default function RolesPage() {
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold text-gray-800">菜单权限（左侧导航可见性）</h3>
                     <div className="flex gap-2 text-xs">
-                      <button onClick={() => setMenuGroup(allMenus.map((m) => m.id), true)} className="px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100">全选</button>
-                      <button onClick={() => setMenuGroup(allMenus.map((m) => m.id), false)} className="px-2 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200">清空</button>
+                      {!sortMode && <>
+                        <button onClick={() => setMenuGroup(allMenus.map((m) => m.id), true)} className="px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100">全选</button>
+                        <button onClick={() => setMenuGroup(allMenus.map((m) => m.id), false)} className="px-2 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200">清空</button>
+                        <button onClick={() => { setSortMode(true); setLocalMenus([...allMenus]); }} className="px-2 py-1 rounded bg-orange-50 text-orange-600 hover:bg-orange-100">编辑排序</button>
+                      </>}
+                      {sortMode && <>
+                        <span className="px-2 py-1 text-gray-500">拖拽排序中</span>
+                        <button onClick={saveSort} disabled={sorting} className="px-2 py-1 rounded bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50">{sorting ? "保存中..." : "保存排序"}</button>
+                        <button onClick={() => { setSortMode(false); setLocalMenus([...allMenus]); }} className="px-2 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200">取消</button>
+                      </>}
                     </div>
                   </div>
                   <div className="border border-gray-200 rounded-lg divide-y divide-gray-100">
@@ -529,27 +582,34 @@ export default function RolesPage() {
                         ? checkedMenus.has(tm.id)
                         : childIds.every((id) => checkedMenus.has(id));
                       return (
-                        <div key={tm.id} className="px-4 py-3">
-                          <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              className="w-4 h-4 accent-purple-600"
-                              checked={allChecked}
-                              onChange={() => (isLeaf ? toggleMenu(tm.id) : setMenuGroup(childIds, !allChecked))}
-                            />
-                            {tm.name}
-                            {!isLeaf && <span className="text-xs text-gray-400">（{childIds.length} 项）</span>}
-                          </label>
+                        <div key={tm.id} className={`px-4 py-3 ${sortMode ? "bg-gray-50" : ""}`}>
+                          <div className="flex items-center justify-between">
+                            <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer">
+                              {sortMode && (
+                                <span className="flex gap-1 mr-1">
+                                  <button onClick={(e) => { e.preventDefault(); moveMenu(tm.id, -1); }} className="w-5 h-5 flex items-center justify-center rounded bg-white border border-gray-300 hover:bg-gray-100 text-xs" title="上移">↑</button>
+                                  <button onClick={(e) => { e.preventDefault(); moveMenu(tm.id, 1); }} className="w-5 h-5 flex items-center justify-center rounded bg-white border border-gray-300 hover:bg-gray-100 text-xs" title="下移">↓</button>
+                                </span>
+                              )}
+                              {!sortMode && (
+                                <input type="checkbox" className="w-4 h-4 accent-purple-600" checked={allChecked} onChange={() => (isLeaf ? toggleMenu(tm.id) : setMenuGroup(childIds, !allChecked))} />
+                              )}
+                              {tm.name}
+                              {!isLeaf && <span className="text-xs text-gray-400">（{childIds.length} 项）</span>}
+                            </label>
+                          </div>
                           {childIds.length > 0 && (
                             <div className="mt-2 ml-6 grid grid-cols-2 gap-x-4 gap-y-1">
                               {childrenOf(tm.id).map((cm) => (
                                 <label key={cm.id} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    className="w-4 h-4 accent-purple-600"
-                                    checked={checkedMenus.has(cm.id)}
-                                    onChange={() => toggleMenu(cm.id)}
-                                  />
+                                  {sortMode ? (
+                                    <span className="flex gap-1">
+                                      <button onClick={(e) => { e.preventDefault(); moveMenu(cm.id, -1); }} className="w-4 h-4 flex items-center justify-center rounded bg-white border border-gray-300 hover:bg-gray-100 text-xs">↑</button>
+                                      <button onClick={(e) => { e.preventDefault(); moveMenu(cm.id, 1); }} className="w-4 h-4 flex items-center justify-center rounded bg-white border border-gray-300 hover:bg-gray-100 text-xs">↓</button>
+                                    </span>
+                                  ) : (
+                                    <input type="checkbox" className="w-3.5 h-3.5 accent-purple-600" checked={checkedMenus.has(cm.id)} onChange={() => toggleMenu(cm.id)} />
+                                  )}
                                   {cm.name}
                                 </label>
                               ))}

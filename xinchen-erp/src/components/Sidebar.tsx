@@ -90,7 +90,7 @@ export default function Sidebar() {
         if (data?.isAdmin) {
           setMenus(MENU_TREE);
         } else {
-          const codes = new Set<string>(Array.isArray(data?.codes) ? data.codes : []);
+          const codes: string[] = Array.isArray(data?.codes) ? data.codes : [];
           setMenus(filterMenusByCodes(codes));
         }
         setDepartment(data?.department || "");

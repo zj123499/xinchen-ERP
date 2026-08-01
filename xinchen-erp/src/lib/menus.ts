@@ -188,17 +188,30 @@ export const MENU_TREE: MenuNode[] = [
 ];
 
 /**
- * 根据可见 code 集合过滤菜单树（权限驱动）。
+ * 根据可见 code 数组过滤并排序菜单树。
+ * codes 的顺序即排序依据（位置越小越靠前）。
  */
-export function filterMenusByCodes(codes: Set<string>, nodes: MenuNode[] = MENU_TREE): MenuNode[] {
-  const result: MenuNode[] = [];
-  for (const n of nodes) {
-    if (n.children?.length) {
-      const kids = filterMenusByCodes(codes, n.children);
-      if (kids.length) result.push({ ...n, children: kids });
-    } else if (codes.has(n.code)) {
-      result.push(n);
+export function filterMenusByCodes(codes: string[], nodes: MenuNode[] = MENU_TREE): MenuNode[] {
+  const codeOrder = new Map<string, number>();
+  codes.forEach((c, i) => codeOrder.set(c, i));
+
+  function filterAndSort(items: MenuNode[]): MenuNode[] {
+    const result: MenuNode[] = [];
+    for (const n of items) {
+      if (n.children?.length) {
+        const kids = filterAndSort(n.children);
+        if (kids.length) result.push({ ...n, children: kids });
+      } else if (codeOrder.has(n.code)) {
+        result.push(n);
+      }
     }
+    // 按 code 在 codes 数组中的位置排序
+    result.sort((a, b) => {
+      const aIdx = codeOrder.get(a.code) ?? 9999;
+      const bIdx = codeOrder.get(b.code) ?? 9999;
+      return aIdx - bIdx;
+    });
+    return result;
   }
-  return result;
+  return filterAndSort(nodes);
 }
