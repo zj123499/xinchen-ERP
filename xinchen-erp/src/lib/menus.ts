@@ -16,17 +16,19 @@ export interface MenuNode {
 }
 
 // ============================================
-// 角色 → 部门映射（新角色加这里即可）
+// 角色 → 部门映射
 // ============================================
 export const ROLE_DEPARTMENT_MAP: Record<string, { dept: string; isManagement: boolean }> = {
   admin:                 { dept: "管理", isManagement: true },
   general_manager:       { dept: "管理", isManagement: true },
   operations_director:   { dept: "管理", isManagement: true },
+  // 市场部（拆分为三）
+  newmedia_manager:      { dept: "新媒体部", isManagement: false },
+  newmedia_operator:     { dept: "新媒体部", isManagement: false },
   marketing_specialist:  { dept: "市场部", isManagement: false },
-  network_operator:      { dept: "市场部", isManagement: false },
-  live_streamer:         { dept: "市场部", isManagement: false },
-  newmedia_manager:      { dept: "市场部", isManagement: false },
-  newmedia_operator:     { dept: "市场部", isManagement: false },
+  network_operator:      { dept: "网络部", isManagement: false },
+  live_streamer:         { dept: "网络部", isManagement: false },
+  // 其余
   academic_advisor:      { dept: "咨询部", isManagement: false },
   document_application:  { dept: "交付部", isManagement: false },
   finance:               { dept: "财务部", isManagement: false },
@@ -38,19 +40,17 @@ export const ROLE_DEPARTMENT_MAP: Record<string, { dept: string; isManagement: b
 export const MENU_TREE: MenuNode[] = [
   { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
   {
-    name: "市场部", code: "dept_marketing", icon: "marketing",
+    name: "新媒体部", code: "dept_newmedia", icon: "media",
     children: [
-      { name: "站群管理", code: "sites_mgmt", icon: "sites", children: [
-        { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
-        { name: "公司模板", code: "company_templates", path: "/company-templates", icon: "template" },
-        { name: "服务器", code: "servers", path: "/servers", icon: "server" },
-      ]},
       { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
       { name: "触点管理", code: "touchpoints", path: "/touchpoints", icon: "touchpoints" },
+    ],
+  },
+  {
+    name: "市场部", code: "dept_marketing", icon: "leads",
+    children: [
       { name: "线索管理", code: "leads", path: "/leads", icon: "leads" },
       { name: "线索流转", code: "leadflow", path: "/lead-flow", icon: "leadFlow" },
-      { name: "归因结果", code: "attributions", path: "/attributions", icon: "attributions" },
-      { name: "渠道ROI", code: "channel_roi", path: "/channel-roi", icon: "channelRoi" },
       { name: "客户回访", code: "visits", icon: "visits", children: [
         { name: "回访记录", code: "visit_records", path: "/visit-records", icon: "visits" },
         { name: "回访计划", code: "visit_plans", path: "/visit-plans", icon: "visitPlan" },
@@ -58,6 +58,18 @@ export const MENU_TREE: MenuNode[] = [
         { name: "投诉管理", code: "complaints", path: "/success/complaints", icon: "success" },
         { name: "转介绍", code: "referrals", path: "/success/referrals", icon: "success" },
       ]},
+    ],
+  },
+  {
+    name: "网络部", code: "dept_network", icon: "sites",
+    children: [
+      { name: "站群管理", code: "sites_mgmt", icon: "sites", children: [
+        { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
+        { name: "公司模板", code: "company_templates", path: "/company-templates", icon: "template" },
+        { name: "服务器", code: "servers", path: "/servers", icon: "server" },
+      ]},
+      { name: "归因结果", code: "attributions", path: "/attributions", icon: "attributions" },
+      { name: "渠道ROI", code: "channel_roi", path: "/channel-roi", icon: "channelRoi" },
     ],
   },
   {
@@ -151,27 +163,33 @@ export const MENU_TREE: MenuNode[] = [
 ];
 
 // ============================================
-// 各部门专属菜单（非管理员角色登录即切换）
+// 各部门专属菜单
 // ============================================
 export const DEPARTMENT_MENUS: Record<string, MenuNode[]> = {
+  "新媒体部": [
+    { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
+    { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
+    { name: "触点管理", code: "touchpoints", path: "/touchpoints", icon: "touchpoints" },
+  ],
   "市场部": [
     { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
-    {
-      name: "营销推广", code: "dept_marketing", icon: "marketing",
-      children: [
-        { name: "站群管理", code: "sites_mgmt", icon: "sites", children: [
-          { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
-          { name: "公司模板", code: "company_templates", path: "/company-templates", icon: "template" },
-          { name: "服务器", code: "servers", path: "/servers", icon: "server" },
-        ]},
-        { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
-        { name: "触点管理", code: "touchpoints", path: "/touchpoints", icon: "touchpoints" },
-      ],
-    },
-    {
-      name: "线索管理", code: "leads", path: "/leads", icon: "leads",
-    },
+    { name: "线索管理", code: "leads", path: "/leads", icon: "leads" },
     { name: "线索流转", code: "leadflow", path: "/lead-flow", icon: "leadFlow" },
+    { name: "客户回访", code: "visits", icon: "visits", children: [
+      { name: "回访记录", code: "visit_records", path: "/visit-records", icon: "visits" },
+      { name: "回访计划", code: "visit_plans", path: "/visit-plans", icon: "visitPlan" },
+      { name: "满意度调查", code: "surveys", path: "/success/surveys", icon: "success" },
+      { name: "投诉管理", code: "complaints", path: "/success/complaints", icon: "success" },
+      { name: "转介绍", code: "referrals", path: "/success/referrals", icon: "success" },
+    ]},
+  ],
+  "网络部": [
+    { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
+    { name: "站群管理", code: "sites_mgmt", icon: "sites", children: [
+      { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
+      { name: "公司模板", code: "company_templates", path: "/company-templates", icon: "template" },
+      { name: "服务器", code: "servers", path: "/servers", icon: "server" },
+    ]},
     { name: "归因结果", code: "attributions", path: "/attributions", icon: "attributions" },
     { name: "渠道ROI", code: "channel_roi", path: "/channel-roi", icon: "channelRoi" },
   ],

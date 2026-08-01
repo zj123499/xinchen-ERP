@@ -283,6 +283,7 @@ model User {
   tenant           Tenant           @relation(fields: [tenantId], references: [id])
   employee         Employee?
   userRoles        UserRole[]
+  workRecords      WorkRecord[]
   userDepts        UserDepartment[]
   notifications    Notification[]
   createdAudit     AuditLog[]       @relation("audit_creator")
