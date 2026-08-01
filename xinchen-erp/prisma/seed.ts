@@ -243,8 +243,6 @@ async function main() {
     // 风险管理
     { code: "risk:view", name: "查看风险", groupName: "风险" },
     { code: "risk:manage", name: "管理风险规则", groupName: "风险" },
-    // AI 智能
-    { code: "ai:use", name: "使用AI功能", groupName: "AI" },
     // 扩展业务
     { code: "rental:view", name: "查看租房", groupName: "扩展" },
     { code: "rental:manage", name: "管理租房", groupName: "扩展" },

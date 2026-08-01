@@ -110,14 +110,6 @@ export const MENU_TREE: MenuNode[] = [
     ],
   },
   {
-    name: "AI 智能", code: "ai", icon: "ai",
-    children: [
-      { name: "AI 选校顾问", code: "ai_school", path: "/ai/school-select", icon: "ai" },
-      { name: "AI 文书助手", code: "ai_writing", path: "/ai/writing", icon: "ai" },
-      { name: "AI 客服助手", code: "ai_service", path: "/ai/customer-service", icon: "ai" },
-    ],
-  },
-  {
     name: "经营驾驶舱", code: "bi", icon: "bi",
     children: [
       { name: "经营驾驶舱", code: "bi_dash", path: "/bi", icon: "bi" },
