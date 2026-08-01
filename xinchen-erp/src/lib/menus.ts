@@ -182,13 +182,13 @@ export function getAccessScope(roles: string[], userId: number): { scope: "all" 
 // ============================================
 export const MENU_PERMISSION_MAP: Record<string, string[]> = {
   dashboard: ["dashboard:leads", "dashboard:contracts", "dashboard:finance", "dashboard:students", "dashboard:applications", "dashboard:visits"],
-  // 线索录入
+  // 线索录入（完整CRUD）
   leads:              ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
-  // 客户管理
-  followup_pending:   ["leads:view", "leads:update"],
-  followup_interested:["leads:view", "leads:update"],
+  // 客户管理子菜单（只读筛选视图，独立于线索录入的编辑权限）
+  followup_pending:   ["leads:view"],
+  followup_interested:["leads:view"],
   followup_signed:    ["leads:view", "contracts:view"],
-  followup_uninterested: ["leads:view", "leads:update"],
+  followup_uninterested: ["leads:view"],
   // 线索管理
   leadflow:           ["leadflow:view"],
   visit_records:      ["visits:view", "visits:create", "visits:update", "visits:delete"],
