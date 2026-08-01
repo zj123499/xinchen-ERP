@@ -52,7 +52,7 @@ export default function StudentsPage() {
       const r = await fetch(`/api/students/${deleteTarget.id}`, { method: "DELETE" });
       if (!r.ok) { const d = await r.json().catch(() => ({})); alert(d.error || "删除失败"); return; }
       setDeleteTarget(null);
-      fetchData();
+      fetchStudents();
     } catch { alert("网络错误"); }
     finally { setDeleting(false); }
   }
