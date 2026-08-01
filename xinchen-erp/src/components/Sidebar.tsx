@@ -12,10 +12,10 @@ import {
   UserCog, Radio, Globe2, CalendarClock, FileEdit, BarChart3, Filter,
   ArrowRightLeft, ShieldCheck, TrendingUp, Briefcase, KeyRound,
   Database, Wrench, BookOpen, GitBranch, HeartHandshake, AlertTriangle, Sparkles,
-  Monitor,
+  Monitor, UserCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MENU_TREE, getMenuTreeByRoles, type MenuNode } from "@/lib/menus";
+import { MENU_TREE, filterMenusByCodes, type MenuNode } from "@/lib/menus";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   dashboard: <LayoutDashboard className="w-5 h-5" />,
@@ -69,6 +69,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   screen: <Monitor className="w-5 h-5" />,
   template: <FileText className="w-5 h-5" />,
   server: <Database className="w-5 h-5" />,
+  customer: <UserCheck className="w-5 h-5" />,
 };
 
 export default function Sidebar() {
@@ -85,10 +86,13 @@ export default function Sidebar() {
       .then((r) => (r.ok ? r.json() : { isAdmin: true, codes: [], roles: [] }))
       .then((data) => {
         if (!alive) return;
-        // 混合架构：管理员用全量菜单，部门用户用部门专属菜单
-        const roles: string[] = Array.isArray(data?.roles) ? data.roles : [];
-        const { tree } = getMenuTreeByRoles(roles);
-        setMenus(tree);
+        // 权限驱动：管理员看全量，其他角色按 role_menus 过滤
+        if (data?.isAdmin) {
+          setMenus(MENU_TREE);
+        } else {
+          const codes = new Set<string>(Array.isArray(data?.codes) ? data.codes : []);
+          setMenus(filterMenusByCodes(codes));
+        }
         setDepartment(data?.department || "");
       })
       .catch(() => {
