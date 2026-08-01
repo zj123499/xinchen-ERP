@@ -16,18 +16,22 @@ export interface MenuNode {
 // ============================================
 // 角色 → 部门映射（仅用于 WorkRecord）
 // ============================================
-export const ROLE_DEPARTMENT_MAP: Record<string, { dept: string; isManagement: boolean }> = {
-  admin:                 { dept: "管理", isManagement: true },
-  general_manager:       { dept: "管理", isManagement: true },
-  operations_director:   { dept: "管理", isManagement: true },
-  newmedia_manager:      { dept: "新媒体部", isManagement: false },
-  newmedia_operator:     { dept: "新媒体部", isManagement: false },
-  marketing_specialist:  { dept: "市场部", isManagement: false },
-  network_operator:      { dept: "网络部", isManagement: false },
-  live_streamer:         { dept: "网络部", isManagement: false },
-  academic_advisor:      { dept: "咨询部", isManagement: false },
-  document_application:  { dept: "文书部", isManagement: false },
-  finance:               { dept: "财务部", isManagement: false },
+export const ROLE_DEPARTMENT_MAP: Record<string, { dept: string; isManagement: boolean; isDeptLead: boolean }> = {
+  admin:                 { dept: "管理", isManagement: true, isDeptLead: true },
+  general_manager:       { dept: "管理", isManagement: true, isDeptLead: true },
+  operations_director:   { dept: "管理", isManagement: true, isDeptLead: true },
+  // 新媒体部：组长看全部，专员看自己
+  newmedia_manager:      { dept: "新媒体部", isManagement: false, isDeptLead: true },
+  newmedia_operator:     { dept: "新媒体部", isManagement: false, isDeptLead: false },
+  // 市场部
+  marketing_specialist:  { dept: "市场部", isManagement: false, isDeptLead: true },
+  // 网络部：网络运营是组长，直播看自己
+  network_operator:      { dept: "网络部", isManagement: false, isDeptLead: true },
+  live_streamer:         { dept: "网络部", isManagement: false, isDeptLead: false },
+  // 咨询部/文书部/财务部（当前各只有一个角色，默认组长）
+  academic_advisor:      { dept: "咨询部", isManagement: false, isDeptLead: true },
+  document_application:  { dept: "文书部", isManagement: false, isDeptLead: true },
+  finance:               { dept: "财务部", isManagement: false, isDeptLead: true },
 };
 
 // ============================================
@@ -161,6 +165,17 @@ export const MENU_TREE: MenuNode[] = [
     ],
   },
 ];
+
+// ============================================
+// 访问范围：管理员/组长 → all，普通成员 → self
+// ============================================
+export function getAccessScope(roles: string[], userId: number): { scope: "all" | "self"; userId: number } {
+  for (const role of roles) {
+    const info = ROLE_DEPARTMENT_MAP[role];
+    if (info?.isManagement || info?.isDeptLead) return { scope: "all", userId };
+  }
+  return { scope: "self", userId };
+}
 
 // ============================================
 // 菜单 → 权限映射
