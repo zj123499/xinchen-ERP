@@ -232,6 +232,7 @@ model Tenant {
   sites               Site[]
   companyTemplates    CompanyTemplate[]
   servers             Server[]
+  workRecords         WorkRecord[]
   mediaAccounts       MediaAccount[]
   auditLogs           AuditLog[]
   businessLines       BusinessLine[]
@@ -2261,4 +2262,43 @@ model RiskNotification {
 
   @@index([tenantId])
   @@map("risk_notifications")
+}
+
+// ============================================
+// 业绩记录（部门绩效考核 + 薪资自动计算基础）
+// ============================================
+enum WorkRecordType {
+  LEAD_CREATED       // 新建线索
+  LEAD_ASSIGNED      // 分配线索（接收）
+  FOLLOWUP_COMPLETED // 完成跟进
+  CONTRACT_SIGNED    // 签约
+  PAYMENT_COLLECTED  // 收款
+  STUDENT_ENROLLED   // 招收学生
+  APPLICATION_SUBMIT  // 提交申请
+  OFFER_RECEIVED     // 收到Offer
+  VISA_APPROVED      // 签证获批
+  VISIT_COMPLETED    // 完成回访
+}
+
+model WorkRecord {
+  id          Int             @id @default(autoincrement())
+  tenantId    Int             @map("tenant_id")
+  userId      Int             @map("user_id")
+  department  String          @db.VarChar(50)
+  recordType  WorkRecordType  @map("record_type")
+  description String?         @db.VarChar(500)
+  quantity    Int             @default(1)
+  amount      Float           @default(0)
+  relatedId   Int?            @map("related_id")
+  relatedType String?         @map("related_type") @db.VarChar(50)
+  recordedAt  DateTime        @default(now()) @map("recorded_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, userId])
+  @@index([tenantId, department])
+  @@index([recordedAt])
+  @@map("work_records")
 }

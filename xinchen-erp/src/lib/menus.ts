@@ -1,7 +1,10 @@
 /**
- * 菜单单一数据源
- * 侧边栏渲染、角色菜单授权、按角色过滤均以此为准。
- * code 必须与数据库 menus.code 保持一致。
+ * 菜单 + 部门架构（混合方案）
+ *
+ * 前端按部门展示菜单，后端数据按业务线组织。
+ * - MENU_TREE: 管理员/总经理全量菜单
+ * - DEPARTMENT_MENUS: 各部门专属菜单
+ * - ROLE_DEPARTMENT_MAP: 角色 → 部门映射
  */
 
 export interface MenuNode {
@@ -12,40 +15,74 @@ export interface MenuNode {
   children?: MenuNode[];
 }
 
+// ============================================
+// 角色 → 部门映射（新角色加这里即可）
+// ============================================
+export const ROLE_DEPARTMENT_MAP: Record<string, { dept: string; isManagement: boolean }> = {
+  admin:                 { dept: "管理", isManagement: true },
+  general_manager:       { dept: "管理", isManagement: true },
+  operations_director:   { dept: "管理", isManagement: true },
+  marketing_specialist:  { dept: "市场部", isManagement: false },
+  network_operator:      { dept: "市场部", isManagement: false },
+  live_streamer:         { dept: "市场部", isManagement: false },
+  newmedia_manager:      { dept: "市场部", isManagement: false },
+  newmedia_operator:     { dept: "市场部", isManagement: false },
+  academic_advisor:      { dept: "咨询部", isManagement: false },
+  document_application:  { dept: "交付部", isManagement: false },
+  finance:               { dept: "财务部", isManagement: false },
+};
+
+// ============================================
+// 全量菜单树（管理员/总经理）
+// ============================================
 export const MENU_TREE: MenuNode[] = [
   { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
   {
-    name: "销售管理", code: "sales", icon: "leads",
+    name: "市场部", code: "dept_marketing", icon: "marketing",
+    children: [
+      { name: "站群管理", code: "sites_mgmt", icon: "sites", children: [
+        { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
+        { name: "公司模板", code: "company_templates", path: "/company-templates", icon: "template" },
+        { name: "服务器", code: "servers", path: "/servers", icon: "server" },
+      ]},
+      { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
+      { name: "触点管理", code: "touchpoints", path: "/touchpoints", icon: "touchpoints" },
+      { name: "线索管理", code: "leads", path: "/leads", icon: "leads" },
+      { name: "线索流转", code: "leadflow", path: "/lead-flow", icon: "leadFlow" },
+      { name: "归因结果", code: "attributions", path: "/attributions", icon: "attributions" },
+      { name: "渠道ROI", code: "channel_roi", path: "/channel-roi", icon: "channelRoi" },
+      { name: "客户回访", code: "visits", icon: "visits", children: [
+        { name: "回访记录", code: "visit_records", path: "/visit-records", icon: "visits" },
+        { name: "回访计划", code: "visit_plans", path: "/visit-plans", icon: "visitPlan" },
+        { name: "满意度调查", code: "surveys", path: "/success/surveys", icon: "success" },
+        { name: "投诉管理", code: "complaints", path: "/success/complaints", icon: "success" },
+        { name: "转介绍", code: "referrals", path: "/success/referrals", icon: "success" },
+      ]},
+    ],
+  },
+  {
+    name: "咨询部", code: "dept_consulting", icon: "leads",
     children: [
       { name: "线索管理", code: "leads", path: "/leads", icon: "leads" },
       { name: "待跟进", code: "sales_followup_pending", path: "/followups/pending", icon: "followup" },
       { name: "意向客户", code: "sales_followup_interested", path: "/followups/interested", icon: "followup" },
       { name: "已签约客户", code: "sales_followup_signed", path: "/followups/signed", icon: "followup" },
-      { name: "无意向客户", code: "sales_followup_uninterested", path: "/followups/uninterested", icon: "followup" },
-      { name: "线索流转", code: "leadflow", path: "/lead-flow", icon: "leadFlow" },
+      { name: "合同管理", code: "contracts", path: "/contracts", icon: "contracts" },
+      { name: "回访记录", code: "visit_records", path: "/visit-records", icon: "visits" },
+      { name: "回访计划", code: "visit_plans", path: "/visit-plans", icon: "visitPlan" },
     ],
   },
-  { name: "合同管理", code: "contracts", path: "/contracts", icon: "contracts" },
   {
-    name: "交付管理", code: "delivery", icon: "applications",
+    name: "交付部", code: "dept_delivery", icon: "applications",
     children: [
       { name: "学生档案", code: "students", path: "/students", icon: "students" },
       { name: "申请管理", code: "applications", path: "/applications", icon: "applications" },
       { name: "签证管理", code: "visas", path: "/visas", icon: "visas" },
+      { name: "合作院校", code: "partner_schools", path: "/partner-schools", icon: "partners" },
     ],
   },
   {
-    name: "客户回访", code: "visits", icon: "visits",
-    children: [
-      { name: "回访记录", code: "visit_records", path: "/visit-records", icon: "visits" },
-      { name: "回访计划", code: "visit_plans", path: "/visit-plans", icon: "visitPlan" },
-      { name: "满意度调查", code: "surveys", path: "/success/surveys", icon: "success" },
-      { name: "投诉管理", code: "complaints", path: "/success/complaints", icon: "success" },
-      { name: "转介绍", code: "referrals", path: "/success/referrals", icon: "success" },
-    ],
-  },
-  {
-    name: "财务管理", code: "finance", icon: "payments",
+    name: "财务部", code: "dept_finance", icon: "payments",
     children: [
       { name: "收款管理", code: "payments", path: "/payments", icon: "payments" },
       { name: "收入确认", code: "incomes", path: "/incomes", icon: "incomes" },
@@ -56,16 +93,13 @@ export const MENU_TREE: MenuNode[] = [
       { name: "成本管理", code: "costs", path: "/costs", icon: "costs" },
       { name: "提成管理", code: "commissions", path: "/commissions", icon: "commissions" },
       { name: "提成规则", code: "commission_rules", path: "/commission-rules", icon: "commissions" },
-      { name: "配置版本", code: "config_versions", path: "/config-versions", icon: "settings" },
       { name: "薪资管理", code: "salaries", path: "/salaries", icon: "salaries" },
       { name: "报销管理", code: "reimbursements", path: "/reimbursements", icon: "reimbursements" },
       { name: "利润报表", code: "profit_reports", path: "/profit-reports", icon: "profit" },
     ],
   },
-  {
-    name: "合作方管理", code: "partners_mgmt", icon: "partners",
+  { name: "合作方管理", code: "partners_mgmt", icon: "partners",
     children: [
-      { name: "合作院校", code: "partner_schools", path: "/partner-schools", icon: "partners" },
       { name: "合作方", code: "partners", path: "/partners", icon: "partners" },
     ],
   },
@@ -74,22 +108,6 @@ export const MENU_TREE: MenuNode[] = [
     children: [
       { name: "租房管理", code: "rental", path: "/rental", icon: "rental" },
       { name: "境外服务", code: "overseas", path: "/overseas-services", icon: "overseas" },
-    ],
-  },
-  {
-    name: "营销管理", code: "marketing", icon: "marketing",
-    children: [
-      { name: "站群管理", code: "sites_mgmt", icon: "sites",
-        children: [
-          { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
-          { name: "公司模板", code: "company_templates", path: "/company-templates", icon: "template" },
-          { name: "服务器", code: "servers", path: "/servers", icon: "server" },
-        ],
-      },
-      { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
-      { name: "触点管理", code: "touchpoints", path: "/touchpoints", icon: "touchpoints" },
-      { name: "归因结果", code: "attributions", path: "/attributions", icon: "attributions" },
-      { name: "渠道ROI", code: "channel_roi", path: "/channel-roi", icon: "channelRoi" },
     ],
   },
   {
@@ -131,6 +149,86 @@ export const MENU_TREE: MenuNode[] = [
     ],
   },
 ];
+
+// ============================================
+// 各部门专属菜单（非管理员角色登录即切换）
+// ============================================
+export const DEPARTMENT_MENUS: Record<string, MenuNode[]> = {
+  "市场部": [
+    { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
+    {
+      name: "营销推广", code: "dept_marketing", icon: "marketing",
+      children: [
+        { name: "站群管理", code: "sites_mgmt", icon: "sites", children: [
+          { name: "站点列表", code: "sites", path: "/sites", icon: "sites" },
+          { name: "公司模板", code: "company_templates", path: "/company-templates", icon: "template" },
+          { name: "服务器", code: "servers", path: "/servers", icon: "server" },
+        ]},
+        { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
+        { name: "触点管理", code: "touchpoints", path: "/touchpoints", icon: "touchpoints" },
+      ],
+    },
+    {
+      name: "线索管理", code: "leads", path: "/leads", icon: "leads",
+    },
+    { name: "线索流转", code: "leadflow", path: "/lead-flow", icon: "leadFlow" },
+    { name: "归因结果", code: "attributions", path: "/attributions", icon: "attributions" },
+    { name: "渠道ROI", code: "channel_roi", path: "/channel-roi", icon: "channelRoi" },
+  ],
+  "咨询部": [
+    { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
+    { name: "线索管理", code: "leads", path: "/leads", icon: "leads" },
+    { name: "待跟进", code: "sales_followup_pending", path: "/followups/pending", icon: "followup" },
+    { name: "意向客户", code: "sales_followup_interested", path: "/followups/interested", icon: "followup" },
+    { name: "已签约客户", code: "sales_followup_signed", path: "/followups/signed", icon: "followup" },
+    { name: "合同管理", code: "contracts", path: "/contracts", icon: "contracts" },
+    { name: "回访记录", code: "visit_records", path: "/visit-records", icon: "visits" },
+    { name: "回访计划", code: "visit_plans", path: "/visit-plans", icon: "visitPlan" },
+  ],
+  "交付部": [
+    { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
+    { name: "学生档案", code: "students", path: "/students", icon: "students" },
+    { name: "申请管理", code: "applications", path: "/applications", icon: "applications" },
+    { name: "签证管理", code: "visas", path: "/visas", icon: "visas" },
+    { name: "合作院校", code: "partner_schools", path: "/partner-schools", icon: "partners" },
+  ],
+  "财务部": [
+    { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
+    {
+      name: "财务管理", code: "dept_finance", icon: "payments",
+      children: [
+        { name: "收款管理", code: "payments", path: "/payments", icon: "payments" },
+        { name: "报销管理", code: "reimbursements", path: "/reimbursements", icon: "reimbursements" },
+        { name: "成本管理", code: "costs", path: "/costs", icon: "costs" },
+        { name: "提成管理", code: "commissions", path: "/commissions", icon: "commissions" },
+        { name: "提成规则", code: "commission_rules", path: "/commission-rules", icon: "commissions" },
+        { name: "薪资管理", code: "salaries", path: "/salaries", icon: "salaries" },
+        { name: "利润报表", code: "profit_reports", path: "/profit-reports", icon: "profit" },
+      ],
+    },
+  ],
+};
+
+/**
+ * 根据角色列表获取应使用的菜单树。
+ * - admin/总经理 → MENU_TREE（全量）
+ * - 其他角色 → 找到第一个匹配的部门菜单
+ */
+export function getMenuTreeByRoles(roles: string[]): { tree: MenuNode[]; department: string; isManagement: boolean } {
+  for (const role of roles) {
+    const info = ROLE_DEPARTMENT_MAP[role];
+    if (info?.isManagement) return { tree: MENU_TREE, department: "管理", isManagement: true };
+  }
+  for (const role of roles) {
+    const info = ROLE_DEPARTMENT_MAP[role];
+    if (info) return {
+      tree: DEPARTMENT_MENUS[info.dept] || MENU_TREE,
+      department: info.dept,
+      isManagement: false,
+    };
+  }
+  return { tree: MENU_TREE, department: "未知", isManagement: true };
+}
 
 /** 递归展开所有节点（含父级） */
 export function flattenMenus(nodes: MenuNode[] = MENU_TREE): MenuNode[] {

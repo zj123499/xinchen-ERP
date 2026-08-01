@@ -15,7 +15,7 @@ import {
   Monitor,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MENU_TREE, filterMenusByCodes, type MenuNode } from "@/lib/menus";
+import { MENU_TREE, getMenuTreeByRoles, type MenuNode } from "@/lib/menus";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   dashboard: <LayoutDashboard className="w-5 h-5" />,
@@ -77,19 +77,19 @@ export default function Sidebar() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   // 可见菜单：null 表示尚未加载完成（避免闪烁）
   const [menus, setMenus] = useState<MenuNode[] | null>(null);
+  const [department, setDepartment] = useState("");
 
   useEffect(() => {
     let alive = true;
     fetch("/api/auth/menus")
-      .then((r) => (r.ok ? r.json() : { isAdmin: true, codes: [] }))
+      .then((r) => (r.ok ? r.json() : { isAdmin: true, codes: [], roles: [] }))
       .then((data) => {
         if (!alive) return;
-        if (data?.isAdmin) {
-          setMenus(MENU_TREE);
-        } else {
-          const codes = new Set<string>(Array.isArray(data?.codes) ? data.codes : []);
-          setMenus(filterMenusByCodes(codes));
-        }
+        // 混合架构：管理员用全量菜单，部门用户用部门专属菜单
+        const roles: string[] = Array.isArray(data?.roles) ? data.roles : [];
+        const { tree } = getMenuTreeByRoles(roles);
+        setMenus(tree);
+        setDepartment(data?.department || "");
       })
       .catch(() => {
         if (alive) setMenus(MENU_TREE);
@@ -156,6 +156,11 @@ export default function Sidebar() {
         <img src="/logo.svg" alt="Newill" className="h-9 w-auto mr-2" />
         <span className="text-white font-bold text-base">Newill</span>
       </div>
+      {department && department !== "管理" && (
+        <div className="px-4 py-2 bg-gray-800 border-b border-gray-700">
+          <span className="text-xs text-blue-400 font-medium">{department}</span>
+        </div>
+      )}
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
         {(menus ?? []).map((item) => renderItem(item))}
       </nav>
