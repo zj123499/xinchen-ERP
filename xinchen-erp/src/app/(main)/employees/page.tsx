@@ -298,39 +298,39 @@ export default function EmployeesPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">员工信息</h1>
-          <p className="text-sm text-gray-500 mt-1">管理公司员工档案，并为员工创建系统登录账号</p>
+          <h1 className="text-2xl font-bold text-slate-900">员工信息</h1>
+          <p className="text-sm text-slate-500 mt-1">管理公司员工档案，并为员工创建系统登录账号</p>
         </div>
         <button onClick={openNewForm} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
-          <Plus className="w-4 h-4" />新增员工
+          <Plus className="w-5 h-5" />新增员工
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="搜索姓名、工号、手机号..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+              placeholder="搜索姓名、工号、手机号..." className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
           </div>
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部状态</option>
             <option value="active">在职</option>
             <option value="inactive">离职</option>
           </select>
           <button onClick={handleSearch} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">搜索</button>
           <button onClick={() => { setKeyword(""); setStatusFilter(""); setPage(1); }}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-4 h-4" /></button>
+            className="p-2 text-gray-400 hover:text-slate-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-5 h-5" /></button>
           <button onClick={handleMigrateAccounts} disabled={migrating}
             className="flex items-center gap-1 px-3 py-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition disabled:opacity-50"
             title="将已有员工的登录账号批量同步为手机号">
-            <RotateCw className={`w-4 h-4 ${migrating ? "animate-spin" : ""}`} />同步账号
+            <RotateCw className={`w-5 h-5 ${migrating ? "animate-spin" : ""}`} />同步账号
           </button>
           <button onClick={handleEnsurePermissions} disabled={permSetting}
             className="flex items-center gap-1 px-3 py-2 text-sm text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition disabled:opacity-50"
             title="为所有角色批量配置看板视图权限（leads:view等）">
-            <Shield className={`w-4 h-4 ${permSetting ? "animate-pulse" : ""}`} />配置权限
+            <Shield className={`w-5 h-5 ${permSetting ? "animate-pulse" : ""}`} />配置权限
           </button>
         </div>
         {migrateMsg && (
@@ -341,7 +341,7 @@ export default function EmployeesPage() {
         )}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400">
             <RefreshCw className="w-5 h-5 animate-spin mr-2" />加载中...
@@ -356,7 +356,7 @@ export default function EmployeesPage() {
           <>
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 text-left">
+                <tr className="bg-slate-50 text-left">
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">员工</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">工号</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">联系方式</th>
@@ -369,29 +369,29 @@ export default function EmployeesPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {data.list.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-gray-50 transition">
+                  <tr key={emp.id} className="hover:bg-slate-50 transition">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-blue-600" />
+                          <User className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{emp.name}</div>
-                          {emp.gender && <div className="text-xs text-gray-400">{getDictLabel(genders, emp.gender)}</div>}
+                          <div className="text-sm font-medium text-slate-900">{emp.name}</div>
+                          {emp.gender && <div className="text-xs text-slate-400">{getDictLabel(genders, emp.gender)}</div>}
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 font-mono">{emp.employeeNo}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 font-mono">{emp.employeeNo}</td>
                     <td className="px-4 py-3">
-                      {emp.phone && <div className="text-sm text-gray-600 flex items-center gap-1"><Phone className="w-3 h-3 text-gray-400" />{emp.phone}</div>}
-                      {emp.email && <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5"><Mail className="w-3 h-3" />{emp.email}</div>}
+                      {emp.phone && <div className="text-sm text-slate-600 flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-gray-400" />{emp.phone}</div>}
+                      {emp.email && <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5"><Mail className="w-3.5 h-3.5" />{emp.email}</div>}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       {emp.user?.username ? (
                         <div className="space-y-1">
-                          <span className="font-mono text-gray-700">{emp.phone || emp.user.username}</span>
+                          <span className="font-mono text-slate-700">{emp.phone || emp.user.username}</span>
                           {emp.phone && emp.user.username !== emp.phone && (
-                            <div className="text-xs text-gray-400">账号: {emp.user.username}</div>
+                            <div className="text-xs text-slate-400">账号: {emp.user.username}</div>
                           )}
                           <div className="flex flex-wrap gap-1">
                             <span className={`text-xs px-1.5 py-0.5 rounded-full ${emp.user.isDefaultPassword ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}>
@@ -403,7 +403,7 @@ export default function EmployeesPage() {
                           </div>
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400">未创建</span>
+                        <span className="text-xs text-slate-400">未创建</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -417,12 +417,12 @@ export default function EmployeesPage() {
                         <span className="text-sm text-gray-400">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 flex items-center gap-1">
+                    <td className="px-4 py-3 text-sm text-slate-600 flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5 text-gray-400" />
                       {emp.entryDate ? new Date(emp.entryDate).toLocaleDateString("zh-CN") : "-"}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[emp.status]?.color || "bg-gray-100 text-gray-600"}`}>
+                      <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[emp.status]?.color || "bg-gray-100 text-slate-600"}`}>
                         {STATUS_MAP[emp.status]?.label || emp.status}
                       </span>
                     </td>
@@ -430,19 +430,19 @@ export default function EmployeesPage() {
                       <div className="flex items-center gap-1">
                         {emp.user && (
                           <button onClick={() => handleResetPassword(emp)} className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded transition" title="重置密码">
-                            <Key className="w-4 h-4" />
+                            <Key className="w-5 h-5" />
                           </button>
                         )}
                         {emp.status === "inactive" && emp.user && (
                           <button onClick={() => openReassign(emp)} className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition" title="重新分配离职数据">
-                            <UserPlus className="w-4 h-4" />
+                            <UserPlus className="w-5 h-5" />
                           </button>
                         )}
                         <button onClick={() => openEditForm(emp)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑">
-                          <MoreHorizontal className="w-4 h-4" />
+                          <MoreHorizontal className="w-5 h-5" />
                         </button>
                         <button onClick={() => setDeleteConfirm(emp)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除">
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
@@ -451,22 +451,22 @@ export default function EmployeesPage() {
               </tbody>
             </table>
 
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
-              <span className="text-sm text-gray-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-slate-50">
+              <span className="text-sm text-slate-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
               <div className="flex items-center gap-1">
                 <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronLeft className="w-4 h-4" /></button>
+                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronLeft className="w-5 h-5" /></button>
                 {Array.from({ length: Math.min(data.totalPages, 5) }, (_, i) => {
                   const start = Math.max(1, Math.min(page - 2, data.totalPages - 4));
                   const p = start + i;
                   if (p > data.totalPages) return null;
                   return (
                     <button key={p} onClick={() => setPage(p)}
-                      className={`w-8 h-8 text-sm rounded transition ${p === page ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-200"}`}>{p}</button>
+                      className={`w-8 h-8 text-sm rounded transition ${p === page ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-gray-200"}`}>{p}</button>
                   );
                 })}
                 <button onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={page >= data.totalPages}
-                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronRight className="w-4 h-4" /></button>
+                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronRight className="w-5 h-5" /></button>
               </div>
             </div>
           </>
@@ -475,23 +475,23 @@ export default function EmployeesPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">{editingEmployee ? "编辑员工" : "新增员工"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">{editingEmployee ? "编辑员工" : "新增员工"}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded transition">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">姓名 <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">姓名 <span className="text-red-500">*</span></label>
                   <input type="text" required value={formData.name} onChange={(e) => setFormData((d) => ({ ...d, name: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">性别</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">性别</label>
                   <select value={formData.gender} onChange={(e) => setFormData((d) => ({ ...d, gender: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     <option value="">请选择</option>
                     {genders.map((g) => <option key={g.dictKey} value={g.dictKey}>{g.dictValue}</option>)}
                   </select>
@@ -499,31 +499,31 @@ export default function EmployeesPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">手机号</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">手机号</label>
                   <input type="text" value={formData.phone} onChange={(e) => setFormData((d) => ({ ...d, phone: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">邮箱</label>
                   <input type="email" value={formData.email} onChange={(e) => setFormData((d) => ({ ...d, email: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">登录账号（默认手机号）</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">登录账号（默认手机号）</label>
                   <input type="text" value={formData.username} onChange={(e) => setFormData((d) => ({ ...d, username: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="留空则自动用手机号作为登录账号" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="留空则自动用手机号作为登录账号" />
                 </div>
                 <div className="flex items-end">
-                  <p className="text-xs text-gray-400 leading-relaxed">创建后初始密码为 <span className="font-mono text-gray-600">Xc@123456</span>，员工首次登录需修改</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">创建后初始密码为 <span className="font-mono text-slate-600">Xc@123456</span>，员工首次登录需修改</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700">登录密码</label>
+                  <label className="block text-sm font-medium text-slate-700">登录密码</label>
                   <button type="button" onClick={() => setShowPwd((v) => !v)}
                     className="text-xs text-blue-600 hover:underline">{showPwd ? "隐藏" : "显示"}密码</button>
                 </div>
@@ -531,32 +531,32 @@ export default function EmployeesPage() {
                   <div>
                     <input type={showPwd ? "text" : "password"} value={formData.password}
                       onChange={(e) => setFormData((d) => ({ ...d, password: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                       placeholder="留空则使用默认 Xc@123456" />
                   </div>
                   <div>
                     <input type={showPwd ? "text" : "password"} value={formData.confirmPassword}
                       onChange={(e) => setFormData((d) => ({ ...d, confirmPassword: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                       placeholder="再次输入以确认一致性" />
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-400 leading-relaxed">
+                  <p className="text-xs text-slate-400 leading-relaxed">
                     {formData.password
                       ? "将以你填写的自定义密码创建，请牢记并转告员工"
                       : "留空则使用默认密码 Xc@123456，员工首次登录需修改"}
                   </p>
-                  <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                    <input type="checkbox" checked={formData.mustChangePassword} onChange={(e) => setFormData((d) => ({ ...d, mustChangePassword: e.target.checked }))} className="w-4 h-4" />
+                  <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                    <input type="checkbox" checked={formData.mustChangePassword} onChange={(e) => setFormData((d) => ({ ...d, mustChangePassword: e.target.checked }))} className="w-5 h-5" />
                     首次登录强制修改密码
                   </label>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">角色 <span className="text-gray-400 text-xs">（可多选，决定系统权限）</span></label>
-                <div className="flex flex-wrap gap-2 p-3 border border-gray-300 rounded-lg max-h-32 overflow-y-auto">
+                <label className="block text-sm font-medium text-slate-700 mb-1">角色 <span className="text-gray-400 text-xs">（可多选，决定系统权限）</span></label>
+                <div className="flex flex-wrap gap-2 p-3 border border-slate-300 rounded-lg max-h-32 overflow-y-auto">
                   {roles.length === 0 ? (
                     <span className="text-sm text-gray-400">暂无角色数据，请先在系统设置中创建角色</span>
                   ) : (
@@ -566,7 +566,7 @@ export default function EmployeesPage() {
                         <label
                           key={r.id}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer text-sm transition ${
-                            checked ? "bg-blue-100 text-blue-700 border border-blue-300" : "bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100"
+                            checked ? "bg-blue-100 text-blue-700 border border-blue-300" : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-gray-100"
                           }`}
                         >
                           <input
@@ -589,26 +589,26 @@ export default function EmployeesPage() {
                   )}
                 </div>
                 {formData.roleIds.length > 0 && (
-                  <p className="text-xs text-gray-400 mt-1">已选 {formData.roleIds.length} 个角色</p>
+                  <p className="text-xs text-slate-400 mt-1">已选 {formData.roleIds.length} 个角色</p>
                 )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">入职日期</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">入职日期</label>
                   <input type="date" value={formData.entryDate} onChange={(e) => setFormData((d) => ({ ...d, entryDate: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">状态</label>
                   <select value={formData.status} onChange={(e) => setFormData((d) => ({ ...d, status: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     <option value="active">在职</option>
                     <option value="inactive">离职</option>
                   </select>
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button type="submit" disabled={submitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium">
                   {submitting ? "保存中..." : editingEmployee ? "保存修改" : "确认新增"}
                 </button>
@@ -620,14 +620,14 @@ export default function EmployeesPage() {
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
             <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl">
               <h2 className="text-lg font-semibold text-red-800">确认删除</h2>
             </div>
             <div className="p-6">
-              <p className="text-sm text-gray-700">确定要删除员工 <strong>{deleteConfirm.name}</strong>（{deleteConfirm.employeeNo}）吗？此操作不可撤销。</p>
+              <p className="text-sm text-slate-700">确定要删除员工 <strong>{deleteConfirm.name}</strong>（{deleteConfirm.employeeNo}）吗？此操作不可撤销。</p>
               <div className="flex justify-end gap-3 mt-4">
-                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition">确认删除</button>
               </div>
             </div>
@@ -637,28 +637,28 @@ export default function EmployeesPage() {
 
       {reassignEmp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">重新分配离职员工数据</h2>
-              <button onClick={() => setReassignEmp(null)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">重新分配离职员工数据</h2>
+              <button onClick={() => setReassignEmp(null)} className="p-1 text-gray-400 hover:text-slate-600 rounded transition">✕</button>
             </div>
             <div className="p-6 space-y-4">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-slate-700">
                 将离职员工 <strong>{reassignEmp.name}</strong> 名下的业务数据转移给其他在职员工（不会删除或影响其历史档案）：
               </p>
               {reassignCount && (
-                <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3 flex flex-wrap gap-x-4 gap-y-1">
+                <div className="text-sm text-slate-600 bg-slate-50 rounded-lg p-3 flex flex-wrap gap-x-4 gap-y-1">
                   <span>线索 {reassignCount.leads} 条</span>
                   <span>学生 {reassignCount.students} 条</span>
                   <span>订单 {reassignCount.orders} 条</span>
                   <span>文案任务 {reassignCount.tasks} 条</span>
-                  <span className="font-medium text-gray-700">共 {reassignCount.total} 条</span>
+                  <span className="font-medium text-slate-700">共 {reassignCount.total} 条</span>
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">转移给</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">转移给</label>
                 <select value={reassignTo} onChange={(e) => setReassignTo(e.target.value ? Number(e.target.value) : "")}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                   <option value="">请选择目标员工</option>
                   {reassignTargets.map((t) => (
                     <option key={t.id} value={t.user!.id}>{t.name}（{t.user!.username}）</option>
@@ -669,7 +669,7 @@ export default function EmployeesPage() {
                 <div className="text-sm text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg p-3">{reassignMsg}</div>
               )}
               <div className="flex justify-end gap-3 pt-1">
-                <button onClick={() => setReassignEmp(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button onClick={() => setReassignEmp(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button onClick={confirmReassign} disabled={!reassignTo || reassigning}
                   className="px-4 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition">
                   {reassigning ? "转移中..." : "确认转移"}

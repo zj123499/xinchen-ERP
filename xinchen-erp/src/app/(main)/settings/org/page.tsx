@@ -206,10 +206,10 @@ export default function OrganizationPage() {
     const hasChildren = dept.children && dept.children.length > 0;
     return (
       <div key={dept.id}>
-        <div className="flex items-center py-3 px-4 hover:bg-gray-50 transition" style={{ paddingLeft: `${level * 24 + 16}px` }}>
+        <div className="flex items-center py-3 px-4 hover:bg-slate-50 transition" style={{ paddingLeft: `${level * 24 + 16}px` }}>
           {hasChildren ? (
-            <button onClick={() => toggleExpand(dept.id)} className="mr-2 text-gray-400 hover:text-gray-600">
-              <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+            <button onClick={() => toggleExpand(dept.id)} className="mr-2 text-gray-400 hover:text-slate-600">
+              <ChevronRight className={`w-5 h-5 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
             </button>
           ) : (
             <span className="w-6 mr-2" />
@@ -217,23 +217,23 @@ export default function OrganizationPage() {
           <Building2 className="w-5 h-5 text-blue-500 mr-3" />
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-900">{dept.name}</span>
-              <span className="text-xs text-gray-400">{dept.code}</span>
+              <span className="font-medium text-slate-900">{dept.name}</span>
+              <span className="text-xs text-slate-400">{dept.code}</span>
               {!dept.isActive && <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">已停用</span>}
             </div>
           </div>
           <span className="text-sm text-gray-400 mr-4 flex items-center gap-1">
-            <Users className="w-4 h-4" />{dept._count?.userDepts || 0}人
+            <Users className="w-5 h-5" />{dept._count?.userDepts || 0}人
           </span>
           <div className="flex items-center gap-2">
             <button onClick={() => openMembers(dept)} className="text-green-600 hover:bg-green-50 p-1.5 rounded" title="管理部门人员">
-              <UserPlus className="w-4 h-4" />
+              <UserPlus className="w-5 h-5" />
             </button>
             <button onClick={() => openEditForm(dept)} className="text-gray-500 hover:bg-gray-100 p-1.5 rounded" title="编辑部门">
-              <Edit2 className="w-4 h-4" />
+              <Edit2 className="w-5 h-5" />
             </button>
             <button onClick={() => handleDelete(dept.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded" title="删除部门">
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -261,20 +261,20 @@ export default function OrganizationPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">组织架构</h1>
-          <p className="text-sm text-gray-500 mt-1">管理部门组织结构和人员分配</p>
+          <h1 className="text-2xl font-bold text-slate-900">组织架构</h1>
+          <p className="text-sm text-slate-500 mt-1">管理部门组织结构和人员分配</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />刷新
+          <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />刷新
           </button>
           <button onClick={() => openNewForm()} className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            <Plus className="w-4 h-4" />新建部门
+            <Plus className="w-5 h-5" />新建部门
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-6">
         {loading ? (
           <div className="p-16 text-center text-gray-400">加载中...</div>
         ) : formError ? (
@@ -282,7 +282,7 @@ export default function OrganizationPage() {
             <Building2 className="w-16 h-16 mb-4 text-red-200" />
             <p className="text-sm text-red-500 mb-4">{formError}</p>
             <button onClick={fetchData} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-              <RefreshCw className="w-4 h-4" />重试加载
+              <RefreshCw className="w-5 h-5" />重试加载
             </button>
           </div>
         ) : data.length === 0 ? (
@@ -290,7 +290,7 @@ export default function OrganizationPage() {
             <Building2 className="w-16 h-16 mb-4 text-gray-300" />
             <p className="text-sm mb-4">暂无部门数据，请创建第一个部门</p>
             <button onClick={() => openNewForm()} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-              <Plus className="w-4 h-4" />新建部门
+              <Plus className="w-5 h-5" />新建部门
             </button>
           </div>
         ) : (
@@ -301,21 +301,21 @@ export default function OrganizationPage() {
       {/* 部门编辑/新建表单 */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
             <h2 className="text-lg font-bold mb-4">{editing ? "编辑部门" : "新建部门"}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">{formError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">部门名称 *</label>
-                <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
+                <label className="block text-sm font-medium text-slate-700 mb-1">部门名称 *</label>
+                <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">部门编码 *</label>
-                <input type="text" value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required disabled={!!editing} />
+                <label className="block text-sm font-medium text-slate-700 mb-1">部门编码 *</label>
+                <input type="text" value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required disabled={!!editing} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">上级部门</label>
-                <select value={formData.parentId} onChange={(e) => setFormData({ ...formData, parentId: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                <label className="block text-sm font-medium text-slate-700 mb-1">上级部门</label>
+                <select value={formData.parentId} onChange={(e) => setFormData({ ...formData, parentId: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="">无（顶级部门）</option>
                   {allDepts.filter((d) => d.id !== editing?.id).map((d) => (
                     <option key={d.id} value={d.id}>{d.label}</option>
@@ -323,11 +323,11 @@ export default function OrganizationPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">排序</label>
-                <input type="number" value={formData.sort} onChange={(e) => setFormData({ ...formData, sort: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">排序</label>
+                <input type="number" value={formData.sort} onChange={(e) => setFormData({ ...formData, sort: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50">取消</button>
                 <button type="submit" disabled={submitting} className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button>
               </div>
             </form>
@@ -338,13 +338,13 @@ export default function OrganizationPage() {
       {/* 部门人员管理弹窗 */}
       {showMembers && memberDept && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-bold text-gray-900">{memberDept.name} - 人员管理</h2>
+                <h2 className="text-lg font-bold text-slate-900">{memberDept.name} - 人员管理</h2>
               </div>
-              <button onClick={() => setShowMembers(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded">✕</button>
+              <button onClick={() => setShowMembers(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded">✕</button>
             </div>
             <div className="p-6">
               {/* 添加员工 */}
@@ -352,7 +352,7 @@ export default function OrganizationPage() {
                 <select
                   value={addEmployeeId}
                   onChange={(e) => setAddEmployeeId(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 >
                   <option value="">选择要添加的员工...</option>
                   {availableEmployees.map((e) => (
@@ -379,7 +379,7 @@ export default function OrganizationPage() {
               ) : (
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gray-50 text-left">
+                    <tr className="bg-slate-50 text-left">
                       <th className="px-4 py-2 text-xs font-medium text-gray-500">姓名</th>
                       <th className="px-4 py-2 text-xs font-medium text-gray-500">工号</th>
                       <th className="px-4 py-2 text-xs font-medium text-gray-500">岗位</th>
@@ -388,17 +388,17 @@ export default function OrganizationPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {deptEmployees.map((emp) => (
-                      <tr key={emp.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900">{emp.name}</td>
-                        <td className="px-4 py-2 text-sm text-gray-500 font-mono">{emp.employeeNo}</td>
-                        <td className="px-4 py-2 text-sm text-gray-600">{emp.position?.name || "-"}</td>
+                      <tr key={emp.id} className="hover:bg-slate-50">
+                        <td className="px-4 py-2 text-sm font-medium text-slate-900">{emp.name}</td>
+                        <td className="px-4 py-2 text-sm text-slate-500 font-mono">{emp.employeeNo}</td>
+                        <td className="px-4 py-2 text-sm text-slate-600">{emp.position?.name || "-"}</td>
                         <td className="px-4 py-2">
                           <button
                             onClick={() => removeEmployeeFromDept(emp)}
                             className="text-red-500 hover:bg-red-50 p-1.5 rounded"
                             title="从部门移除"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="w-5 h-5" />
                           </button>
                         </td>
                       </tr>
@@ -406,7 +406,7 @@ export default function OrganizationPage() {
                   </tbody>
                 </table>
               )}
-              <p className="mt-4 text-xs text-gray-400">
+              <p className="mt-4 text-xs text-slate-400">
                 提示：添加员工到部门时会自动分配该部门的默认岗位。如需调整具体岗位，请在"员工信息"页面编辑。
               </p>
             </div>

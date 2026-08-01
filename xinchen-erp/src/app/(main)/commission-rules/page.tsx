@@ -170,27 +170,27 @@ export default function CommissionRulesPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">提成规则</h1>
-          <p className="text-sm text-gray-500 mt-1">配置销售提成规则，每次修改自动生成版本快照，支持历史回溯</p>
+          <h1 className="text-2xl font-bold text-slate-900">提成规则</h1>
+          <p className="text-sm text-slate-500 mt-1">配置销售提成规则，每次修改自动生成版本快照，支持历史回溯</p>
         </div>
         <button onClick={openNewForm} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
-          <Plus className="w-4 h-4" />新增规则
+          <Plus className="w-5 h-5" />新增规则
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
         <div className="flex items-center gap-3 flex-wrap">
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部状态</option>
             <option value="active">启用</option>
             <option value="inactive">停用</option>
           </select>
-          <button onClick={() => fetchData()} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-4 h-4" /></button>
+          <button onClick={() => fetchData()} className="p-2 text-gray-400 hover:text-slate-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-5 h-5" /></button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400"><RefreshCw className="w-5 h-5 animate-spin mr-2" />加载中...</div>
         ) : data.length === 0 ? (
@@ -202,7 +202,7 @@ export default function CommissionRulesPage() {
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 text-left">
+              <tr className="bg-slate-50 text-left">
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">规则名称</th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">类型</th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">当前版本</th>
@@ -213,14 +213,14 @@ export default function CommissionRulesPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {data.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50 transition">
+                <tr key={r.id} className="hover:bg-slate-50 transition">
                   <td className="px-4 py-3">
-                    <div className="text-sm font-medium text-gray-900">{r.name}</div>
-                    <div className="text-xs text-gray-400">v{r.version}{r.configVersion?.isActive ? " · 当前生效" : ""}</div>
+                    <div className="text-sm font-medium text-slate-900">{r.name}</div>
+                    <div className="text-xs text-slate-400">v{r.version}{r.configVersion?.isActive ? " · 当前生效" : ""}</div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{r.ruleType}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">v{r.version}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{r.effectiveFrom ? new Date(r.effectiveFrom).toLocaleDateString("zh-CN") : "-"}</td>
+                  <td className="px-4 py-3 text-sm text-slate-700">{r.ruleType}</td>
+                  <td className="px-4 py-3 text-sm text-slate-600">v{r.version}</td>
+                  <td className="px-4 py-3 text-sm text-slate-600">{r.effectiveFrom ? new Date(r.effectiveFrom).toLocaleDateString("zh-CN") : "-"}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${r.status ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
                       {r.status ? "启用" : "停用"}
@@ -228,8 +228,8 @@ export default function CommissionRulesPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => openEditForm(r)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑（生成新版本）"><Filter className="w-4 h-4" /></button>
-                      <button onClick={() => openHistory(r)} className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded transition" title="版本历史"><History className="w-4 h-4" /></button>
+                      <button onClick={() => openEditForm(r)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑（生成新版本）"><Filter className="w-5 h-5" /></button>
+                      <button onClick={() => openHistory(r)} className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded transition" title="版本历史"><History className="w-5 h-5" /></button>
                     </div>
                   </td>
                 </tr>
@@ -241,51 +241,51 @@ export default function CommissionRulesPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">{editingRule ? `编辑规则（将生成 v${editingRule.version + 1}）` : "新增提成规则"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">{editingRule ? `编辑规则（将生成 v${editingRule.version + 1}）` : "新增提成规则"}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded transition">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">规则名称 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">规则名称 <span className="text-red-500">*</span></label>
                 <input type="text" required value={formData.name} onChange={(e) => setFormData((d) => ({ ...d, name: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="如：标准销售提成" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="如：标准销售提成" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">规则类型</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">规则类型</label>
                 <select value={formData.ruleType} onChange={(e) => setFormData((d) => ({ ...d, ruleType: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="FIXED_RATE">固定比例</option>
                   <option value="TIERED">阶梯提成</option>
                   <option value="MILESTONE">里程碑释放</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">配置内容（JSON） <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">配置内容（JSON） <span className="text-red-500">*</span></label>
                 <textarea value={formData.config} onChange={(e) => setFormData((d) => ({ ...d, config: e.target.value }))} rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder='{"rate": 0.1}' />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder='{"rate": 0.1}' />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">生效起始</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">生效起始</label>
                   <input type="date" value={formData.effectiveFrom} onChange={(e) => setFormData((d) => ({ ...d, effectiveFrom: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">生效截止</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">生效截止</label>
                   <input type="date" value={formData.effectiveTo} onChange={(e) => setFormData((d) => ({ ...d, effectiveTo: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">变更说明</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">变更说明</label>
                 <input type="text" value={formData.remark} onChange={(e) => setFormData((d) => ({ ...d, remark: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="如：首款比例 20% → 25%" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="如：首款比例 20% → 25%" />
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button type="submit" disabled={submitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium">
                   {submitting ? "保存中..." : editingRule ? "保存（生成新版本）" : "确认新增"}
                 </button>
@@ -297,10 +297,10 @@ export default function CommissionRulesPage() {
 
       {historyRule && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">版本历史 · {historyRule.name}</h2>
-              <button onClick={() => { setHistoryRule(null); setViewVersion(null); }} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">版本历史 · {historyRule.name}</h2>
+              <button onClick={() => { setHistoryRule(null); setViewVersion(null); }} className="p-1 text-gray-400 hover:text-slate-600 rounded transition">✕</button>
             </div>
             <div className="p-6">
               {loadingVersions ? (
@@ -310,20 +310,20 @@ export default function CommissionRulesPage() {
               ) : (
                 <div className="space-y-3">
                   {versions.map((v) => (
-                    <div key={v.id} className="border border-gray-200 rounded-lg p-4 flex items-start justify-between">
+                    <div key={v.id} className="border border-slate-200 rounded-lg p-4 flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-gray-900">v{v.version}</span>
+                          <span className="text-sm font-semibold text-slate-900">v{v.version}</span>
                           {v.isActive && <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">当前生效</span>}
                         </div>
                         <p className="text-xs text-gray-500 mt-1">{v.remark || "无说明"}</p>
-                        <p className="text-xs text-gray-400 mt-1">{new Date(v.createdAt).toLocaleString("zh-CN")}</p>
+                        <p className="text-xs text-slate-400 mt-1">{new Date(v.createdAt).toLocaleString("zh-CN")}</p>
                       </div>
                       <div className="flex items-center gap-1">
                         <button onClick={() => setViewVersion(v)} className="px-2 py-1 text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 rounded transition">查看</button>
                         {!v.isActive && (
                           <button onClick={() => handleRestore(v)} className="px-2 py-1 text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 rounded transition flex items-center gap-1">
-                            <RotateCcw className="w-3 h-3" />回滚
+                            <RotateCcw className="w-3.5 h-3.5" />回滚
                           </button>
                         )}
                       </div>
@@ -338,10 +338,10 @@ export default function CommissionRulesPage() {
 
       {viewVersion && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">配置快照 · v{viewVersion.version}</h2>
-              <button onClick={() => setViewVersion(null)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">配置快照 · v{viewVersion.version}</h2>
+              <button onClick={() => setViewVersion(null)} className="p-1 text-gray-400 hover:text-slate-600 rounded transition">✕</button>
             </div>
             <div className="p-6">
               <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 text-xs overflow-x-auto whitespace-pre-wrap">{JSON.stringify(viewVersion.snapshot, null, 2)}</pre>

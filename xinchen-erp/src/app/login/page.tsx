@@ -105,18 +105,18 @@ export default function LoginPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">原密码</label>
-                  <input type="password" value={oldPassword} readOnly className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-400 focus:bg-white transition bg-slate-50" />
+                  <input type="password" value={oldPassword} readOnly className="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm outline-none focus:border-indigo-400 focus:bg-white transition bg-slate-50" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">新密码</label>
-                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-400 focus:bg-white transition" placeholder="至少6位" />
+                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm outline-none focus:border-indigo-400 focus:bg-white transition" placeholder="至少6位" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">确认密码</label>
-                  <input type="password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-400 focus:bg-white transition" />
+                  <input type="password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)} className="w-full px-4 py-3 border-2 border-slate-200 rounded-2xl text-sm outline-none focus:border-indigo-400 focus:bg-white transition" />
                 </div>
               </div>
-              <button type="submit" disabled={chgLoading} className="w-full mt-6 py-3.5 bg-indigo-600 text-white rounded-xl font-semibold text-sm tracking-wider hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 disabled:opacity-50">
+              <button type="submit" disabled={chgLoading} className="w-full mt-6 py-3.5 bg-indigo-600 text-white rounded-2xl font-semibold text-sm tracking-wider hover:bg-indigo-700 transition shadow-lg shadow-indigo-200 disabled:opacity-50">
                 {chgLoading ? "修改中..." : "修改并登录"}
               </button>
             </form>
@@ -124,7 +124,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit}>
               <div className="mb-8">
                 <div className="flex items-center gap-3 mb-6 lg:hidden">
-                  <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center">
                     <KeyRound className="w-5 h-5 text-white" />
                   </div>
                   <span className="font-bold text-lg text-slate-900">新辰未来</span>
@@ -134,7 +134,7 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <div className="mb-5 bg-red-50 text-red-600 text-sm px-4 py-2.5 rounded-xl flex items-center gap-2">
+                <div className="mb-5 bg-red-50 text-red-600 text-sm px-4 py-2.5 rounded-2xl flex items-center gap-2">
                   <span className="shrink-0">⚠</span> {error}
                 </div>
               )}
@@ -144,7 +144,7 @@ export default function LoginPage() {
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">用户名</label>
                   <div className="relative">
                     <input type="text" value={username} onChange={e => setUsername(e.target.value)}
-                      className="w-full px-4 py-3 pl-11 border-2 border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-400 transition"
+                      className="w-full px-4 py-3 pl-11 border-2 border-slate-200 rounded-2xl text-sm outline-none focus:border-indigo-400 transition"
                       placeholder="手机号 / 用户名" />
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">👤</span>
                   </div>
@@ -153,7 +153,7 @@ export default function LoginPage() {
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">密码</label>
                   <div className="relative">
                     <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 pl-11 border-2 border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-400 transition"
+                      className="w-full px-4 py-3 pl-11 border-2 border-slate-200 rounded-2xl text-sm outline-none focus:border-indigo-400 transition"
                       placeholder="输入密码" />
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">🔒</span>
                   </div>
@@ -161,7 +161,7 @@ export default function LoginPage() {
               </div>
 
               <button type="submit" disabled={loading}
-                className="w-full mt-6 py-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-semibold text-sm tracking-widest hover:from-indigo-700 hover:to-indigo-800 transition-all shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]">
+                className="w-full mt-6 py-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl font-semibold text-sm tracking-widest hover:from-indigo-700 hover:to-indigo-800 transition-all shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]">
                 {loading ? "验证中..." : "登 录"}
               </button>
             </form>

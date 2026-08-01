@@ -19,7 +19,7 @@ interface VisaItem {
 }
 
 const VISA_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  NOT_STARTED: { label: "未开始", color: "bg-gray-100 text-gray-800" },
+  NOT_STARTED: { label: "未开始", color: "bg-gray-100 text-slate-800" },
   PREPARING: { label: "准备中", color: "bg-yellow-100 text-yellow-800" },
   SUBMITTED: { label: "已递交", color: "bg-blue-100 text-blue-800" },
   APPROVED: { label: "已获批", color: "bg-green-100 text-green-800" },
@@ -121,22 +121,22 @@ export default function VisasPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">签证管理</h1>
-        <button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"><Plus className="w-4 h-4" />新增签证</button>
+        <h1 className="text-2xl font-bold text-slate-900">签证管理</h1>
+        <button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"><Plus className="w-5 h-5" />新增签证</button>
       </div>
       <div className="flex items-center gap-4 mb-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input type="text" placeholder="搜索签证号/学生..." value={keyword} onChange={e => { setKeyword(e.target.value); setPage(1); }} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input type="text" placeholder="搜索签证号/学生..." value={keyword} onChange={e => { setKeyword(e.target.value); setPage(1); }} className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
         </div>
-        <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} className="border border-slate-300 rounded-lg px-3 py-2 text-sm">
           <option value="">全部状态</option>
           {Object.entries(VISA_STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <table className="w-full">
-          <thead><tr className="bg-gray-50 border-b border-gray-200">
+          <thead><tr className="bg-slate-50 border-b border-slate-200">
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">学生</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">签证类型</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">批复日期</th>
@@ -148,38 +148,38 @@ export default function VisasPage() {
             {loading ? <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-400">加载中...</td></tr>
             : list.length === 0 ? <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-400">暂无数据</td></tr>
             : list.map(item => (
-              <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.application.student.name}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">{item.visaType}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">{item.approvedDate ? new Date(item.approvedDate).toLocaleDateString("zh-CN") : "-"}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">{item.resultAt ? new Date(item.resultAt).toLocaleDateString("zh-CN") : "-"}</td>
-                <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${VISA_STATUS_MAP[item.status]?.color || "bg-gray-100 text-gray-800"}`}>{VISA_STATUS_MAP[item.status]?.label || item.status}</span></td>
+              <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                <td className="px-4 py-3 text-sm font-medium text-slate-900">{item.application.student.name}</td>
+                <td className="px-4 py-3 text-sm text-slate-700">{item.visaType}</td>
+                <td className="px-4 py-3 text-sm text-slate-500">{item.approvedDate ? new Date(item.approvedDate).toLocaleDateString("zh-CN") : "-"}</td>
+                <td className="px-4 py-3 text-sm text-slate-500">{item.resultAt ? new Date(item.resultAt).toLocaleDateString("zh-CN") : "-"}</td>
+                <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${VISA_STATUS_MAP[item.status]?.color || "bg-gray-100 text-slate-800"}`}>{VISA_STATUS_MAP[item.status]?.label || item.status}</span></td>
                 <td className="px-4 py-3 text-right"><div className="flex items-center justify-end gap-1">
-                  <button onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-5 h-5" /></button>
+                  <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-5 h-5" /></button>
                 </div></td>
               </tr>
             ))}
           </tbody>
         </table>
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
-            <span className="text-sm text-gray-500">共 {total} 条</span>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+            <span className="text-sm text-slate-500">共 {total} 条</span>
             <div className="flex items-center gap-2">
-              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30"><ChevronLeft className="w-4 h-4" /></button>
-              <span className="text-sm text-gray-700">{page} / {totalPages}</span>
-              <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30"><ChevronRight className="w-4 h-4" /></button>
+              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30"><ChevronLeft className="w-5 h-5" /></button>
+              <span className="text-sm text-slate-700">{page} / {totalPages}</span>
+              <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30"><ChevronRight className="w-5 h-5" /></button>
             </div>
           </div>
         )}
       </div>
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
             <h2 className="text-lg font-semibold mb-4">{editingId ? "编辑签证" : "新增签证"}</h2>
             {error && <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg">{error}</div>}
             <div className="space-y-4">
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">关联申请 <span className="text-red-500">*</span></label>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">关联申请 <span className="text-red-500">*</span></label>
                 {selectedApp ? (
                   <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
                     <div><span className="text-sm font-medium text-blue-700">{selectedApp.student?.name || "未知学生"}</span><span className="text-xs text-gray-500 ml-2">{selectedApp.institutionName} - {selectedApp.majorName || "未知专业"}</span></div>
@@ -188,18 +188,18 @@ export default function VisasPage() {
                 ) : (
                   <div>
                     <div className="flex gap-2 mb-2">
-                      <input type="text" placeholder="搜索学生/院校..." value={appSearch} onChange={e => searchApps(e.target.value)} onFocus={() => { if (appResults.length === 0) searchApps(""); }} className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                      <select value={appFilter.institution} onChange={e => { const v = e.target.value; setAppFilter(f => ({ institution: v })); searchApps(appSearch, v); }} className="px-2 py-2 border border-gray-300 rounded-lg text-sm">
+                      <input type="text" placeholder="搜索学生/院校..." value={appSearch} onChange={e => searchApps(e.target.value)} onFocus={() => { if (appResults.length === 0) searchApps(""); }} className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                      <select value={appFilter.institution} onChange={e => { const v = e.target.value; setAppFilter(f => ({ institution: v })); searchApps(appSearch, v); }} className="px-2 py-2 border border-slate-300 rounded-lg text-sm">
                         <option value="">所有院校</option>
                         {[...new Set(appResults.map(a => a.institutionName))].map(inst => <option key={inst} value={inst}>{inst}</option>)}
                       </select>
                     </div>
                     {appResults.length > 0 && (
-                      <div className="border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      <div className="border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                         {appResults.map(a => (
                           <div key={a.id} onClick={() => selectApp(a)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center justify-between border-b last:border-0">
-                            <div><span className="text-sm font-medium text-gray-900">{a.student?.name || "未知"}</span><span className="text-xs text-gray-500 ml-2">{a.institutionName} · {a.majorName}</span></div>
-                            <span className="text-xs text-gray-400">{a.degree}</span>
+                            <div><span className="text-sm font-medium text-slate-900">{a.student?.name || "未知"}</span><span className="text-xs text-gray-500 ml-2">{a.institutionName} · {a.majorName}</span></div>
+                            <span className="text-xs text-slate-400">{a.degree}</span>
                           </div>
                         ))}
                       </div>
@@ -207,20 +207,20 @@ export default function VisasPage() {
                   </div>
                 )}
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">签证类型 <span className="text-red-500">*</span></label><input type="text" value={form.visaType} onChange={e => setForm(f => ({ ...f, visaType: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="如：学生签证" /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">状态</label><select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{Object.entries(VISA_STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">签证类型 <span className="text-red-500">*</span></label><input type="text" value={form.visaType} onChange={e => setForm(f => ({ ...f, visaType: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="如：学生签证" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">状态</label><select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">{Object.entries(VISA_STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">批复日期</label><input type="date" value={form.approvedDate} onChange={e => setForm(f => ({ ...f, approvedDate: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">批复日期</label><input type="date" value={form.approvedDate} onChange={e => setForm(f => ({ ...f, approvedDate: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
               </div>
               
             </div>
-            <div className="flex justify-end gap-3 mt-6"><button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleSubmit} disabled={submitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button></div>
+            <div className="flex justify-end gap-3 mt-6"><button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleSubmit} disabled={submitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button></div>
           </div>
         </div>
       )}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm"><h3 className="text-lg font-semibold mb-2">确认删除</h3><p className="text-sm text-gray-500 mb-4">确定要删除该签证记录吗？</p><div className="flex justify-end gap-3"><button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={() => handleDelete(deleteConfirm)} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">删除</button></div></div>
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm"><h3 className="text-lg font-semibold mb-2">确认删除</h3><p className="text-sm text-slate-500 mb-4">确定要删除该签证记录吗？</p><div className="flex justify-end gap-3"><button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={() => handleDelete(deleteConfirm)} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">删除</button></div></div>
         </div>
       )}
     </div>

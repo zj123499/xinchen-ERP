@@ -103,13 +103,13 @@ export default function DingtalkSettingsPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">钉钉集成配置</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-6">钉钉集成配置</h1>
 
       {/* 应用凭证配置 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
         <div className="flex items-center gap-2 mb-4">
           <Key className="w-5 h-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-gray-900">应用凭证</h2>
+          <h2 className="text-lg font-semibold text-slate-900">应用凭证</h2>
           {configured ? (
             <span className="ml-auto flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full">
               <CheckCircle className="w-3.5 h-3.5" />已配置
@@ -121,7 +121,7 @@ export default function DingtalkSettingsPage() {
           )}
         </div>
 
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-slate-500 mb-4">
           在钉钉开放平台创建机器人/应用后获取 AppKey 和 AppSecret，配置后可用于组织架构同步与事件订阅。
         </p>
 
@@ -131,7 +131,7 @@ export default function DingtalkSettingsPage() {
           <div className="space-y-4">
             {/* AppKey */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 AppKey
               </label>
               <div className="relative">
@@ -140,21 +140,21 @@ export default function DingtalkSettingsPage() {
                   value={appKey}
                   onChange={(e) => setAppKey(e.target.value)}
                   placeholder={appKeyConfigured ? "已配置（输入新值可修改）" : "请输入钉钉应用 AppKey"}
-                  className="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition font-mono text-sm"
+                  className="w-full px-3 py-2.5 pr-10 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition font-mono text-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowKey(!showKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-slate-600"
                 >
-                  {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showKey ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
             {/* AppSecret */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 AppSecret
               </label>
               <div className="relative">
@@ -163,14 +163,14 @@ export default function DingtalkSettingsPage() {
                   value={appSecret}
                   onChange={(e) => setAppSecret(e.target.value)}
                   placeholder={appSecretConfigured ? "已配置（输入新值可修改）" : "请输入钉钉应用 AppSecret"}
-                  className="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition font-mono text-sm"
+                  className="w-full px-3 py-2.5 pr-10 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition font-mono text-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowSecret(!showSecret)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-slate-600"
                 >
-                  {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showSecret ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function DingtalkSettingsPage() {
                   ? "bg-green-50 border border-green-200 text-green-700"
                   : "bg-red-50 border border-red-200 text-red-700"
               }`}>
-                {saveMsg.type === "success" ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                {saveMsg.type === "success" ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                 {saveMsg.text}
               </div>
             )}
@@ -192,7 +192,7 @@ export default function DingtalkSettingsPage() {
                 disabled={saving || (!appKey && !appSecret)}
                 className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm"
               >
-                {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {saving ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                 {saving ? "保存中..." : "保存配置"}
               </button>
             </div>
@@ -201,27 +201,27 @@ export default function DingtalkSettingsPage() {
       </div>
 
       {/* 使用说明 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
         <div className="flex items-center gap-2 mb-4">
           <Key className="w-5 h-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-gray-900">使用说明</h2>
+          <h2 className="text-lg font-semibold text-slate-900">使用说明</h2>
         </div>
-        <div className="space-y-3 text-sm text-gray-600">
+        <div className="space-y-3 text-sm text-slate-600">
           <div className="p-3 bg-blue-50 rounded-lg">
-            <p className="font-medium text-gray-900">系统登录</p>
+            <p className="font-medium text-slate-900">系统登录</p>
             <p className="text-gray-500 mt-1">ERP 使用系统自带的账号密码登录，账号权限由系统角色管理，与钉钉无关。</p>
           </div>
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="font-medium text-gray-900">钉钉集成用途</p>
+          <div className="p-3 bg-slate-50 rounded-lg">
+            <p className="font-medium text-slate-900">钉钉集成用途</p>
             <p className="text-gray-500 mt-1">本页配置的钉钉应用仅用于"组织架构同步"与"事件订阅"，将钉钉部门/员工同步到本地，便于员工与部门管理。</p>
           </div>
         </div>
       </div>
 
       {/* 组织架构同步 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">组织架构同步</h2>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">组织架构同步</h2>
+        <p className="text-sm text-slate-500 mb-4">
           将钉钉组织架构（部门、员工）同步到本地系统，用于员工与部门管理。
         </p>
         <button
@@ -273,9 +273,9 @@ export default function DingtalkSettingsPage() {
       </div>
 
       {/* 事件订阅 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">事件订阅</h2>
-        <p className="text-sm text-gray-500 mb-4">Stream 模式自动订阅以下事件：</p>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">事件订阅</h2>
+        <p className="text-sm text-slate-500 mb-4">Stream 模式自动订阅以下事件：</p>
         <div className="space-y-2">
           {[
             { event: "user_add_org", desc: "用户入职时自动创建系统账号" },
@@ -285,22 +285,22 @@ export default function DingtalkSettingsPage() {
             { event: "org_dept_modify", desc: "部门修改时自动同步" },
             { event: "org_dept_remove", desc: "部门删除时自动同步" },
           ].map((item) => (
-            <div key={item.event} className="flex items-center gap-3 px-4 py-2.5 bg-gray-50 rounded-lg">
+            <div key={item.event} className="flex items-center gap-3 px-4 py-2.5 bg-slate-50 rounded-lg">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              <code className="text-xs bg-gray-200 px-2 py-0.5 rounded font-mono text-gray-700">{item.event}</code>
-              <span className="text-sm text-gray-500">{item.desc}</span>
+              <code className="text-xs bg-gray-200 px-2 py-0.5 rounded font-mono text-slate-700">{item.event}</code>
+              <span className="text-sm text-slate-500">{item.desc}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* 启动方式 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Stream 启动</h2>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">Stream 启动</h2>
         <div className="bg-gray-900 text-green-400 rounded-lg p-4 font-mono text-sm">
           npm run dingtalk:stream
         </div>
-        <p className="text-xs text-gray-400 mt-3">
+        <p className="text-xs text-slate-400 mt-3">
           在服务器上独立运行此命令，启动 Stream 长连接接收钉钉事件。
         </p>
       </div>

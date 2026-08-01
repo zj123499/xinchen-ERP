@@ -85,29 +85,29 @@ export default function CountriesPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">国家管理</h1>
-          <p className="text-sm text-gray-500 mt-1">业务知识库底层：国家 → 院校 → 专业 → 产品</p>
+          <h1 className="text-2xl font-bold text-slate-900">国家管理</h1>
+          <p className="text-sm text-slate-500 mt-1">业务知识库底层：国家 → 院校 → 专业 → 产品</p>
         </div>
         <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
-          <Plus className="w-4 h-4" /> 新增国家
+          <Plus className="w-5 h-5" /> 新增国家
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input value={keyword} onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
               placeholder="搜索国家名称/代码/地区"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
           </div>
-          <button onClick={fetchData} className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
-            <RefreshCw className="w-4 h-4" /> 刷新
+          <button onClick={fetchData} className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-slate-700 rounded-lg text-sm hover:bg-gray-200">
+            <RefreshCw className="w-5 h-5" /> 刷新
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400"><RefreshCw className="w-5 h-5 animate-spin mr-2" />加载中...</div>
         ) : data.length === 0 ? (
@@ -117,7 +117,7 @@ export default function CountriesPage() {
           </div>
         ) : (
           <table className="w-full">
-            <thead><tr className="bg-gray-50 text-left">
+            <thead><tr className="bg-slate-50 text-left">
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">国家</th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">代码</th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">地区</th>
@@ -127,16 +127,16 @@ export default function CountriesPage() {
             </tr></thead>
             <tbody className="divide-y divide-gray-100">
               {data.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
-                  <td className="px-4 py-3 text-gray-600">{c.code}</td>
-                  <td className="px-4 py-3 text-gray-600">{c.region || "-"}</td>
-                  <td className="px-4 py-3 text-gray-600">{c._count.institutions} 院校 / {c._count.products} 产品</td>
+                <tr key={c.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 font-medium text-slate-900">{c.name}</td>
+                  <td className="px-4 py-3 text-slate-600">{c.code}</td>
+                  <td className="px-4 py-3 text-slate-600">{c.region || "-"}</td>
+                  <td className="px-4 py-3 text-slate-600">{c._count.institutions} 院校 / {c._count.products} 产品</td>
                   <td className="px-4 py-3 text-gray-500 text-sm max-w-[200px] truncate">{c.remark || "-"}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => openEdit(c)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit2 className="w-4 h-4" /></button>
-                      <button onClick={() => setDeleteConfirm(c)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={() => openEdit(c)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit2 className="w-5 h-5" /></button>
+                      <button onClick={() => setDeleteConfirm(c)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-5 h-5" /></button>
                     </div>
                   </td>
                 </tr>
@@ -148,25 +148,25 @@ export default function CountriesPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold">{editing ? "编辑国家" : "新增国家"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600">✕</button>
+              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-slate-600">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">国家名称 <span className="text-red-500">*</span></label>
-                  <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">代码 <span className="text-red-500">*</span></label>
-                  <input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="如 MY / UK / AU" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">国家名称 <span className="text-red-500">*</span></label>
+                  <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">代码 <span className="text-red-500">*</span></label>
+                  <input required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="如 MY / UK / AU" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" /></div>
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">地区</label>
-                <input value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">备注</label>
-                <textarea value={form.remark} onChange={(e) => setForm({ ...form, remark: e.target.value })} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">地区</label>
+                <input value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">备注</label>
+                <textarea value={form.remark} onChange={(e) => setForm({ ...form, remark: e.target.value })} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" /></div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
                 <button type="submit" disabled={submitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button>
               </div>
             </form>
@@ -176,12 +176,12 @@ export default function CountriesPage() {
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
             <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl"><h2 className="text-lg font-semibold text-red-800">确认删除</h2></div>
             <div className="p-6">
-              <p className="text-sm text-gray-700">确定删除国家 <strong>{deleteConfirm.name}</strong>？</p>
+              <p className="text-sm text-slate-700">确定删除国家 <strong>{deleteConfirm.name}</strong>？</p>
               <div className="flex justify-end gap-3 mt-4">
-                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
                 <button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">确认删除</button>
               </div>
             </div>

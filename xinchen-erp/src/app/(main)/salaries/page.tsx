@@ -36,7 +36,7 @@ interface EmployeeOption {
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  draft: { label: "草稿", color: "bg-gray-100 text-gray-600" },
+  draft: { label: "草稿", color: "bg-gray-100 text-slate-600" },
   confirmed: { label: "已确认", color: "bg-blue-100 text-blue-700" },
   paid: { label: "已发放", color: "bg-green-100 text-green-700" },
 };
@@ -197,48 +197,48 @@ export default function SalariesPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">薪资管理</h1>
-          <p className="text-sm text-gray-500 mt-1">管理员工月度薪资，自动计算实发工资</p>
+          <h1 className="text-2xl font-bold text-slate-900">薪资管理</h1>
+          <p className="text-sm text-slate-500 mt-1">管理员工月度薪资，自动计算实发工资</p>
         </div>
         <button onClick={openNewForm} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
-          <Plus className="w-4 h-4" />新增薪资
+          <Plus className="w-5 h-5" />新增薪资
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex-1 min-w-[180px] relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder="搜索员工姓名..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+              placeholder="搜索员工姓名..." className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
           </div>
           <select value={employeeFilter} onChange={(e) => { setEmployeeFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部员工</option>
             {employees.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
           </select>
           <select value={fiscalYear} onChange={(e) => { setFiscalYear(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部年份</option>
             {yearOptions.map((y) => <option key={y} value={y}>{y}年</option>)}
           </select>
           <select value={fiscalMonth} onChange={(e) => { setFiscalMonth(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部月份</option>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => <option key={m} value={m}>{m}月</option>)}
           </select>
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部状态</option>
             {Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
           <button onClick={handleSearch} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">搜索</button>
           <button onClick={() => { setKeyword(""); setEmployeeFilter(""); setFiscalYear(""); setFiscalMonth(""); setStatusFilter(""); setPage(1); }}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-4 h-4" /></button>
+            className="p-2 text-gray-400 hover:text-slate-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-5 h-5" /></button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400"><RefreshCw className="w-5 h-5 animate-spin mr-2" />加载中...</div>
         ) : !data || data.list.length === 0 ? (
@@ -251,7 +251,7 @@ export default function SalariesPage() {
           <>
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 text-left">
+                <tr className="bg-slate-50 text-left">
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">员工</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">会计期</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">基本工资</th>
@@ -265,21 +265,21 @@ export default function SalariesPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {data.list.map((s) => (
-                  <tr key={s.id} className="hover:bg-gray-50 transition">
+                  <tr key={s.id} className="hover:bg-slate-50 transition">
                     <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-gray-900">{s.employee.name}</div>
-                      <div className="text-xs text-gray-400">{s.employee.employeeNo}</div>
+                      <div className="text-sm font-medium text-slate-900">{s.employee.name}</div>
+                      <div className="text-xs text-slate-400">{s.employee.employeeNo}</div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">{s.fiscalYear}年{s.fiscalMonth}月</td>
-                    <td className="px-4 py-3 text-sm text-gray-700">¥{Number(s.baseSalary).toLocaleString("zh-CN", { minimumFractionDigits: 2 })}</td>
-                    <td className="px-4 py-3 text-sm text-gray-700">¥{Number(s.bonus).toLocaleString("zh-CN", { minimumFractionDigits: 2 })}</td>
-                    <td className="px-4 py-3 text-sm text-gray-700">¥{Number(s.commission).toLocaleString("zh-CN", { minimumFractionDigits: 2 })}</td>
+                    <td className="px-4 py-3 text-sm text-slate-700">{s.fiscalYear}年{s.fiscalMonth}月</td>
+                    <td className="px-4 py-3 text-sm text-slate-700">¥{Number(s.baseSalary).toLocaleString("zh-CN", { minimumFractionDigits: 2 })}</td>
+                    <td className="px-4 py-3 text-sm text-slate-700">¥{Number(s.bonus).toLocaleString("zh-CN", { minimumFractionDigits: 2 })}</td>
+                    <td className="px-4 py-3 text-sm text-slate-700">¥{Number(s.commission).toLocaleString("zh-CN", { minimumFractionDigits: 2 })}</td>
                     <td className="px-4 py-3 text-sm text-red-600">¥{Number(s.deduction).toLocaleString("zh-CN", { minimumFractionDigits: 2 })}</td>
                     <td className="px-4 py-3">
                       <span className="text-sm font-bold text-blue-700">¥{Number(s.netSalary).toLocaleString("zh-CN", { minimumFractionDigits: 2 })}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[s.status]?.color || "bg-gray-100 text-gray-600"}`}>
+                      <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[s.status]?.color || "bg-gray-100 text-slate-600"}`}>
                         {STATUS_MAP[s.status]?.label || s.status}
                       </span>
                     </td>
@@ -292,10 +292,10 @@ export default function SalariesPage() {
                           <button onClick={() => handleStatusChange(s, "paid")} className="px-2 py-1 text-xs text-green-700 bg-green-50 hover:bg-green-100 rounded transition">发放</button>
                         )}
                         <button onClick={() => openEditForm(s)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑">
-                          <MoreHorizontal className="w-4 h-4" />
+                          <MoreHorizontal className="w-5 h-5" />
                         </button>
                         <button onClick={() => setDeleteConfirm(s)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除">
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
@@ -304,22 +304,22 @@ export default function SalariesPage() {
               </tbody>
             </table>
 
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
-              <span className="text-sm text-gray-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-slate-50">
+              <span className="text-sm text-slate-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
               <div className="flex items-center gap-1">
                 <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronLeft className="w-4 h-4" /></button>
+                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronLeft className="w-5 h-5" /></button>
                 {Array.from({ length: Math.min(data.totalPages, 5) }, (_, i) => {
                   const start = Math.max(1, Math.min(page - 2, data.totalPages - 4));
                   const p = start + i;
                   if (p > data.totalPages) return null;
                   return (
                     <button key={p} onClick={() => setPage(p)}
-                      className={`w-8 h-8 text-sm rounded transition ${p === page ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-200"}`}>{p}</button>
+                      className={`w-8 h-8 text-sm rounded transition ${p === page ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-gray-200"}`}>{p}</button>
                   );
                 })}
                 <button onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={page >= data.totalPages}
-                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronRight className="w-4 h-4" /></button>
+                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronRight className="w-5 h-5" /></button>
               </div>
             </div>
           </>
@@ -328,70 +328,70 @@ export default function SalariesPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">{editingSalary ? "编辑薪资" : "新增薪资"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">{editingSalary ? "编辑薪资" : "新增薪资"}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded transition">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">员工 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">员工 <span className="text-red-500">*</span></label>
                 <select required value={formData.employeeId} onChange={(e) => setFormData((d) => ({ ...d, employeeId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" disabled={!!editingSalary}>
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" disabled={!!editingSalary}>
                   <option value="">请选择员工</option>
                   {employees.map((e) => <option key={e.id} value={e.id}>{e.name} ({e.employeeNo})</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">会计年份 <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">会计年份 <span className="text-red-500">*</span></label>
                   <select required value={formData.fiscalYear} onChange={(e) => setFormData((d) => ({ ...d, fiscalYear: e.target.value }))} disabled={!!editingSalary}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     {yearOptions.map((y) => <option key={y} value={y}>{y}年</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">会计月份 <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">会计月份 <span className="text-red-500">*</span></label>
                   <select required value={formData.fiscalMonth} onChange={(e) => setFormData((d) => ({ ...d, fiscalMonth: e.target.value }))} disabled={!!editingSalary}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => <option key={m} value={m}>{m}月</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">基本工资 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">基本工资 <span className="text-red-500">*</span></label>
                 <input type="number" step="0.01" min="0" required value={formData.baseSalary} onChange={(e) => setFormData((d) => ({ ...d, baseSalary: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="基本工资金额" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="基本工资金额" />
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">奖金</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">奖金</label>
                   <input type="number" step="0.01" min="0" value={formData.bonus} onChange={(e) => setFormData((d) => ({ ...d, bonus: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="0" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="0" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">提成</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">提成</label>
                   <input type="number" step="0.01" min="0" value={formData.commission} onChange={(e) => setFormData((d) => ({ ...d, commission: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="0" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="0" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">扣款</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">扣款</label>
                   <input type="number" step="0.01" min="0" value={formData.deduction} onChange={(e) => setFormData((d) => ({ ...d, deduction: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="0" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="0" />
                 </div>
               </div>
               {formData.baseSalary && (
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="text-sm text-gray-600">实发工资（自动计算）</div>
+                  <div className="text-sm text-slate-600">实发工资（自动计算）</div>
                   <div className="text-2xl font-bold text-blue-700 mt-1">
                     ¥{calcNet().toLocaleString("zh-CN", { minimumFractionDigits: 2 })}
                   </div>
-                  <div className="text-xs text-gray-400 mt-1">基本工资 + 奖金 + 提成 - 扣款</div>
+                  <div className="text-xs text-slate-400 mt-1">基本工资 + 奖金 + 提成 - 扣款</div>
                 </div>
               )}
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button type="submit" disabled={submitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium">
                   {submitting ? "保存中..." : editingSalary ? "保存修改" : "确认新增"}
                 </button>
@@ -403,14 +403,14 @@ export default function SalariesPage() {
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
             <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl">
               <h2 className="text-lg font-semibold text-red-800">确认删除</h2>
             </div>
             <div className="p-6">
-              <p className="text-sm text-gray-700">确定要删除 <strong>{deleteConfirm.employee.name}</strong> {deleteConfirm.fiscalYear}年{deleteConfirm.fiscalMonth}月的薪资记录吗？</p>
+              <p className="text-sm text-slate-700">确定要删除 <strong>{deleteConfirm.employee.name}</strong> {deleteConfirm.fiscalYear}年{deleteConfirm.fiscalMonth}月的薪资记录吗？</p>
               <div className="flex justify-end gap-3 mt-4">
-                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition">确认删除</button>
               </div>
             </div>

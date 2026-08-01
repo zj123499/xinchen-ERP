@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新辰未来 内页UI预览</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f1f5f9;color:#1e293b;-webkit-font-smoothing:antialiased;font-size:15px}
+.bar{background:#fff;text-align:center;padding:10px;font-size:13px;color:#64748b;border-bottom:1px solid #e2e8f0;letter-spacing:1px}
+.bar strong{color:#4f46e5}
+
+.page{padding:32px 28px;max-width:1100px;margin:0 auto}
+.page-title{font-size:22px;font-weight:800;color:#0f172a;margin-bottom:6px}
+.page-desc{font-size:14px;color:#64748b;margin-bottom:24px}
+
+/* ===== 表格卡片 ===== */
+.card{background:#fff;border:1px solid #e8ecf1;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.card-head{padding:16px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9;gap:12px;flex-wrap:wrap}
+.card-head h3{font-size:17px;font-weight:700}
+.card-head .right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* ===== 搜索框 ===== */
+.search-wrap{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:9px 14px;transition:0.2s}
+.search-wrap:focus-within{border-color:#a5b4fc;box-shadow:0 0 0 3px rgba(79,70,229,0.06);background:#fff}
+.search-wrap input{border:none;background:none;outline:none;font-size:14px;width:220px;color:#1e293b}
+.search-wrap input::placeholder{color:#94a3b8}
+.search-wrap .icon{width:17px;height:17px;color:#94a3b8}
+
+/* ===== 按钮 ===== */
+.btn{padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-primary{background:#4f46e5;color:#fff;box-shadow:0 2px 6px rgba(79,70,229,0.2)}
+.btn-primary:hover{background:#4338ca;transform:translateY(-1px);box-shadow:0 4px 14px rgba(79,70,229,0.3)}
+.btn-outline{background:#fff;color:#64748b;border:1.5px solid #e2e8f0}
+.btn-outline:hover{border-color:#cbd5e1;background:#f8fafc;color:#334155}
+.btn-danger{background:#fff;color:#dc2626;border:1.5px solid #fecaca}
+.btn-danger:hover{background:#fef2f2}
+.btn-sm{padding:6px 12px;font-size:13px;border-radius:8px}
+
+/* ===== 表格 ===== */
+table{width:100%;border-collapse:collapse}
+thead th{padding:13px 18px;font-size:12px;font-weight:700;color:#64748b;text-align:left;letter-spacing:0.5px;background:#fafbfc;border-bottom:1.5px solid #e8ecf1}
+tbody td{padding:13px 18px;font-size:14px;border-bottom:1px solid #f1f5f9;color:#334155}
+tbody tr{transition:background 0.15s}
+tbody tr:hover{background:#f8fafc}
+tbody tr:last-child td{border-bottom:none}
+td .cell-phone{color:#64748b}
+td .cell-link{color:#4f46e5;font-weight:500;cursor:pointer}
+td .cell-link:hover{text-decoration:underline}
+
+/* ===== 状态标签 ===== */
+.tag{display:inline-flex;align-items:center;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:0.3px}
+.tag-green{background:#ecfdf5;color:#059669}
+.tag-amber{background:#fffbeb;color:#d97706}
+.tag-slate{background:#f1f5f9;color:#64748b}
+.tag-blue{background:#eff6ff;color:#2563eb}
+.tag-red{background:#fef2f2;color:#dc2626}
+
+/* ===== 操作按钮组 ===== */
+.act-group{display:flex;gap:4px}
+.act-btn{padding:5px 10px;border-radius:6px;border:none;background:none;color:#94a3b8;cursor:pointer;font-size:13px;transition:0.15s;font-family:inherit}
+.act-btn:hover{background:#f1f5f9;color:#4f46e5}
+
+/* ===== 分页 ===== */
+.pg{display:flex;align-items:center;justify-content:center;gap:4px;padding:16px 22px;border-top:1px solid #f1f5f9}
+.pg-btn{min-width:36px;height:36px;border-radius:9px;border:1.5px solid #e2e8f0;background:#fff;font-size:14px;color:#64748b;cursor:pointer;transition:0.15s;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.pg-btn:hover{border-color:#4f46e5;color:#4f46e5}
+.pg-btn.active{background:#4f46e5;color:#fff;border-color:#4f46e5;font-weight:700}
+.pg-info{font-size:13px;color:#94a3b8;margin-left:16px}
+
+/* ===== 弹窗 ===== */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,0.35);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;z-index:50;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:#fff;border-radius:20px;width:92%;max-width:640px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,0.15);animation:slideUp .25s ease-out}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-head{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f1f5f9;flex-shrink:0}
+.modal-head h3{font-size:18px;font-weight:700}
+.modal-head .close{font-size:22px;color:#94a3b8;cursor:pointer;border:none;background:none;padding:4px 8px;border-radius:6px;transition:.15s}
+.modal-head .close:hover{background:#f1f5f9;color:#1e293b}
+.modal-body{padding:22px 24px;overflow-y:auto;flex:1}
+.modal-foot{padding:16px 24px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid #f1f5f9;flex-shrink:0}
+
+/* ===== 表单 ===== */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.form-row .full{grid-column:1/-1}
+.field label{display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:15px;color:#1e293b;outline:none;transition:.2s;background:#fafbfc;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#a5b4fc;background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,0.06)}
+.field textarea{min-height:90px;resize:vertical}
+.field .hint{font-size:12px;color:#94a3b8;margin-top:4px}
+
+/* ===== 详情卡片 ===== */
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:20px}
+.detail-card{background:#fff;border:1px solid #e8ecf1;border-radius:14px;padding:18px;transition:.2s}
+.detail-card:hover{border-color:#cbd5e1}
+.detail-card .dl{font-size:12px;color:#94a3b8;font-weight:600;letter-spacing:.5px;margin-bottom:4px}
+.detail-card .dv{font-size:16px;font-weight:700;color:#1e293b}
+
+/* ===== 标签页 ===== */
+.tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1.5px solid #e2e8f0}
+.tab{padding:11px 20px;font-size:14px;font-weight:600;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;transition:.2s}
+.tab:hover{color:#64748b}
+.tab.active{color:#4f46e5;border-bottom-color:#4f46e5}
+
+/* ===== 时间线 ===== */
+.tl{position:relative;padding:8px 0 8px 28px}
+.tl::before{content:'';position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:#e2e8f0}
+.tl-item{padding-bottom:22px;position:relative}
+.tl-item::before{content:'';position:absolute;left:-23px;top:5px;width:10px;height:10px;border-radius:50%;background:#4f46e5;border:2px solid #fff;box-shadow:0 0 0 2px #e0e7ff}
+.tl-item .tl-time{font-size:12px;color:#94a3b8;margin-bottom:4px}
+.tl-item .tl-text{font-size:14px;color:#475569;line-height:1.6}
+
+/* 空状态 */
+.empty{text-align:center;padding:48px 20px;color:#94a3b8}
+.empty .empty-icon{font-size:40px;margin-bottom:12px}
+.empty .empty-text{font-size:14px}
+
+/* 响应式 */
+@media(max-width:640px){.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar">✨ 新辰未来 内页UI预览 &nbsp;|&nbsp; <strong>全中文 · 大字体 · 大按钮 · 轻动效</strong></div>
+
+<!-- ====== 1. 表格列表 ====== -->
+<div class="page">
+  <div class="page-title">线索管理</div>
+  <div class="page-desc">管理所有客户线索，支持搜索、筛选、新增和批量操作</div>
+  <div class="card">
+    <div class="card-head">
+      <h3>线索列表</h3>
+      <div class="right">
+        <div class="search-wrap"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="搜索姓名、手机号..."></div>
+        <button class="btn btn-outline">导出数据</button>
+        <button class="btn btn-primary">＋ 新建线索</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>姓名</th><th>手机号</th><th>来源渠道</th><th>状态</th><th>负责人</th><th>创建时间</th><th>操作</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="cell-link">张同学</span></td>
+            <td class="cell-phone">138 ···· 6789</td>
+            <td>新媒体 · 抖音</td>
+            <td><span class="tag tag-green">已跟进</span></td>
+            <td>赵杰</td>
+            <td>2026-07-28</td>
+            <td><div class="act-group"><button class="act-btn">编辑</button><button class="act-btn">详情</button><button class="act-btn">删除</button></div></td>
+          </tr>
+          <tr>
+            <td><span class="cell-link">李同学</span></td>
+            <td class="cell-phone">139 ···· 1234</td>
+            <td>站群 · 网站A</td>
+            <td><span class="tag tag-amber">待跟进</span></td>
+            <td>秦燕</td>
+            <td>2026-07-30</td>
+            <td><div class="act-group"><button class="act-btn">编辑</button><button class="act-btn">详情</button><button class="act-btn">删除</button></div></td>
+          </tr>
+          <tr>
+            <td><span class="cell-link">王同学</span></td>
+            <td class="cell-phone">137 ···· 5678</td>
+            <td>转介绍</td>
+            <td><span class="tag tag-slate">新录入</span></td>
+            <td>吴雪娇</td>
+            <td>2026-08-01</td>
+            <td><div class="act-group"><button class="act-btn">编辑</button><button class="act-btn">详情</button><button class="act-btn">删除</button></div></td>
+          </tr>
+          <tr>
+            <td><span class="cell-link">赵同学</span></td>
+            <td class="cell-phone">136 ···· 9012</td>
+            <td>渠道 · 百度</td>
+            <td><span class="tag tag-blue">已签约</span></td>
+            <td>王小可</td>
+            <td>2026-07-25</td>
+            <td><div class="act-group"><button class="act-btn">编辑</button><button class="act-btn">详情</button><button class="act-btn">删除</button></div></td>
+          </tr>
+          <tr>
+            <td><span class="cell-link">刘同学</span></td>
+            <td class="cell-phone">135 ···· 3456</td>
+            <td>新媒体 · 小红书</td>
+            <td><span class="tag tag-red">无意向</span></td>
+            <td>邱枫</td>
+            <td>2026-07-22</td>
+            <td><div class="act-group"><button class="act-btn">编辑</button><button class="act-btn">详情</button><button class="act-btn">删除</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pg">
+      <button class="pg-btn">‹</button><button class="pg-btn active">1</button><button class="pg-btn">2</button><button class="pg-btn">3</button><button class="pg-btn">4</button><span class="pg-info">共 56 条记录</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 2. 新增弹窗 ====== -->
+<div class="page">
+  <div class="page-title">新建线索</div>
+  <div class="page-desc">弹窗表单 · slideUp 入场动画 · 双栏布局</div>
+  <div class="overlay">
+    <div class="modal">
+      <div class="modal-head"><h3>新建线索</h3><button class="close">✕</button></div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="field"><label>姓名 <span style="color:#ef4444">*</span></label><input placeholder="请输入客户姓名"></div>
+          <div class="field"><label>手机号 <span style="color:#ef4444">*</span></label><input placeholder="请输入手机号码"></div>
+          <div class="field"><label>意向国家</label><select><option>请选择</option><option>美国</option><option>英国</option><option>澳大利亚</option><option>加拿大</option></select></div>
+          <div class="field"><label>意向学位</label><select><option>请选择</option><option>本科</option><option>硕士</option><option>博士</option></select></div>
+          <div class="field"><label>来源渠道</label><select><option>新媒体</option><option>站群</option><option>转介绍</option><option>渠道合作</option></select></div>
+          <div class="field"><label>分配顾问</label><select><option>请选择顾问</option><option>赵杰</option><option>秦燕</option><option>吴雪娇</option></select></div>
+          <div class="field full"><label>备注说明</label><textarea placeholder="选填，可记录首次沟通要点"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-outline">取消</button>
+        <button class="btn btn-primary">确认创建</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 3. 详情页 ====== -->
+<div class="page">
+  <div class="page-title">学生档案 · 张同学</div>
+  <div class="page-desc">基本信息卡片 + 标签页切换 + 跟进时间线</div>
+  <div class="detail-grid">
+    <div class="detail-card"><div class="dl">姓名</div><div class="dv">张同学</div></div>
+    <div class="detail-card"><div class="dl">手机号</div><div class="dv">138 ···· 6789</div></div>
+    <div class="detail-card"><div class="dl">意向国家</div><div class="dv">美国</div></div>
+    <div class="detail-card"><div class="dl">意向学位</div><div class="dv">硕士</div></div>
+    <div class="detail-card"><div class="dl">意向专业</div><div class="dv">计算机科学</div></div>
+    <div class="detail-card"><div class="dl">当前状态</div><div class="dv"><span class="tag tag-green">跟进中</span></div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab active">跟进记录</div><div class="tab">申请记录</div><div class="tab">合同信息</div><div class="tab">文件材料</div>
+  </div>
+  <div class="card" style="padding:28px">
+    <div class="tl">
+      <div class="tl-item"><div class="tl-time">2026-08-01 14:30 · 赵杰</div><div class="tl-text">电话沟通：学生家长对加州大学系统比较感兴趣，建议申请 UCLA 和 UC Berkeley 工程类专业。预计下周发送详细选校方案。</div></div>
+      <div class="tl-item"><div class="tl-time">2026-07-28 10:15 · 赵杰</div><div class="tl-text">微信沟通：发送了美国 TOP30 工程院校清单，学生表示会与家长商量后回复。</div></div>
+      <div class="tl-item"><div class="tl-time">2026-07-25 16:00 · 系统</div><div class="tl-text">线索创建：来源渠道 新媒体·抖音，首次咨询美国硕士留学事宜。</div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -67,7 +67,7 @@ const PLATFORM_COLOR: Record<string, string> = {
   bilibili: "bg-pink-100 text-pink-700",
   zhihu: "bg-blue-100 text-blue-700",
   kuaishou: "bg-yellow-100 text-yellow-700",
-  other: "bg-gray-100 text-gray-600",
+  other: "bg-gray-100 text-slate-600",
 };
 
 const PLATFORMS = Object.keys(PLATFORM_MAP);
@@ -312,18 +312,18 @@ export default function MediaAccountsPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">新媒体账号</h1>
-          <p className="text-sm text-gray-500 mt-1">管理各平台新媒体账号及运营表现数据</p>
+          <h1 className="text-2xl font-bold text-slate-900">新媒体账号</h1>
+          <p className="text-sm text-slate-500 mt-1">管理各平台新媒体账号及运营表现数据</p>
         </div>
         <div className="flex items-center gap-2">
           {tab === "accounts" && (
             <button onClick={openNewForm} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
-              <Plus className="w-4 h-4" />新增账号
+              <Plus className="w-5 h-5" />新增账号
             </button>
           )}
           {tab === "performances" && (
             <button onClick={openNewPerfForm} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
-              <Plus className="w-4 h-4" />新增数据
+              <Plus className="w-5 h-5" />新增数据
             </button>
           )}
         </div>
@@ -332,30 +332,30 @@ export default function MediaAccountsPage() {
       {/* Summary Cards */}
       {tab === "accounts" && data && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"><Smartphone className="w-5 h-5 text-blue-600" /></div>
               <div>
                 <div className="text-xs text-gray-500">账号总数</div>
-                <div className="text-xl font-bold text-gray-900">{data.total}</div>
+                <div className="text-xl font-bold text-slate-900">{data.total}</div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center"><Users className="w-5 h-5 text-green-600" /></div>
               <div>
                 <div className="text-xs text-gray-500">总粉丝数</div>
-                <div className="text-xl font-bold text-gray-900">{formatNumber(totalFollowers)}</div>
+                <div className="text-xl font-bold text-slate-900">{formatNumber(totalFollowers)}</div>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center"><TrendingUp className="w-5 h-5 text-purple-600" /></div>
               <div>
                 <div className="text-xs text-gray-500">活跃账号</div>
-                <div className="text-xl font-bold text-gray-900">{activeAccounts}</div>
+                <div className="text-xl font-bold text-slate-900">{activeAccounts}</div>
               </div>
             </div>
           </div>
@@ -365,39 +365,39 @@ export default function MediaAccountsPage() {
       {/* Tab Switcher */}
       <div className="flex items-center gap-1 mb-6 bg-gray-100 rounded-lg p-1 w-fit">
         <button onClick={() => setTab("accounts")}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition ${tab === "accounts" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
-          <Smartphone className="w-4 h-4 inline mr-1.5" />账号管理
+          className={`px-4 py-2 text-sm font-medium rounded-md transition ${tab === "accounts" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}>
+          <Smartphone className="w-5 h-5 inline mr-1.5" />账号管理
         </button>
         <button onClick={() => setTab("performances")}
-          className={`px-4 py-2 text-sm font-medium rounded-md transition ${tab === "performances" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900"}`}>
-          <BarChart3 className="w-4 h-4 inline mr-1.5" />表现数据
+          className={`px-4 py-2 text-sm font-medium rounded-md transition ${tab === "performances" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}>
+          <BarChart3 className="w-5 h-5 inline mr-1.5" />表现数据
         </button>
       </div>
 
       {/* ============ Accounts Tab ============ */}
       {tab === "accounts" && (
         <>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
             <div className="flex items-center gap-3">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={handleKeyDown}
-                  placeholder="搜索账号名称或ID..." className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  placeholder="搜索账号名称或ID..." className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
               <div className="relative">
                 <button onClick={() => setShowFilter(!showFilter)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition ${platformFilter ? "border-blue-300 bg-indigo-50 text-indigo-700" : "border-gray-300 text-gray-700 hover:bg-gray-50"}`}>
-                  <Filter className="w-4 h-4" /> 平台 {platformFilter && <span className="w-2 h-2 rounded-full bg-blue-500" />}
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border transition ${platformFilter ? "border-blue-300 bg-indigo-50 text-indigo-700" : "border-slate-300 text-slate-700 hover:bg-slate-50"}`}>
+                  <Filter className="w-5 h-5" /> 平台 {platformFilter && <span className="w-2 h-2 rounded-full bg-blue-500" />}
                 </button>
                 {showFilter && (
-                  <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-3 min-w-[180px]">
+                  <div className="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-10 p-3 min-w-[180px]">
                     <div className="text-xs font-medium text-gray-500 mb-2">选择平台</div>
                     <div className="space-y-1">
                       <button onClick={() => { setPlatformFilter(""); setPage(1); setShowFilter(false); }}
-                        className={`w-full text-left px-2 py-1 text-sm rounded ${!platformFilter ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>全部</button>
+                        className={`w-full text-left px-2 py-1 text-sm rounded ${!platformFilter ? "bg-indigo-50 text-indigo-700" : "text-slate-700 hover:bg-slate-50"}`}>全部</button>
                       {PLATFORMS.map(k => (
                         <button key={k} onClick={() => { setPlatformFilter(k); setPage(1); setShowFilter(false); }}
-                          className={`w-full text-left px-2 py-1 text-sm rounded ${platformFilter === k ? "bg-indigo-50 text-indigo-700" : "text-gray-700 hover:bg-gray-50"}`}>{PLATFORM_MAP[k]}</button>
+                          className={`w-full text-left px-2 py-1 text-sm rounded ${platformFilter === k ? "bg-indigo-50 text-indigo-700" : "text-slate-700 hover:bg-slate-50"}`}>{PLATFORM_MAP[k]}</button>
                       ))}
                     </div>
                   </div>
@@ -405,11 +405,11 @@ export default function MediaAccountsPage() {
               </div>
               <button onClick={handleSearch} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">搜索</button>
               <button onClick={() => { setKeyword(""); setSearchKeyword(""); setPlatformFilter(""); setPage(1); }}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-4 h-4" /></button>
+                className="p-2 text-gray-400 hover:text-slate-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-5 h-5" /></button>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center py-20"><RefreshCw className="w-6 h-6 animate-spin text-gray-400" /></div>
             ) : !data || data.list.length === 0 ? (
@@ -422,7 +422,7 @@ export default function MediaAccountsPage() {
               <>
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
+                    <tr className="border-b border-slate-200 bg-slate-50">
                       <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">平台</th>
                       <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">账号名称</th>
                       <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">账号ID</th>
@@ -436,35 +436,35 @@ export default function MediaAccountsPage() {
                     {data.list.map((acc) => {
                       const latestPerf = acc.performances && acc.performances.length > 0 ? acc.performances[0] : null;
                       return (
-                        <tr key={acc.id} className="hover:bg-gray-50 transition">
+                        <tr key={acc.id} className="hover:bg-slate-50 transition">
                           <td className="px-6 py-4">
-                            <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${PLATFORM_COLOR[acc.platform] || "bg-gray-100 text-gray-600"}`}>
+                            <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${PLATFORM_COLOR[acc.platform] || "bg-gray-100 text-slate-600"}`}>
                               {PLATFORM_MAP[acc.platform] || acc.platform}
                             </span>
                           </td>
-                          <td className="px-6 py-4"><span className="text-sm font-medium text-gray-900">{acc.accountName}</span></td>
-                          <td className="px-6 py-4"><span className="text-sm text-gray-500 font-mono">{acc.accountId || "-"}</span></td>
+                          <td className="px-6 py-4"><span className="text-sm font-medium text-slate-900">{acc.accountName}</span></td>
+                          <td className="px-6 py-4"><span className="text-sm text-slate-500 font-mono">{acc.accountId || "-"}</span></td>
                           <td className="px-6 py-4">
-                            <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-gray-400" /><span className="text-sm font-medium text-gray-900">{formatNumber(acc.followers)}</span></div>
+                            <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-gray-400" /><span className="text-sm font-medium text-slate-900">{formatNumber(acc.followers)}</span></div>
                           </td>
                           <td className="px-6 py-4">
                             {latestPerf ? (
                               <div className="flex items-center gap-3 text-xs text-gray-500">
-                                <span title="曝光"><Eye className="w-3 h-3 inline" /> {formatNumber(latestPerf.impressions)}</span>
-                                <span title="点击"><MousePointerClick className="w-3 h-3 inline" /> {formatNumber(latestPerf.clicks)}</span>
-                                <span title="线索"><Target className="w-3 h-3 inline" /> {formatNumber(latestPerf.leads)}</span>
+                                <span title="曝光"><Eye className="w-3.5 h-3.5 inline" /> {formatNumber(latestPerf.impressions)}</span>
+                                <span title="点击"><MousePointerClick className="w-3.5 h-3.5 inline" /> {formatNumber(latestPerf.clicks)}</span>
+                                <span title="线索"><Target className="w-3.5 h-3.5 inline" /> {formatNumber(latestPerf.leads)}</span>
                               </div>
-                            ) : <span className="text-xs text-gray-400">暂无数据</span>}
+                            ) : <span className="text-xs text-slate-400">暂无数据</span>}
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${acc.status ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
+                            <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${acc.status ? "bg-green-100 text-green-700" : "bg-gray-100 text-slate-600"}`}>
                               {acc.status ? "活跃" : "停用"}
                             </span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-1">
-                              <button onClick={() => openEditForm(acc)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑"><Edit3 className="w-4 h-4" /></button>
-                              <button onClick={() => setDeleteConfirm(acc)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除"><Trash2 className="w-4 h-4" /></button>
+                              <button onClick={() => openEditForm(acc)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑"><Edit3 className="w-5 h-5" /></button>
+                              <button onClick={() => setDeleteConfirm(acc)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除"><Trash2 className="w-5 h-5" /></button>
                             </div>
                           </td>
                         </tr>
@@ -473,11 +473,11 @@ export default function MediaAccountsPage() {
                   </tbody>
                 </table>
 
-                <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
-                  <div className="text-sm text-gray-500">共 {data.total} 条记录，第 {data.page}/{data.totalPages} 页</div>
+                <div className="flex items-center justify-between px-6 py-3 border-t border-slate-200 bg-slate-50">
+                  <div className="text-sm text-slate-500">共 {data.total} 条记录，第 {data.page}/{data.totalPages} 页</div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-                      className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronLeft className="w-4 h-4" /></button>
+                      className="p-1.5 text-gray-500 hover:text-slate-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronLeft className="w-5 h-5" /></button>
                     {Array.from({ length: Math.min(data.totalPages, 5) }, (_, i) => {
                       let pageNum: number;
                       if (data.totalPages <= 5) { pageNum = i + 1; }
@@ -486,11 +486,11 @@ export default function MediaAccountsPage() {
                       else { pageNum = page - 2 + i; }
                       return (
                         <button key={pageNum} onClick={() => setPage(pageNum)}
-                          className={`w-8 h-8 text-sm rounded transition ${pageNum === page ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-200"}`}>{pageNum}</button>
+                          className={`w-8 h-8 text-sm rounded transition ${pageNum === page ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-gray-200"}`}>{pageNum}</button>
                       );
                     })}
                     <button onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={page >= data.totalPages}
-                      className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronRight className="w-4 h-4" /></button>
+                      className="p-1.5 text-gray-500 hover:text-slate-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronRight className="w-5 h-5" /></button>
                   </div>
                 </div>
               </>
@@ -502,21 +502,21 @@ export default function MediaAccountsPage() {
       {/* ============ Performances Tab ============ */}
       {tab === "performances" && (
         <>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
             <div className="flex items-center gap-3">
               <div className="flex-1">
                 <select value={perfAccountFilter} onChange={(e) => { setPerfAccountFilter(e.target.value); setPerfPage(1); }}
-                  className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  className="w-full max-w-xs px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="">全部账号</option>
                   {accounts.map(a => <option key={a.id} value={a.id}>{PLATFORM_MAP[a.platform] || a.platform} - {a.accountName}</option>)}
                 </select>
               </div>
               <button onClick={() => { setPerfAccountFilter(""); setPerfPage(1); }}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-4 h-4" /></button>
+                className="p-2 text-gray-400 hover:text-slate-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-5 h-5" /></button>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             {perfLoading ? (
               <div className="flex items-center justify-center py-20"><RefreshCw className="w-6 h-6 animate-spin text-gray-400" /></div>
             ) : !perfData || perfData.list.length === 0 ? (
@@ -529,7 +529,7 @@ export default function MediaAccountsPage() {
               <>
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50">
+                    <tr className="border-b border-slate-200 bg-slate-50">
                       <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">账号</th>
                       <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">日期</th>
                       <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">曝光量</th>
@@ -541,24 +541,24 @@ export default function MediaAccountsPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {perfData.list.map((perf) => (
-                      <tr key={perf.id} className="hover:bg-gray-50 transition">
+                      <tr key={perf.id} className="hover:bg-slate-50 transition">
                         <td className="px-6 py-4">
                           {perf.account ? (
                             <div>
-                              <div className="text-sm font-medium text-gray-900">{perf.account.accountName}</div>
-                              <div className="text-xs text-gray-400">{PLATFORM_MAP[perf.account.platform] || perf.account.platform}</div>
+                              <div className="text-sm font-medium text-slate-900">{perf.account.accountName}</div>
+                              <div className="text-xs text-slate-400">{PLATFORM_MAP[perf.account.platform] || perf.account.platform}</div>
                             </div>
                           ) : <span className="text-sm text-gray-400">-</span>}
                         </td>
-                        <td className="px-6 py-4"><span className="text-sm text-gray-700">{new Date(perf.statDate).toLocaleDateString("zh-CN")}</span></td>
+                        <td className="px-6 py-4"><span className="text-sm text-slate-700">{new Date(perf.statDate).toLocaleDateString("zh-CN")}</span></td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5 text-blue-400" /><span className="text-sm font-medium text-gray-900">{formatNumber(perf.impressions)}</span></div>
+                          <div className="flex items-center gap-1.5"><Eye className="w-3.5 h-3.5 text-blue-400" /><span className="text-sm font-medium text-slate-900">{formatNumber(perf.impressions)}</span></div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-1.5"><MousePointerClick className="w-3.5 h-3.5 text-green-400" /><span className="text-sm font-medium text-gray-900">{formatNumber(perf.clicks)}</span></div>
+                          <div className="flex items-center gap-1.5"><MousePointerClick className="w-3.5 h-3.5 text-green-400" /><span className="text-sm font-medium text-slate-900">{formatNumber(perf.clicks)}</span></div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-1.5"><Target className="w-3.5 h-3.5 text-purple-400" /><span className="text-sm font-medium text-gray-900">{formatNumber(perf.leads)}</span></div>
+                          <div className="flex items-center gap-1.5"><Target className="w-3.5 h-3.5 text-purple-400" /><span className="text-sm font-medium text-slate-900">{formatNumber(perf.leads)}</span></div>
                         </td>
                         <td className="px-6 py-4">
                           <span className={`text-sm font-medium ${perf.followersDelta >= 0 ? "text-green-600" : "text-red-600"}`}>
@@ -567,8 +567,8 @@ export default function MediaAccountsPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1">
-                            <button onClick={() => openEditPerfForm(perf)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑"><Edit3 className="w-4 h-4" /></button>
-                            <button onClick={() => setPerfDeleteConfirm(perf)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除"><Trash2 className="w-4 h-4" /></button>
+                            <button onClick={() => openEditPerfForm(perf)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑"><Edit3 className="w-5 h-5" /></button>
+                            <button onClick={() => setPerfDeleteConfirm(perf)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除"><Trash2 className="w-5 h-5" /></button>
                           </div>
                         </td>
                       </tr>
@@ -577,11 +577,11 @@ export default function MediaAccountsPage() {
                 </table>
 
                 {perfData && (
-                  <div className="flex items-center justify-between px-6 py-3 border-t border-gray-200 bg-gray-50">
-                    <div className="text-sm text-gray-500">共 {perfData.total} 条记录，第 {perfData.page}/{perfData.totalPages} 页</div>
+                  <div className="flex items-center justify-between px-6 py-3 border-t border-slate-200 bg-slate-50">
+                    <div className="text-sm text-slate-500">共 {perfData.total} 条记录，第 {perfData.page}/{perfData.totalPages} 页</div>
                     <div className="flex items-center gap-2">
                       <button onClick={() => setPerfPage((p) => Math.max(1, p - 1))} disabled={perfPage <= 1}
-                        className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronLeft className="w-4 h-4" /></button>
+                        className="p-1.5 text-gray-500 hover:text-slate-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronLeft className="w-5 h-5" /></button>
                       {Array.from({ length: Math.min(perfData.totalPages, 5) }, (_, i) => {
                         let pageNum: number;
                         if (perfData.totalPages <= 5) { pageNum = i + 1; }
@@ -590,11 +590,11 @@ export default function MediaAccountsPage() {
                         else { pageNum = perfPage - 2 + i; }
                         return (
                           <button key={pageNum} onClick={() => setPerfPage(pageNum)}
-                            className={`w-8 h-8 text-sm rounded transition ${pageNum === perfPage ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-200"}`}>{pageNum}</button>
+                            className={`w-8 h-8 text-sm rounded transition ${pageNum === perfPage ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-gray-200"}`}>{pageNum}</button>
                         );
                       })}
                       <button onClick={() => setPerfPage((p) => Math.min(perfData.totalPages, p + 1))} disabled={perfPage >= perfData.totalPages}
-                        className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronRight className="w-4 h-4" /></button>
+                        className="p-1.5 text-gray-500 hover:text-slate-700 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed transition"><ChevronRight className="w-5 h-5" /></button>
                     </div>
                   </div>
                 )}
@@ -607,80 +607,80 @@ export default function MediaAccountsPage() {
       {/* ============ Account Form Modal ============ */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">{editingItem ? "编辑账号" : "新增账号"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">{editingItem ? "编辑账号" : "新增账号"}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded transition">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">平台 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">平台 <span className="text-red-500">*</span></label>
                 <select required value={formData.platform} onChange={(e) => setFormData(d => ({ ...d, platform: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="">请选择平台</option>
                   {PLATFORMS.map(p => <option key={p} value={p}>{PLATFORM_MAP[p]}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">账号名称 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">账号名称 <span className="text-red-500">*</span></label>
                 <input type="text" required value={formData.accountName} onChange={(e) => setFormData(d => ({ ...d, accountName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="如: 新辰留学" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="如: 新辰留学" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">账号ID</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">账号ID</label>
                 <input type="text" value={formData.accountId} onChange={(e) => setFormData(d => ({ ...d, accountId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="平台账号唯一ID" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="平台账号唯一ID" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">粉丝数</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">粉丝数</label>
                 <input type="number" value={formData.followers} onChange={(e) => setFormData(d => ({ ...d, followers: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">运营专员</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">运营专员</label>
                   <select value={formData.operatorId} onChange={(e) => setFormData(d => ({ ...d, operatorId: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     <option value="">请选择</option>
                     {employees.map(e => <option key={e.id} value={e.id}>{e.realName}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">手机号</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">手机号</label>
                   <input type="text" value={formData.phone} onChange={(e) => setFormData(d => ({ ...d, phone: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="运营专员手机号" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="运营专员手机号" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">关联公司</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">关联公司</label>
                   <input type="text" value={formData.company} onChange={(e) => setFormData(d => ({ ...d, company: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="公司名" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="公司名" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">实名认证</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">实名认证</label>
                   <input type="text" value={formData.verified} onChange={(e) => setFormData(d => ({ ...d, verified: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="已认证/未认证/认证中" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="已认证/未认证/认证中" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">人设风格</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">人设风格</label>
                   <select value={formData.personaStyle} onChange={(e) => setFormData(d => ({ ...d, personaStyle: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     <option value="">请选择</option>
                     {personaStyles.map(p => <option key={p.dictKey} value={p.dictKey}>{p.dictValue}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">风格详情</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">风格详情</label>
                   <input type="text" value={formData.styleDetail} onChange={(e) => setFormData(d => ({ ...d, styleDetail: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="补充说明" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="补充说明" />
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button type="submit" disabled={submitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium">
                   {submitting ? "保存中..." : editingItem ? "保存修改" : "确认新增"}
                 </button>
@@ -693,12 +693,12 @@ export default function MediaAccountsPage() {
       {/* Account Delete Confirm Modal */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
             <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl"><h2 className="text-lg font-semibold text-red-800">确认删除</h2></div>
             <div className="p-6">
-              <p className="text-sm text-gray-700">确定要删除 {PLATFORM_MAP[deleteConfirm.platform] || deleteConfirm.platform} 账号 <span className="font-medium">{deleteConfirm.accountName}</span> 吗？</p>
+              <p className="text-sm text-slate-700">确定要删除 {PLATFORM_MAP[deleteConfirm.platform] || deleteConfirm.platform} 账号 <span className="font-medium">{deleteConfirm.accountName}</span> 吗？</p>
               <div className="flex justify-end gap-3 mt-4">
-                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition">确认删除</button>
               </div>
             </div>
@@ -709,62 +709,62 @@ export default function MediaAccountsPage() {
       {/* ============ Performance Form Modal ============ */}
       {showPerfForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">{editingPerf ? "编辑表现数据" : "新增表现数据"}</h2>
-              <button onClick={() => setShowPerfForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">{editingPerf ? "编辑表现数据" : "新增表现数据"}</h2>
+              <button onClick={() => setShowPerfForm(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded transition">✕</button>
             </div>
             <form onSubmit={handlePerfSubmit} className="p-6 space-y-4">
               {perfFormError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{perfFormError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">账号 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">账号 <span className="text-red-500">*</span></label>
                 <select required value={perfFormData.accountId} onChange={(e) => setPerfFormData(d => ({ ...d, accountId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="">请选择账号</option>
                   {accounts.map(a => <option key={a.id} value={a.id}>{PLATFORM_MAP[a.platform] || a.platform} - {a.accountName}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">统计日期 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">统计日期 <span className="text-red-500">*</span></label>
                 <input type="date" required value={perfFormData.statDate} onChange={(e) => setPerfFormData(d => ({ ...d, statDate: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">曝光量</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">曝光量</label>
                   <div className="relative">
-                    <Eye className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Eye className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input type="number" value={perfFormData.impressions} onChange={(e) => setPerfFormData(d => ({ ...d, impressions: e.target.value }))}
-                      className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                      className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">点击量</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">点击量</label>
                   <div className="relative">
-                    <MousePointerClick className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <MousePointerClick className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input type="number" value={perfFormData.clicks} onChange={(e) => setPerfFormData(d => ({ ...d, clicks: e.target.value }))}
-                      className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                      className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">线索数</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">线索数</label>
                   <div className="relative">
-                    <Target className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Target className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input type="number" value={perfFormData.leads} onChange={(e) => setPerfFormData(d => ({ ...d, leads: e.target.value }))}
-                      className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                      className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">粉丝增量</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">粉丝增量</label>
                   <div className="relative">
-                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input type="number" value={perfFormData.followersDelta} onChange={(e) => setPerfFormData(d => ({ ...d, followersDelta: e.target.value }))}
-                      className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                      className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                   </div>
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowPerfForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button type="button" onClick={() => setShowPerfForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button type="submit" disabled={perfSubmitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium">
                   {perfSubmitting ? "保存中..." : editingPerf ? "保存修改" : "确认新增"}
                 </button>
@@ -777,12 +777,12 @@ export default function MediaAccountsPage() {
       {/* Performance Delete Confirm Modal */}
       {perfDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
             <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl"><h2 className="text-lg font-semibold text-red-800">确认删除</h2></div>
             <div className="p-6">
-              <p className="text-sm text-gray-700">确定要删除 {new Date(perfDeleteConfirm.statDate).toLocaleDateString("zh-CN")} 的表现数据吗？</p>
+              <p className="text-sm text-slate-700">确定要删除 {new Date(perfDeleteConfirm.statDate).toLocaleDateString("zh-CN")} 的表现数据吗？</p>
               <div className="flex justify-end gap-3 mt-4">
-                <button onClick={() => setPerfDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button onClick={() => setPerfDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button onClick={handlePerfDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition">确认删除</button>
               </div>
             </div>

@@ -77,7 +77,7 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
   CONTACTED: { label: "已联系", color: "bg-yellow-100 text-yellow-800" },
   QUALIFIED: { label: "已筛选", color: "bg-purple-100 text-purple-800" },
   CONVERTED: { label: "已转化", color: "bg-green-100 text-green-800" },
-  DEAD: { label: "已无效", color: "bg-gray-100 text-gray-800" },
+  DEAD: { label: "已无效", color: "bg-gray-100 text-slate-800" },
 };
 
 const FOLLOW_FALLBACK = [{ dictKey: "phone", dictValue: "电话" },{ dictKey: "wechat", dictValue: "微信" },{ dictKey: "visit", dictValue: "面谈" },{ dictKey: "other", dictValue: "其他" }];
@@ -264,26 +264,26 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={() => router.push("/leads")}
-          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+          className="p-2 text-gray-400 hover:text-slate-600 hover:bg-gray-100 rounded-lg transition"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">{lead.name}</h1>
-          <p className="text-sm text-gray-500">线索编号: {String(lead.id).padStart(6, "0")}</p>
+          <h1 className="text-2xl font-bold text-slate-900">{lead.name}</h1>
+          <p className="text-sm text-slate-500">线索编号: {String(lead.id).padStart(6, "0")}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={openEdit}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+            className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
           >
-            <Edit className="w-4 h-4" /> 编辑
+            <Edit className="w-5 h-5" /> 编辑
           </button>
           <button
             onClick={handleDelete}
             className="flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition"
           >
-            <Trash2 className="w-4 h-4" /> 删除
+            <Trash2 className="w-5 h-5" /> 删除
           </button>
         </div>
       </div>
@@ -292,65 +292,65 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
         {/* 左侧：基本信息 */}
         <div className="col-span-2 space-y-6">
           {/* 基本信息卡片 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">基本信息</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">基本信息</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-xs text-gray-400 mb-1">学生姓名</div>
-                <div className="text-sm font-medium text-gray-900">{lead.name}</div>
+                <div className="text-xs text-slate-400 mb-1">学生姓名</div>
+                <div className="text-sm font-medium text-slate-900">{lead.name}</div>
               </div>
               <div>
-                <div className="text-xs text-gray-400 mb-1">手机号</div>
-                <div className="text-sm font-medium text-gray-900 flex items-center gap-1">
+                <div className="text-xs text-slate-400 mb-1">手机号</div>
+                <div className="text-sm font-medium text-slate-900 flex items-center gap-1">
                   <Phone className="w-3.5 h-3.5 text-gray-400" /> {lead.phone}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-gray-400 mb-1">微信</div>
-                <div className="text-sm text-gray-900">{lead.wechat || "-"}</div>
+                <div className="text-xs text-slate-400 mb-1">微信</div>
+                <div className="text-sm text-slate-900">{lead.wechat || "-"}</div>
               </div>
               <div>
-                <div className="text-xs text-gray-400 mb-1">线索来源</div>
-                <div className="text-sm text-gray-900">{sourceMap[lead.source] || lead.source}</div>
+                <div className="text-xs text-slate-400 mb-1">线索来源</div>
+                <div className="text-sm text-slate-900">{sourceMap[lead.source] || lead.source}</div>
               </div>
               <div>
-                <div className="text-xs text-gray-400 mb-1">意向国家</div>
-                <div className="text-sm text-gray-900">{lead.targetCountry || "-"}</div>
+                <div className="text-xs text-slate-400 mb-1">意向国家</div>
+                <div className="text-sm text-slate-900">{lead.targetCountry || "-"}</div>
               </div>
               <div>
-                <div className="text-xs text-gray-400 mb-1">意向学位</div>
-                <div className="text-sm text-gray-900">{lead.targetDegree || "-"}</div>
+                <div className="text-xs text-slate-400 mb-1">意向学位</div>
+                <div className="text-sm text-slate-900">{lead.targetDegree || "-"}</div>
               </div>
               <div>
-                <div className="text-xs text-gray-400 mb-1">预算</div>
-                <div className="text-sm text-gray-900">
+                <div className="text-xs text-slate-400 mb-1">预算</div>
+                <div className="text-sm text-slate-900">
                   {lead.budget ? `¥${Number(lead.budget).toLocaleString()}` : "-"}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-gray-400 mb-1">创建时间</div>
-                <div className="text-sm text-gray-900">
+                <div className="text-xs text-slate-400 mb-1">创建时间</div>
+                <div className="text-sm text-slate-900">
                   {new Date(lead.createdAt).toLocaleString("zh-CN")}
                 </div>
               </div>
             </div>
             {lead.remark && (
               <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="text-xs text-gray-400 mb-1">备注</div>
-                <div className="text-sm text-gray-700 whitespace-pre-wrap">{lead.remark}</div>
+                <div className="text-xs text-slate-400 mb-1">备注</div>
+                <div className="text-sm text-slate-700 whitespace-pre-wrap">{lead.remark}</div>
               </div>
             )}
           </div>
 
           {/* 跟进记录 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">跟进记录</h2>
+              <h2 className="text-lg font-semibold text-slate-900">跟进记录</h2>
               <button
                 onClick={() => setShowFollowUp(true)}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
               >
-                <MessageSquare className="w-4 h-4" /> 添加跟进
+                <MessageSquare className="w-5 h-5" /> 添加跟进
               </button>
             </div>
 
@@ -371,28 +371,28 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                     }`}
                   >
                     <div className="absolute left-0 top-1.5 -translate-x-1/2">
-                      <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow"></div>
+                      <div className="w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-white shadow"></div>
                     </div>
                     <div className="ml-4">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium text-slate-900">
                           {fu.user.realName}
                         </span>
                         <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">
                           {getDictLabel(followTypes, fu.type)}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-slate-400">
                           {new Date(fu.createdAt).toLocaleString("zh-CN")}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{fu.content}</p>
+                      <p className="text-sm text-slate-700 whitespace-pre-wrap">{fu.content}</p>
                       {fu.nextPlan && (
                         <p className="text-sm text-blue-600 mt-1">
                           下一步计划: {fu.nextPlan}
                         </p>
                       )}
                       {fu.nextFollowUpAt && (
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-slate-400 mt-1">
                           下次跟进: {new Date(fu.nextFollowUpAt).toLocaleDateString("zh-CN")}
                         </p>
                       )}
@@ -407,22 +407,22 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
         {/* 右侧：状态和操作 */}
         <div className="space-y-6">
           {/* 状态卡片 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">线索状态</h2>
-            <span className={`inline-flex text-sm font-medium px-3 py-1 rounded-full ${STATUS_MAP[lead.status]?.color || "bg-gray-100 text-gray-800"}`}>
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">线索状态</h2>
+            <span className={`inline-flex text-sm font-medium px-3 py-1 rounded-full ${STATUS_MAP[lead.status]?.color || "bg-gray-100 text-slate-800"}`}>
               {STATUS_MAP[lead.status]?.label || lead.status}
             </span>
           </div>
 
           {/* 归属顾问 */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">归属顾问</h2>
+              <h2 className="text-lg font-semibold text-slate-900">归属顾问</h2>
               <button
                 onClick={() => { setTransferError(""); setShowTransfer(true); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 transition"
               >
-                <Send className="w-4 h-4" />申请划转
+                <Send className="w-5 h-5" />申请划转
               </button>
             </div>
             <div className="flex items-center gap-3">
@@ -430,24 +430,24 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 <User className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <div className="text-sm font-medium text-gray-900">{lead.assignedTo.realName}</div>
-                <div className="text-xs text-gray-400">@{lead.assignedTo.username}</div>
+                <div className="text-sm font-medium text-slate-900">{lead.assignedTo.realName}</div>
+                <div className="text-xs text-slate-400">@{lead.assignedTo.username}</div>
               </div>
             </div>
           </div>
 
           {/* 关联学生 */}
           {lead.student && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">关联学生</h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">关联学生</h2>
               <button
                 onClick={() => router.push(`/students/${lead.student!.id}`)}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition w-full text-left"
+                className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-gray-100 transition w-full text-left"
               >
                 <GraduationCap className="w-5 h-5 text-blue-500" />
                 <div>
-                  <div className="text-sm font-medium text-gray-900">{lead.student.name}</div>
-                  <div className="text-xs text-gray-400">{lead.student.phone}</div>
+                  <div className="text-sm font-medium text-slate-900">{lead.student.name}</div>
+                  <div className="text-xs text-slate-400">{lead.student.phone}</div>
                 </div>
               </button>
             </div>
@@ -455,8 +455,8 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
 
           {/* 移交记录 */}
           {lead.transferLogs.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">移交记录</h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">移交记录</h2>
               <div className="space-y-3">
                 {lead.transferLogs.map((log) => (
                   <div key={log.id} className="text-sm flex items-center justify-between">
@@ -465,7 +465,7 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                         移交至 #{log.toUserId}
                         {log.reason && `（${log.reason}）`}
                       </div>
-                      <div className="text-xs text-gray-400 mt-0.5">
+                      <div className="text-xs text-slate-400 mt-0.5">
                         {new Date(log.createdAt).toLocaleString("zh-CN")}
                       </div>
                     </div>
@@ -483,53 +483,53 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       {/* 编辑弹窗 */}
       {showEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold">编辑线索</h2>
-              <button onClick={() => setShowEdit(false)} className="p-1 text-gray-400 hover:text-gray-600">✕</button>
+              <button onClick={() => setShowEdit(false)} className="p-1 text-gray-400 hover:text-slate-600">✕</button>
             </div>
             <form onSubmit={handleEdit} className="p-6 space-y-4">
               {editError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{editError}</div>}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">姓名</label>
-                  <input type="text" value={editData.name} onChange={(e) => setEditData((d) => ({ ...d, name: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">姓名</label>
+                  <input type="text" value={editData.name} onChange={(e) => setEditData((d) => ({ ...d, name: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">手机号</label>
-                  <input type="text" value={editData.phone} onChange={(e) => setEditData((d) => ({ ...d, phone: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">手机号</label>
+                  <input type="text" value={editData.phone} onChange={(e) => setEditData((d) => ({ ...d, phone: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">来源</label>
-                  <select value={editData.source} onChange={(e) => setEditData((d) => ({ ...d, source: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">来源</label>
+                  <select value={editData.source} onChange={(e) => setEditData((d) => ({ ...d, source: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     {sources.map((s) => <option key={s.dictKey} value={s.dictKey}>{s.dictValue}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
-                  <select value={editData.status} onChange={(e) => setEditData((d) => ({ ...d, status: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">状态</label>
+                  <select value={editData.status} onChange={(e) => setEditData((d) => ({ ...d, status: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     {Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                   </select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">意向国家</label>
-                  <input type="text" value={editData.targetCountry} onChange={(e) => setEditData((d) => ({ ...d, targetCountry: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">意向国家</label>
+                  <input type="text" value={editData.targetCountry} onChange={(e) => setEditData((d) => ({ ...d, targetCountry: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">意向学位</label>
-                  <input type="text" value={editData.targetDegree} onChange={(e) => setEditData((d) => ({ ...d, targetDegree: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">意向学位</label>
+                  <input type="text" value={editData.targetDegree} onChange={(e) => setEditData((d) => ({ ...d, targetDegree: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">备注</label>
-                <textarea value={editData.remark} onChange={(e) => setEditData((d) => ({ ...d, remark: e.target.value }))} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">备注</label>
+                <textarea value={editData.remark} onChange={(e) => setEditData((d) => ({ ...d, remark: e.target.value }))} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" />
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowEdit(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+                <button type="button" onClick={() => setShowEdit(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
                 <button type="submit" disabled={saving} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium">{saving ? "保存中..." : "保存"}</button>
               </div>
             </form>
@@ -540,17 +540,17 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       {/* 申请划转弹窗 */}
       {showTransfer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold">申请线索划转</h2>
-              <button onClick={() => setShowTransfer(false)} className="p-1 text-gray-400 hover:text-gray-600">✕</button>
+              <button onClick={() => setShowTransfer(false)} className="p-1 text-gray-400 hover:text-slate-600">✕</button>
             </div>
             <form onSubmit={handleTransfer} className="p-6 space-y-4">
               {transferError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{transferError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">接收人 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">接收人 <span className="text-red-500">*</span></label>
                 <select required value={transferToId} onChange={(e) => setTransferToId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none">
                   <option value="">请选择接收顾问</option>
                   {employeeOptions.filter((u) => u.id !== lead?.assignedTo.id).map((u) => (
                     <option key={u.id} value={u.id}>{u.realName || u.username}（@{u.username}）</option>
@@ -558,12 +558,12 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">划转理由</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">划转理由</label>
                 <textarea value={transferReason} onChange={(e) => setTransferReason(e.target.value)} rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none resize-none" placeholder="说明划转原因，将提交主管审批" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 outline-none resize-none" placeholder="说明划转原因，将提交主管审批" />
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowTransfer(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+                <button type="button" onClick={() => setShowTransfer(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
                 <button type="submit" disabled={transferSubmitting} className="px-6 py-2 text-sm text-white bg-amber-600 rounded-lg hover:bg-amber-700 disabled:opacity-50 font-medium">
                   {transferSubmitting ? "提交中..." : "提交审批"}
                 </button>
@@ -576,32 +576,32 @@ export default function LeadDetailPage({ params }: { params: Promise<{ id: strin
       {/* 新增跟进弹窗 */}
       {showFollowUp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold">添加跟进记录</h2>
-              <button onClick={() => setShowFollowUp(false)} className="p-1 text-gray-400 hover:text-gray-600">✕</button>
+              <button onClick={() => setShowFollowUp(false)} className="p-1 text-gray-400 hover:text-slate-600">✕</button>
             </div>
             <form onSubmit={handleAddFollowUp} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">跟进方式</label>
-                <select value={followUpType} onChange={(e) => setFollowUpType(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                <label className="block text-sm font-medium text-slate-700 mb-1">跟进方式</label>
+                <select value={followUpType} onChange={(e) => setFollowUpType(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   {followTypes.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">跟进内容 <span className="text-red-500">*</span></label>
-                <textarea value={followUpContent} onChange={(e) => setFollowUpContent(e.target.value)} required rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" placeholder="记录本次跟进内容..." />
+                <label className="block text-sm font-medium text-slate-700 mb-1">跟进内容 <span className="text-red-500">*</span></label>
+                <textarea value={followUpContent} onChange={(e) => setFollowUpContent(e.target.value)} required rows={4} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" placeholder="记录本次跟进内容..." />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">下一步计划</label>
-                <input type="text" value={followUpNextPlan} onChange={(e) => setFollowUpNextPlan(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="下一步跟进计划" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">下一步计划</label>
+                <input type="text" value={followUpNextPlan} onChange={(e) => setFollowUpNextPlan(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="下一步跟进计划" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">下次跟进日期</label>
-                <input type="date" value={followUpNextDate} onChange={(e) => setFollowUpNextDate(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">下次跟进日期</label>
+                <input type="date" value={followUpNextDate} onChange={(e) => setFollowUpNextDate(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowFollowUp(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+                <button type="button" onClick={() => setShowFollowUp(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
                 <button type="submit" disabled={followUpSubmitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium">{followUpSubmitting ? "提交中..." : "添加跟进"}</button>
               </div>
             </form>

@@ -33,7 +33,7 @@ const CHANNEL_MAP: Record<string, { label: string; color: string }> = {
   PARTNER: { label: "合作方", color: "bg-purple-100 text-purple-800" },
   SITE: { label: "站群", color: "bg-cyan-100 text-cyan-800" },
   OFFLINE: { label: "线下/展会", color: "bg-orange-100 text-orange-800" },
-  OTHER: { label: "其他", color: "bg-gray-100 text-gray-800" },
+  OTHER: { label: "其他", color: "bg-gray-100 text-slate-800" },
 };
 
 const CHANNELS = Object.entries(CHANNEL_MAP).map(([k, v]) => ({ key: k, label: v.label }));
@@ -178,39 +178,39 @@ export default function TouchpointsPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">触点管理</h1>
-          <p className="text-sm text-gray-500 mt-1">记录学生各渠道获客触点，支持多触点归因分析</p>
+          <h1 className="text-2xl font-bold text-slate-900">触点管理</h1>
+          <p className="text-sm text-slate-500 mt-1">记录学生各渠道获客触点，支持多触点归因分析</p>
         </div>
         <button onClick={openNew}
           className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
-          <Plus className="w-4 h-4" /> 新增触点
+          <Plus className="w-5 h-5" /> 新增触点
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex-1 min-w-[200px] relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input type="text" placeholder="搜索来源 / 活动 / 学生..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && (setPage(1), fetchList())}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
           </div>
           <select value={channelFilter}
             onChange={(e) => { setChannelFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部渠道</option>
             {CHANNELS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
           </select>
           <button onClick={() => { setPage(1); fetchList(); }}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition">
-            <RefreshCw className="w-4 h-4" /> 刷新
+            className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-slate-700 rounded-lg text-sm hover:bg-gray-200 transition">
+            <RefreshCw className="w-5 h-5" /> 刷新
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400">
             <RefreshCw className="w-5 h-5 animate-spin mr-2" /> 加载中...
@@ -225,7 +225,7 @@ export default function TouchpointsPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50 text-left">
+                  <tr className="bg-slate-50 text-left">
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">学生</th>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">渠道</th>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">来源/媒介</th>
@@ -236,9 +236,9 @@ export default function TouchpointsPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {data.list.map((t) => (
-                    <tr key={t.id} className="hover:bg-gray-50 transition">
+                    <tr key={t.id} className="hover:bg-slate-50 transition">
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5 text-sm text-gray-700">
+                        <div className="flex items-center gap-1.5 text-sm text-slate-700">
                           <User className="w-3.5 h-3.5 text-gray-400" />
                           {t.student?.name || "未知"}
                         </div>
@@ -248,23 +248,23 @@ export default function TouchpointsPage() {
                           {(CHANNEL_MAP[t.channel] || CHANNEL_MAP.OTHER).label}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-slate-600">
                         {t.source || "-"}
                         {t.medium && <span className="text-gray-400"> / {t.medium}</span>}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{t.campaign || "-"}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
+                      <td className="px-4 py-3 text-sm text-slate-600">{t.campaign || "-"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500">
                         {new Date(t.occurredAt).toLocaleString("zh-CN")}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
                           <button onClick={() => openEdit(t)}
                             className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition" title="编辑">
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-5 h-5" />
                           </button>
                           <button onClick={() => setDeleteConfirm(t)}
                             className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除">
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-5 h-5" />
                           </button>
                         </div>
                       </td>
@@ -273,16 +273,16 @@ export default function TouchpointsPage() {
                 </tbody>
               </table>
             </div>
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
-              <span className="text-sm text-gray-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-slate-50">
+              <span className="text-sm text-slate-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
               <div className="flex items-center gap-1">
                 <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
                   className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition">
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={page >= data.totalPages}
                   className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition">
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -292,70 +292,70 @@ export default function TouchpointsPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">{editing ? "编辑触点" : "新增触点"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">{editing ? "编辑触点" : "新增触点"}</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">学生 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">学生 <span className="text-red-500">*</span></label>
                 <select required value={formData.studentId}
                   onChange={(e) => setFormData((d) => ({ ...d, studentId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="">请选择学生</option>
                   {students.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">渠道类型 <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">渠道类型 <span className="text-red-500">*</span></label>
                   <select required value={formData.channel}
                     onChange={(e) => setFormData((d) => ({ ...d, channel: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     {CHANNELS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">来源细分</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">来源细分</label>
                   <input type="text" value={formData.source}
                     onChange={(e) => setFormData((d) => ({ ...d, source: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="如 抖音/小红书/百度" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">媒介</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">媒介</label>
                   <input type="text" value={formData.medium}
                     onChange={(e) => setFormData((d) => ({ ...d, medium: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="cpc/cpm/organic" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">活动/计划</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">活动/计划</label>
                   <input type="text" value={formData.campaign}
                     onChange={(e) => setFormData((d) => ({ ...d, campaign: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="活动名称" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">触点时间</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">触点时间</label>
                 <input type="datetime-local" value={formData.occurredAt}
                   onChange={(e) => setFormData((d) => ({ ...d, occurredAt: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">备注</label>
                 <textarea rows={2} value={formData.remark}
                   onChange={(e) => setFormData((d) => ({ ...d, remark: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none" />
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                  className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button type="submit" disabled={submitting}
                   className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium">
                   {submitting ? "保存中..." : editing ? "保存修改" : "确认新增"}
@@ -368,15 +368,15 @@ export default function TouchpointsPage() {
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
             <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl">
               <h2 className="text-lg font-semibold text-red-800">确认删除</h2>
             </div>
             <div className="p-6">
-              <p className="text-sm text-gray-700">确定删除该触点记录吗？相关归因结果将一并清除。</p>
+              <p className="text-sm text-slate-700">确定删除该触点记录吗？相关归因结果将一并清除。</p>
               <div className="flex justify-end gap-3 mt-4">
                 <button onClick={() => setDeleteConfirm(null)}
-                  className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                  className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button onClick={handleDelete} disabled={deleting}
                   className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition">
                   {deleting ? "删除中..." : "确认删除"}

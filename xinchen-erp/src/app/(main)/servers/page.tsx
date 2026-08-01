@@ -68,15 +68,15 @@ export default function ServersPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">服务器</h1>
-          <p className="text-sm text-gray-500 mt-1">管理服务器地址、账号及到期时间</p>
+          <h1 className="text-2xl font-bold text-slate-900">服务器</h1>
+          <p className="text-sm text-slate-500 mt-1">管理服务器地址、账号及到期时间</p>
         </div>
-        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Plus className="w-4 h-4" />新增服务器</button>
+        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Plus className="w-5 h-5" />新增服务器</button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-slate-50">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">名称</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">地址</th>
@@ -95,18 +95,18 @@ export default function ServersPage() {
               const days = daysUntil(s.expiresAt);
               const isExpiring = days !== null && days <= 30;
               return (
-                <tr key={s.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{s.name}</td>
-                  <td className="px-4 py-3 text-sm font-mono text-gray-700">{s.address}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{s.account || "-"}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate" title={s.description || ""}>{s.description || "-"}</td>
-                  <td className={`px-4 py-3 text-sm ${isExpiring ? "text-red-600 font-bold" : "text-gray-600"}`}>
+                <tr key={s.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 text-sm font-medium text-slate-900">{s.name}</td>
+                  <td className="px-4 py-3 text-sm font-mono text-slate-700">{s.address}</td>
+                  <td className="px-4 py-3 text-sm text-slate-600">{s.account || "-"}</td>
+                  <td className="px-4 py-3 text-sm text-slate-600 max-w-xs truncate" title={s.description || ""}>{s.description || "-"}</td>
+                  <td className={`px-4 py-3 text-sm ${isExpiring ? "text-red-600 font-bold" : "text-slate-600"}`}>
                     {s.expiresAt ? new Date(s.expiresAt).toLocaleDateString("zh-CN") : "-"}
                     {days !== null && days <= 30 && <span className="text-xs ml-1">({days}天{days < 0 ? "已过期" : ""})</span>}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button onClick={() => openEdit(s)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded" title="编辑"><Edit3 className="w-4 h-4" /></button>
-                    <button onClick={() => del(s)} className="p-1.5 text-gray-400 hover:text-red-600 rounded" title="删除"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => openEdit(s)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded" title="编辑"><Edit3 className="w-5 h-5" /></button>
+                    <button onClick={() => del(s)} className="p-1.5 text-gray-400 hover:text-red-600 rounded" title="删除"><Trash2 className="w-5 h-5" /></button>
                   </td>
                 </tr>
               );
@@ -117,25 +117,25 @@ export default function ServersPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white">
               <h2 className="text-lg font-semibold">{editing ? "编辑服务器" : "新增服务器"}</h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
+              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-slate-600 text-xl leading-none">×</button>
             </div>
             <div className="p-6 space-y-3">
               {error && <div className="p-3 bg-red-50 text-red-700 text-sm rounded">{error}</div>}
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">名称 <span className="text-red-500">*</span></label><input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" placeholder="如:阿里云主机" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">服务器地址 <span className="text-red-500">*</span></label><input type="text" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm font-mono" placeholder="IP 或域名" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">名称 <span className="text-red-500">*</span></label><input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" placeholder="如:阿里云主机" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">服务器地址 <span className="text-red-500">*</span></label><input type="text" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm font-mono" placeholder="IP 或域名" /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">账号</label><input type="text" value={form.account} onChange={e => setForm(f => ({ ...f, account: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">密码</label><input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">账号</label><input type="text" value={form.account} onChange={e => setForm(f => ({ ...f, account: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">密码</label><input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">说明</label><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" rows={2} placeholder="用途、配置等" /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">到期时间</label><input type="date" value={form.expiresAt} onChange={e => setForm(f => ({ ...f, expiresAt: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">说明</label><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" rows={2} placeholder="用途、配置等" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">到期时间</label><input type="date" value={form.expiresAt} onChange={e => setForm(f => ({ ...f, expiresAt: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
               <div className="flex justify-end gap-3 pt-2">
-                <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+                <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
                 <button onClick={submit} disabled={submitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button>
               </div>
             </div>

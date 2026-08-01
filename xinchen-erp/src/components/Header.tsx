@@ -172,15 +172,15 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed left-[240px] right-0 top-0 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-20">
-      <div className="text-sm text-gray-500">欢迎回来，祝您工作愉快！</div>
+    <header className="fixed left-[240px] right-0 top-0 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-20">
+      <div className="text-sm text-slate-500">欢迎回来，祝您工作愉快！</div>
 
       <div className="flex items-center gap-4">
         {/* 通知铃铛 */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={toggleNotifications}
-            className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition"
+            className="relative p-2 text-gray-500 hover:text-slate-700 hover:bg-gray-100 rounded-lg transition"
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
@@ -191,12 +191,12 @@ export default function Header() {
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 top-12 w-96 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden z-50">
+            <div className="absolute right-0 top-12 w-96 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50">
               {/* 头部 */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                 <div className="flex items-center gap-2">
-                  <Bell className="w-4 h-4 text-gray-500" />
-                  <span className="font-semibold text-gray-900 text-sm">消息通知</span>
+                  <Bell className="w-5 h-5 text-gray-500" />
+                  <span className="font-semibold text-slate-900 text-sm">消息通知</span>
                   {unreadCount > 0 && (
                     <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">{unreadCount} 条未读</span>
                   )}
@@ -224,7 +224,7 @@ export default function Header() {
                       <div
                         key={n.id}
                         onClick={() => !n.isRead && markAsRead(n.id, n.link)}
-                        className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer group relative ${!n.isRead ? "bg-blue-50/30" : ""}`}
+                        className={`px-4 py-3 border-b border-gray-50 hover:bg-slate-50 cursor-pointer group relative ${!n.isRead ? "bg-blue-50/30" : ""}`}
                       >
                         <div className="flex items-start gap-2">
                           {/* 未读标记 */}
@@ -232,11 +232,11 @@ export default function Header() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-0.5">
                               <span className={`text-[10px] px-1.5 py-0.5 rounded ${style.color}`}>{style.label}</span>
-                              <span className="text-xs text-gray-400">{formatTime(n.createdAt)}</span>
-                              {n.link && <ExternalLink className="w-3 h-3 text-gray-300" />}
+                              <span className="text-xs text-slate-400">{formatTime(n.createdAt)}</span>
+                              {n.link && <ExternalLink className="w-3.5 h-3.5 text-gray-300" />}
                             </div>
-                            <p className={`text-sm ${n.isRead ? "text-gray-500" : "text-gray-900 font-medium"}`}>{n.title}</p>
-                            {n.content && <p className="text-xs text-gray-400 mt-1 line-clamp-2">{n.content}</p>}
+                            <p className={`text-sm ${n.isRead ? "text-gray-500" : "text-slate-900 font-medium"}`}>{n.title}</p>
+                            {n.content && <p className="text-xs text-slate-400 mt-1 line-clamp-2">{n.content}</p>}
                           </div>
                           <button
                             onClick={(e) => deleteNotification(n.id, e)}
@@ -261,10 +261,10 @@ export default function Header() {
             className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg transition"
           >
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-white" />
+              <User className="w-5 h-5 text-white" />
             </div>
             <div className="flex flex-col items-start leading-tight">
-              <span className="text-sm text-gray-700">{currentUser?.realName || currentUser?.username || "用户"}</span>
+              <span className="text-sm text-slate-700">{currentUser?.realName || currentUser?.username || "用户"}</span>
               {currentUser?.roles?.[0] && (
                 <span className="text-[11px] text-gray-400">{currentUser.roles[0]}</span>
               )}
@@ -272,19 +272,19 @@ export default function Header() {
           </button>
 
           {showUserMenu && (
-            <div className="absolute right-0 top-12 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1">
+            <div className="absolute right-0 top-12 w-48 bg-white border border-slate-200 rounded-lg shadow-lg py-1">
               <button
                 onClick={() => { setShowUserMenu(false); router.push("/settings/profile"); }}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
               >
-                <User className="w-4 h-4" /> 个人设置
+                <User className="w-5 h-5" /> 个人设置
               </button>
               <hr className="my-1" />
               <button
                 onClick={handleLogout}
-                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
+                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-slate-50 flex items-center gap-2"
               >
-                <LogOut className="w-4 h-4" /> 退出登录
+                <LogOut className="w-5 h-5" /> 退出登录
               </button>
             </div>
           )}

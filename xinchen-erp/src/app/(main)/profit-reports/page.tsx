@@ -93,17 +93,17 @@ export default function ProfitReportsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <TrendingUp className="w-6 h-6 text-indigo-600" /> 利润报表 BI 驾驶舱
           </h1>
-          <p className="text-sm text-gray-500 mt-1">按月自动汇总经营数据，收入 − 成本 − 佣金 = 净利</p>
+          <p className="text-sm text-slate-500 mt-1">按月自动汇总经营数据，收入 − 成本 − 佣金 = 净利</p>
         </div>
         <button
           onClick={summarize}
           disabled={summarizing}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm disabled:opacity-50"
         >
-          {summarizing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+          {summarizing ? <Loader2 className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
           汇总上月数据
         </button>
       </div>
@@ -119,30 +119,30 @@ export default function ProfitReportsPage() {
             green: "bg-green-500", red: "bg-red-500",
           };
           return (
-            <div key={c.label} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+            <div key={c.label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">{c.label}</span>
+                <span className="text-sm text-slate-500">{c.label}</span>
                 <div className={`w-10 h-10 rounded-lg ${colorMap[c.color]} flex items-center justify-center`}>
                   <Icon className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <div className="mt-3 text-2xl font-bold text-gray-900">{fmt(c.value)}</div>
-              <div className="text-xs text-gray-400 mt-1">{c.sub}</div>
+              <div className="mt-3 text-2xl font-bold text-slate-900">{fmt(c.value)}</div>
+              <div className="text-xs text-slate-400 mt-1">{c.sub}</div>
             </div>
           );
         })}
       </div>
 
       {/* 月度报表表格 */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-800">月度经营报表</h2>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <h2 className="font-semibold text-slate-800">月度经营报表</h2>
+          <div className="flex items-center gap-2 text-sm text-slate-500">
             <button disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ChevronLeft className="w-4 h-4" /></button>
+              className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ChevronLeft className="w-5 h-5" /></button>
             <span>{data ? `${page} / ${data.totalPages}` : "-"}</span>
             <button disabled={!data || page >= data.totalPages} onClick={() => setPage((p) => p + 1)}
-              className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ChevronRight className="w-4 h-4" /></button>
+              className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"><ChevronRight className="w-5 h-5" /></button>
           </div>
         </div>
 
@@ -154,7 +154,7 @@ export default function ProfitReportsPage() {
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-500">
+            <thead className="bg-slate-50 text-gray-500">
               <tr>
                 <th className="px-5 py-3 text-left font-medium">会计期间</th>
                 <th className="px-5 py-3 text-right font-medium">收入</th>
@@ -167,8 +167,8 @@ export default function ProfitReportsPage() {
               {data.list.map((r) => {
                 const profit = Number(r.netProfit) || 0;
                 return (
-                  <tr key={r.id} className="hover:bg-gray-50">
-                    <td className="px-5 py-3 font-medium text-gray-800">{monthLabel(r.fiscalYear, r.fiscalMonth)}</td>
+                  <tr key={r.id} className="hover:bg-slate-50">
+                    <td className="px-5 py-3 font-medium text-slate-800">{monthLabel(r.fiscalYear, r.fiscalMonth)}</td>
                     <td className="px-5 py-3 text-right text-green-600">{fmt(r.totalIncome)}</td>
                     <td className="px-5 py-3 text-right text-orange-600">{fmt(r.totalCost)}</td>
                     <td className="px-5 py-3 text-right text-purple-600">{fmt(r.totalCommission)}</td>

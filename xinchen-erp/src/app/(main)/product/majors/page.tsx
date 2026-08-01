@@ -78,27 +78,27 @@ export default function MajorsPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <div><h1 className="text-2xl font-bold text-gray-900">专业管理</h1>
-          <p className="text-sm text-gray-500 mt-1">院校下属专业与录取要求</p></div>
-        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"><Plus className="w-4 h-4" /> 新增专业</button>
+        <div><h1 className="text-2xl font-bold text-slate-900">专业管理</h1>
+          <p className="text-sm text-slate-500 mt-1">院校下属专业与录取要求</p></div>
+        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"><Plus className="w-5 h-5" /> 新增专业</button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="flex-1 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <div className="flex-1 relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="搜索专业名称"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" /></div>
-          <select value={instFilter} onChange={(e) => setInstFilter(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" /></div>
+          <select value={instFilter} onChange={(e) => setInstFilter(e.target.value)} className="px-3 py-2 border border-slate-300 rounded-lg text-sm">
             <option value="">全部院校</option>{institutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}</select>
-          <button onClick={fetchData} className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 rounded-lg text-sm"><RefreshCw className="w-4 h-4" /> 刷新</button>
+          <button onClick={fetchData} className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 rounded-lg text-sm"><RefreshCw className="w-5 h-5" /> 刷新</button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? <div className="flex items-center justify-center py-20 text-gray-400"><RefreshCw className="w-5 h-5 animate-spin mr-2" />加载中...</div>
           : data.length === 0 ? <div className="flex flex-col items-center justify-center py-20 text-gray-400"><p className="text-sm">暂无专业数据</p>
             <button onClick={openNew} className="mt-3 text-blue-600 text-sm hover:underline">添加第一个专业</button></div>
-            : <table className="w-full"><thead><tr className="bg-gray-50 text-left">
+            : <table className="w-full"><thead><tr className="bg-slate-50 text-left">
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">专业</th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">院校</th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">类别</th>
@@ -107,16 +107,16 @@ export default function MajorsPage() {
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">学费</th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">操作</th>
             </tr></thead><tbody className="divide-y divide-gray-100">
-              {data.map((m) => <tr key={m.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium text-gray-900">{m.name}</td>
-                <td className="px-4 py-3 text-gray-600">{m.institution?.name}</td>
-                <td className="px-4 py-3 text-gray-600">{m.category || "-"}</td>
+              {data.map((m) => <tr key={m.id} className="hover:bg-slate-50">
+                <td className="px-4 py-3 font-medium text-slate-900">{m.name}</td>
+                <td className="px-4 py-3 text-slate-600">{m.institution?.name}</td>
+                <td className="px-4 py-3 text-slate-600">{m.category || "-"}</td>
                 <td className="px-4 py-3"><span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded">{DEGREE_LABELS[m.degreeLevel] || m.degreeLevel}</span></td>
-                <td className="px-4 py-3 text-gray-600">{m.duration || "-"}</td>
-                <td className="px-4 py-3 text-gray-600">{m.tuition != null ? `¥${m.tuition}` : "-"}</td>
+                <td className="px-4 py-3 text-slate-600">{m.duration || "-"}</td>
+                <td className="px-4 py-3 text-slate-600">{m.tuition != null ? `¥${m.tuition}` : "-"}</td>
                 <td className="px-4 py-3"><div className="flex items-center gap-1">
-                  <button onClick={() => openEdit(m)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit2 className="w-4 h-4" /></button>
-                  <button onClick={() => setDeleteConfirm(m)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => openEdit(m)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit2 className="w-5 h-5" /></button>
+                  <button onClick={() => setDeleteConfirm(m)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-5 h-5" /></button>
                 </div></td>
               </tr>)}
             </tbody></table>}
@@ -124,32 +124,32 @@ export default function MajorsPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold">{editing ? "编辑专业" : "新增专业"}</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600">✕</button></div>
+              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-slate-600">✕</button></div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">专业名称 <span className="text-red-500">*</span></label>
-                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">专业名称 <span className="text-red-500">*</span></label>
+                <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">院校 <span className="text-red-500">*</span></label>
-                  <select required value={form.institutionId} onChange={(e) => setForm({ ...form, institutionId: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">院校 <span className="text-red-500">*</span></label>
+                  <select required value={form.institutionId} onChange={(e) => setForm({ ...form, institutionId: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                     <option value="">请选择</option>{institutions.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}</select></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">学位</label>
-                  <select value={form.degreeLevel} onChange={(e) => setForm({ ...form, degreeLevel: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">学位</label>
+                  <select value={form.degreeLevel} onChange={(e) => setForm({ ...form, degreeLevel: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                     {Object.entries(DEGREE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">类别</label>
-                  <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="如 商科/工科" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">学制</label>
-                  <input value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} placeholder="如 1年/2年" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">类别</label>
+                  <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="如 商科/工科" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">学制</label>
+                  <input value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} placeholder="如 1年/2年" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">学费</label>
-                <input value={form.tuition} onChange={(e) => setForm({ ...form, tuition: e.target.value })} type="number" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">学费</label>
+                <input value={form.tuition} onChange={(e) => setForm({ ...form, tuition: e.target.value })} type="number" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
                 <button type="submit" disabled={submitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button>
               </div>
             </form>
@@ -159,11 +159,11 @@ export default function MajorsPage() {
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
             <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl"><h2 className="text-lg font-semibold text-red-800">确认删除</h2></div>
-            <div className="p-6"><p className="text-sm text-gray-700">确定删除专业 <strong>{deleteConfirm.name}</strong>？</p>
+            <div className="p-6"><p className="text-sm text-slate-700">确定删除专业 <strong>{deleteConfirm.name}</strong>？</p>
               <div className="flex justify-end gap-3 mt-4">
-                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
+                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button>
                 <button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">确认删除</button></div></div>
           </div>
         </div>

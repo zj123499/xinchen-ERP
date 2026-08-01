@@ -211,23 +211,23 @@ export default function DictsPage() {
     <div ref={containerRef}>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">数据字典</h1>
-          <p className="text-sm text-gray-500 mt-1">管理系统中的枚举值和基础数据字典，拖拽排序</p>
+          <h1 className="text-2xl font-bold text-slate-900">数据字典</h1>
+          <p className="text-sm text-slate-500 mt-1">管理系统中的枚举值和基础数据字典，拖拽排序</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => openGroupForm()} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-            <FolderPlus className="w-4 h-4" />新建分组
+          <button onClick={() => openGroupForm()} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <FolderPlus className="w-5 h-5" />新建分组
           </button>
-          <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />刷新
+          <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />刷新
           </button>
           <button onClick={() => openNewForm()} className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            <Plus className="w-4 h-4" />新建字典
+            <Plus className="w-5 h-5" />新建字典
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="p-16 text-center text-gray-400">加载中...</div>
         ) : groupNames.length === 0 ? (
@@ -242,21 +242,21 @@ export default function DictsPage() {
               const isExpanded = expanded.has(group);
               return (
                 <div key={group}>
-                  <div className="flex items-center px-4 py-3 bg-gray-50 hover:bg-gray-100 cursor-pointer" onClick={() => toggleGroup(group)}>
-                    {isExpanded ? <ChevronDown className="w-4 h-4 mr-2 text-gray-400" /> : <ChevronRight className="w-4 h-4 mr-2 text-gray-400" />}
-                    <Database className="w-4 h-4 text-blue-500 mr-2" />
-                    <span className="font-medium text-gray-900">{getGroupDisplay(group)}</span>
-                    {getGroupDisplay(group) !== group && <span className="ml-1 text-xs text-gray-400">({group})</span>}
-                    <span className="ml-2 text-xs text-gray-400">({items.length})</span>
+                  <div className="flex items-center px-4 py-3 bg-slate-50 hover:bg-gray-100 cursor-pointer" onClick={() => toggleGroup(group)}>
+                    {isExpanded ? <ChevronDown className="w-5 h-5 mr-2 text-gray-400" /> : <ChevronRight className="w-5 h-5 mr-2 text-gray-400" />}
+                    <Database className="w-5 h-5 text-blue-500 mr-2" />
+                    <span className="font-medium text-slate-900">{getGroupDisplay(group)}</span>
+                    {getGroupDisplay(group) !== group && <span className="ml-1 text-xs text-slate-400">({group})</span>}
+                    <span className="ml-2 text-xs text-slate-400">({items.length})</span>
                     <button onClick={(e) => { e.stopPropagation(); openGroupForm(groups.find(g => g.name === group)); }} className="ml-auto text-gray-400 hover:bg-gray-100 p-1.5 rounded mr-1" title="编辑分组名">
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={(e) => { e.stopPropagation(); openNewForm(group); }} className="text-blue-600 hover:bg-blue-100 p-1.5 rounded mr-1" title="添加字典项">
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-5 h-5" />
                     </button>
                     {items.length === 0 && (
                       <button onClick={(e) => { e.stopPropagation(); handleDeleteGroup(group); }} className="text-red-400 hover:bg-red-50 p-1.5 rounded" title="删除空分组">
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-5 h-5" />
                       </button>
                     )}
                   </div>
@@ -269,7 +269,7 @@ export default function DictsPage() {
                           </tr>
                         ) : (
                           items.map((item, index) => (
-                            <tr key={item.id} className="hover:bg-gray-50 transition"
+                            <tr key={item.id} className="hover:bg-slate-50 transition"
                               draggable
                               onDragStart={(e) => handleDragStart(e, index, group)}
                               onDragEnd={handleDragEnd}
@@ -277,10 +277,10 @@ export default function DictsPage() {
                               onDrop={() => handleDrop(group)}
                             >
                               <td className="px-4 py-2.5 w-8">
-                                <GripVertical className="w-4 h-4 text-gray-300 cursor-grab active:cursor-grabbing" />
+                                <GripVertical className="w-5 h-5 text-gray-300 cursor-grab active:cursor-grabbing" />
                               </td>
-                              <td className="px-2 py-2.5 text-sm text-gray-600">{item.dictKey}</td>
-                              <td className="px-4 py-2.5 text-sm text-gray-900">{item.dictValue}</td>
+                              <td className="px-2 py-2.5 text-sm text-slate-600">{item.dictKey}</td>
+                              <td className="px-4 py-2.5 text-sm text-slate-900">{item.dictValue}</td>
                               <td className="px-4 py-2.5">
                                 {item.isEnabled ? (
                                   <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">启用</span>
@@ -290,10 +290,10 @@ export default function DictsPage() {
                               </td>
                               <td className="px-4 py-2.5 text-right">
                                 <button onClick={() => openEditForm(item)} className="text-gray-500 hover:bg-gray-100 p-1.5 rounded mr-1">
-                                  <Edit2 className="w-4 h-4" />
+                                  <Edit2 className="w-5 h-5" />
                                 </button>
                                 <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded">
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 className="w-5 h-5" />
                                 </button>
                               </td>
                             </tr>
@@ -312,34 +312,34 @@ export default function DictsPage() {
       {/* 新建/编辑表单 */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
             <h2 className="text-lg font-bold mb-4">{editing ? "编辑字典项" : "新建字典项"}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">{formError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">字典分组 *</label>
-                <input type="text" value={formData.groupName} onChange={(e) => setFormData({ ...formData, groupName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required list="existing-groups" placeholder="如：lead_source, contract_type" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">字典分组 *</label>
+                <input type="text" value={formData.groupName} onChange={(e) => setFormData({ ...formData, groupName: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required list="existing-groups" placeholder="如：lead_source, contract_type" />
                 <datalist id="existing-groups">
                   {groupNames.map((g) => <option key={g} value={g} />)}
                 </datalist>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">字典键 *</label>
-                <input type="text" value={formData.dictKey} onChange={(e) => setFormData({ ...formData, dictKey: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required placeholder="如：WALK_IN" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">字典键 *</label>
+                <input type="text" value={formData.dictKey} onChange={(e) => setFormData({ ...formData, dictKey: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required placeholder="如：WALK_IN" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">字典值 *</label>
-                <input type="text" value={formData.dictValue} onChange={(e) => setFormData({ ...formData, dictValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required placeholder="如：上门咨询" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">字典值 *</label>
+                <input type="text" value={formData.dictValue} onChange={(e) => setFormData({ ...formData, dictValue: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required placeholder="如：上门咨询" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
-                <select value={formData.isEnabled ? "true" : "false"} onChange={(e) => setFormData({ ...formData, isEnabled: e.target.value === "true" })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                <label className="block text-sm font-medium text-slate-700 mb-1">状态</label>
+                <select value={formData.isEnabled ? "true" : "false"} onChange={(e) => setFormData({ ...formData, isEnabled: e.target.value === "true" })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="true">启用</option>
                   <option value="false">禁用</option>
                 </select>
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50">取消</button>
                 <button type="submit" disabled={submitting} className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button>
               </div>
             </form>
@@ -350,31 +350,31 @@ export default function DictsPage() {
       {/* 新建/编辑分组弹窗 */}
       {showGroupForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold">{editingGroup ? "编辑分组" : "新建字典分组"}</h2>
-              <button onClick={() => setShowGroupForm(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowGroupForm(false)} className="text-gray-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-4">
               {!editingGroup && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">分组标识（英文）</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">分组标识（英文）</label>
                   <input type="text" value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                     placeholder="如：lead_source" autoFocus onKeyDown={(e) => e.key === "Enter" && handleSaveGroup()} />
                 </div>
               )}
               {editingGroup && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">分组标识</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">分组标识</label>
                   <input type="text" value={newGroupName} disabled
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-400 bg-gray-50 outline-none" />
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-gray-400 bg-slate-50 outline-none" />
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">显示名称（中文）</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">显示名称（中文）</label>
                 <input type="text" value={newGroupLabel} onChange={(e) => setNewGroupLabel(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="如：线索来源" autoFocus={!!editingGroup} onKeyDown={(e) => e.key === "Enter" && handleSaveGroup()} />
               </div>
               <div className="flex gap-3">
@@ -382,7 +382,7 @@ export default function DictsPage() {
                   className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
                   {editingGroup ? "保存" : "创建"}
                 </button>
-                <button onClick={() => setShowGroupForm(false)} className="py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                <button onClick={() => setShowGroupForm(false)} className="py-2 px-4 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50">取消</button>
               </div>
             </div>
           </div>

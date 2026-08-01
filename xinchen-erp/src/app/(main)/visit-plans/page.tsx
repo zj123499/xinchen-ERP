@@ -35,7 +35,7 @@ const STAGE_MAP: Record<string, string> = {
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   PENDING: { label: "待回访", color: "bg-yellow-100 text-yellow-700" },
   COMPLETED: { label: "已完成", color: "bg-green-100 text-green-700" },
-  SKIPPED: { label: "已跳过", color: "bg-gray-100 text-gray-600" },
+  SKIPPED: { label: "已跳过", color: "bg-gray-100 text-slate-600" },
 };
 
 export default function VisitPlansPage() {
@@ -144,32 +144,32 @@ export default function VisitPlansPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">回访计划</h1>
-          <p className="text-sm text-gray-500 mt-1">按生命周期阶段编排客户回访任务，到期提醒负责人执行</p>
+          <h1 className="text-2xl font-bold text-slate-900">回访计划</h1>
+          <p className="text-sm text-slate-500 mt-1">按生命周期阶段编排客户回访任务，到期提醒负责人执行</p>
         </div>
         <button onClick={openNewForm} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm">
-          <Plus className="w-4 h-4" />新建计划
+          <Plus className="w-5 h-5" />新建计划
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
         <div className="flex items-center gap-3 flex-wrap">
           <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部状态</option>
             {Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
           <select value={stageFilter} onChange={(e) => { setStageFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="">全部阶段</option>
             {Object.entries(STAGE_MAP).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
           <button onClick={() => { setStatusFilter(""); setStageFilter(""); setPage(1); }}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-4 h-4" /></button>
+            className="p-2 text-gray-400 hover:text-slate-600 hover:bg-gray-100 rounded-lg transition" title="刷新"><RefreshCw className="w-5 h-5" /></button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400"><RefreshCw className="w-5 h-5 animate-spin mr-2" />加载中...</div>
         ) : !data || data.list.length === 0 ? (
@@ -182,7 +182,7 @@ export default function VisitPlansPage() {
           <>
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 text-left">
+                <tr className="bg-slate-50 text-left">
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">学生</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">阶段</th>
                   <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">回访目的</th>
@@ -194,22 +194,22 @@ export default function VisitPlansPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {data.list.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50 transition">
+                  <tr key={p.id} className="hover:bg-slate-50 transition">
                     <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-gray-900">{p.student.name}</div>
-                      <div className="text-xs text-gray-400">{p.student.phone || "-"}</div>
+                      <div className="text-sm font-medium text-slate-900">{p.student.name}</div>
+                      <div className="text-xs text-slate-400">{p.student.phone || "-"}</div>
                     </td>
                     <td className="px-4 py-3">
                       <span className="inline-flex text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">{STAGE_MAP[p.stage] || p.stage}</span>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 max-w-[220px] truncate">{p.purpose}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 max-w-[220px] truncate">{p.purpose}</td>
                     <td className="px-4 py-3 text-sm">
                       <div className="flex items-center gap-1">
                         {isOverdue(p) && <AlertTriangle className="w-3.5 h-3.5 text-red-500" />}
                         <span className={isOverdue(p) ? "text-red-600 font-medium" : "text-gray-500"}>{new Date(p.scheduledAt).toLocaleDateString("zh-CN")}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{p.assignee.realName || p.assignee.username}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600">{p.assignee.realName || p.assignee.username}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[p.status]?.color}`}>{STATUS_MAP[p.status]?.label}</span>
                     </td>
@@ -217,11 +217,11 @@ export default function VisitPlansPage() {
                       <div className="flex items-center gap-1">
                         {p.status === "PENDING" && (
                           <>
-                            <button onClick={() => handleStatusChange(p, "COMPLETED")} className="px-2 py-1 text-xs text-green-700 bg-green-50 hover:bg-green-100 rounded transition" title="标记完成"><CheckCircle className="w-3 h-3" /></button>
-                            <button onClick={() => handleStatusChange(p, "SKIPPED")} className="px-2 py-1 text-xs text-gray-600 bg-gray-50 hover:bg-gray-100 rounded transition" title="跳过"><SkipForward className="w-3 h-3" /></button>
+                            <button onClick={() => handleStatusChange(p, "COMPLETED")} className="px-2 py-1 text-xs text-green-700 bg-green-50 hover:bg-green-100 rounded transition" title="标记完成"><CheckCircle className="w-3.5 h-3.5" /></button>
+                            <button onClick={() => handleStatusChange(p, "SKIPPED")} className="px-2 py-1 text-xs text-slate-600 bg-slate-50 hover:bg-gray-100 rounded transition" title="跳过"><SkipForward className="w-3.5 h-3.5" /></button>
                           </>
                         )}
-                        <button onClick={() => setDeleteConfirm(p)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => setDeleteConfirm(p)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="删除"><Trash2 className="w-5 h-5" /></button>
                       </div>
                     </td>
                   </tr>
@@ -229,22 +229,22 @@ export default function VisitPlansPage() {
               </tbody>
             </table>
 
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
-              <span className="text-sm text-gray-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-slate-50">
+              <span className="text-sm text-slate-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
               <div className="flex items-center gap-1">
                 <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
-                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronLeft className="w-4 h-4" /></button>
+                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronLeft className="w-5 h-5" /></button>
                 {Array.from({ length: Math.min(data.totalPages, 5) }, (_, i) => {
                   const start = Math.max(1, Math.min(page - 2, data.totalPages - 4));
                   const p = start + i;
                   if (p > data.totalPages) return null;
                   return (
                     <button key={p} onClick={() => setPage(p)}
-                      className={`w-8 h-8 text-sm rounded transition ${p === page ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-200"}`}>{p}</button>
+                      className={`w-8 h-8 text-sm rounded transition ${p === page ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-gray-200"}`}>{p}</button>
                   );
                 })}
                 <button onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={page >= data.totalPages}
-                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronRight className="w-4 h-4" /></button>
+                  className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"><ChevronRight className="w-5 h-5" /></button>
               </div>
             </div>
           </>
@@ -253,33 +253,33 @@ export default function VisitPlansPage() {
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">新建回访计划</h2>
-              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded transition">✕</button>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">新建回访计划</h2>
+              <button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded transition">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">学生 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">学生 <span className="text-red-500">*</span></label>
                 <select required value={formData.studentId} onChange={(e) => setFormData((d) => ({ ...d, studentId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="">请选择学生</option>
                   {students.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">回访阶段 <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">回访阶段 <span className="text-red-500">*</span></label>
                   <select required value={formData.stage} onChange={(e) => setFormData((d) => ({ ...d, stage: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     {Object.entries(STAGE_MAP).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">触发方式</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">触发方式</label>
                   <select value={formData.triggerType} onChange={(e) => setFormData((d) => ({ ...d, triggerType: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     <option value="SCHEDULED">定时回访</option>
                     <option value="EVENT">事件触发</option>
                   </select>
@@ -287,31 +287,31 @@ export default function VisitPlansPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">计划时间 <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">计划时间 <span className="text-red-500">*</span></label>
                   <input type="date" required value={formData.scheduledAt} onChange={(e) => setFormData((d) => ({ ...d, scheduledAt: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">相对天数偏移</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">相对天数偏移</label>
                   <input type="number" value={formData.daysOffset} onChange={(e) => setFormData((d) => ({ ...d, daysOffset: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="如签约后30天" />
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="如签约后30天" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">负责人 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">负责人 <span className="text-red-500">*</span></label>
                 <select required value={formData.assigneeId} onChange={(e) => setFormData((d) => ({ ...d, assigneeId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="">请选择负责人</option>
                   {users.map((u) => <option key={u.id} value={u.id}>{u.user?.realName || u.user?.username || u.name || `员工${u.id}`}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">回访目的 <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">回访目的 <span className="text-red-500">*</span></label>
                 <textarea required value={formData.purpose} onChange={(e) => setFormData((d) => ({ ...d, purpose: e.target.value }))} rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="回访目标与要点..." />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="回访目标与要点..." />
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button type="submit" disabled={submitting} className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition font-medium">
                   {submitting ? "保存中..." : "确认新建"}
                 </button>
@@ -323,14 +323,14 @@ export default function VisitPlansPage() {
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
             <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl">
               <h2 className="text-lg font-semibold text-red-800">确认删除</h2>
             </div>
             <div className="p-6">
-              <p className="text-sm text-gray-700">确定删除 {deleteConfirm.student.name} 的回访计划吗？</p>
+              <p className="text-sm text-slate-700">确定删除 {deleteConfirm.student.name} 的回访计划吗？</p>
               <div className="flex justify-end gap-3 mt-4">
-                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
+                <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">取消</button>
                 <button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition">确认删除</button>
               </div>
             </div>

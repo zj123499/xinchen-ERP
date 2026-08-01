@@ -37,7 +37,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body className="bg-gray-50 min-h-screen">
+      <body className="bg-slate-50 min-h-screen">
         {children}
         {/* 错误捕获脚本必须放在 children 之后：Next 会在 <body> 开头注入
             client-boundary 标记，若 <script> 夹在标记与 children 之间会导致

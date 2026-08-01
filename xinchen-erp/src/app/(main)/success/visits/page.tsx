@@ -46,13 +46,13 @@ export default function ServiceVisitsPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <div><h1 className="text-2xl font-bold text-gray-900">服务回访</h1><p className="text-sm text-gray-500 mt-1">定期回访记录，识别风险与转介绍机会</p></div>
-        <button onClick={() => { setFormError(""); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"><Plus className="w-4 h-4" /> 新增回访</button>
+        <div><h1 className="text-2xl font-bold text-slate-900">服务回访</h1><p className="text-sm text-slate-500 mt-1">定期回访记录，识别风险与转介绍机会</p></div>
+        <button onClick={() => { setFormError(""); setShowForm(true); }} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"><Plus className="w-5 h-5" /> 新增回访</button>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? <div className="flex items-center justify-center py-20 text-gray-400"><RefreshCw className="w-5 h-5 animate-spin mr-2" />加载中...</div>
           : data.length === 0 ? <div className="flex flex-col items-center justify-center py-20 text-gray-400"><PhoneCall className="w-12 h-12 mb-3 text-gray-300" /><p className="text-sm">暂无回访记录</p></div>
-            : <table className="w-full"><thead><tr className="bg-gray-50 text-left">
+            : <table className="w-full"><thead><tr className="bg-slate-50 text-left">
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">学生</th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">回访人</th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">日期</th>
@@ -60,45 +60,45 @@ export default function ServiceVisitsPage() {
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">摘要</th>
               <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">操作</th>
             </tr></thead><tbody className="divide-y divide-gray-100">
-              {data.map((v) => <tr key={v.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium text-gray-900">{v.student.name}</td>
-                <td className="px-4 py-3 text-gray-600">{v.visitor.realName}</td>
+              {data.map((v) => <tr key={v.id} className="hover:bg-slate-50">
+                <td className="px-4 py-3 font-medium text-slate-900">{v.student.name}</td>
+                <td className="px-4 py-3 text-slate-600">{v.visitor.realName}</td>
                 <td className="px-4 py-3 text-gray-500 text-sm">{new Date(v.visitDate).toLocaleDateString("zh-CN")}</td>
                 <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${RESULT_LABELS[v.result]?.color || "bg-gray-100"}`}>{RESULT_LABELS[v.result]?.label || v.result}</span></td>
                 <td className="px-4 py-3 text-gray-500 text-sm max-w-[220px] truncate">{v.summary || "-"}</td>
-                <td className="px-4 py-3"><button onClick={() => setDeleteConfirm(v)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button></td>
+                <td className="px-4 py-3"><button onClick={() => setDeleteConfirm(v)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-5 h-5" /></button></td>
               </tr>)}
             </tbody></table>}
       </div>
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between"><h2 className="text-lg font-semibold">新增回访</h2><button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-gray-600">✕</button></div>
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between"><h2 className="text-lg font-semibold">新增回访</h2><button onClick={() => setShowForm(false)} className="p-1 text-gray-400 hover:text-slate-600">✕</button></div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{formError}</div>}
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">学生 <span className="text-red-500">*</span></label>
-                <select required value={form.studentId} onChange={(e) => setForm({ ...form, studentId: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">学生 <span className="text-red-500">*</span></label>
+                <select required value={form.studentId} onChange={(e) => setForm({ ...form, studentId: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                   <option value="">请选择</option>{students.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">回访日期</label><input value={form.visitDate} onChange={(e) => setForm({ ...form, visitDate: e.target.value })} type="date" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">渠道</label>
-                  <select value={form.channel} onChange={(e) => setForm({ ...form, channel: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">回访日期</label><input value={form.visitDate} onChange={(e) => setForm({ ...form, visitDate: e.target.value })} type="date" className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">渠道</label>
+                  <select value={form.channel} onChange={(e) => setForm({ ...form, channel: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                     {visitTypes.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}</select></div>
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">结果</label>
-                <select value={form.result} onChange={(e) => setForm({ ...form, result: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">结果</label>
+                <select value={form.result} onChange={(e) => setForm({ ...form, result: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">
                   {Object.entries(RESULT_LABELS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">摘要</label><textarea value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none" /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">下一步计划</label><textarea value={form.nextPlan} onChange={(e) => setForm({ ...form, nextPlan: e.target.value })} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none" /></div>
-              <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button type="submit" className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700">保存</button></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">摘要</label><textarea value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} rows={2} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm resize-none" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">下一步计划</label><textarea value={form.nextPlan} onChange={(e) => setForm({ ...form, nextPlan: e.target.value })} rows={2} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm resize-none" /></div>
+              <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button type="submit" className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700">保存</button></div>
             </form>
           </div>
         </div>
       )}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
           <div className="px-6 py-4 border-b border-red-200 bg-red-50 rounded-t-xl"><h2 className="text-lg font-semibold text-red-800">确认删除</h2></div>
-          <div className="p-6"><p className="text-sm text-gray-700">确定删除该回访记录？</p><div className="flex justify-end gap-3 mt-4"><button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">确认</button></div></div></div></div>
+          <div className="p-6"><p className="text-sm text-slate-700">确定删除该回访记录？</p><div className="flex justify-end gap-3 mt-4"><button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleDelete} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">确认</button></div></div></div></div>
       )}
     </div>
   );

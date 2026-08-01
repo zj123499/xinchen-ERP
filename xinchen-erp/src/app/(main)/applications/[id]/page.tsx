@@ -24,7 +24,7 @@ interface ApplicationDetail {
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  PREPARING: { label: "准备中", color: "bg-gray-100 text-gray-800" },
+  PREPARING: { label: "准备中", color: "bg-gray-100 text-slate-800" },
   SUBMITTED: { label: "已提交", color: "bg-blue-100 text-blue-800" },
   REVIEWING: { label: "审核中", color: "bg-yellow-100 text-yellow-800" },
   OFFER: { label: "已获Offer", color: "bg-green-100 text-green-800" },
@@ -37,11 +37,11 @@ const OFFER_STATUS_MAP: Record<string, { label: string; color: string }> = {
   RECEIVED: { label: "已收到", color: "bg-blue-100 text-blue-800" },
   ACCEPTED: { label: "已接受", color: "bg-green-100 text-green-800" },
   DECLINED: { label: "已拒绝", color: "bg-red-100 text-red-800" },
-  EXPIRED: { label: "已过期", color: "bg-gray-100 text-gray-600" },
+  EXPIRED: { label: "已过期", color: "bg-gray-100 text-slate-600" },
 };
 
 const VISA_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  NOT_STARTED: { label: "未开始", color: "bg-gray-100 text-gray-800" },
+  NOT_STARTED: { label: "未开始", color: "bg-gray-100 text-slate-800" },
   PREPARING: { label: "准备中", color: "bg-yellow-100 text-yellow-800" },
   SUBMITTED: { label: "已递交", color: "bg-blue-100 text-blue-800" },
   APPROVED: { label: "已获批", color: "bg-green-100 text-green-800" },
@@ -92,42 +92,42 @@ export default function ApplicationDetailPage() {
             <span>/</span>
             <span onClick={() => router.push("/applications")} className="hover:text-blue-600 cursor-pointer">申请管理</span>
             <span>/</span>
-            <span className="text-gray-600">申请详情</span>
+            <span className="text-slate-600">申请详情</span>
           </div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">{data.institutionName} - {data.majorName}</h1>
-            <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${STATUS_MAP[data.status]?.color || "bg-gray-100 text-gray-800"}`}>{STATUS_MAP[data.status]?.label || data.status}</span>
+            <h1 className="text-2xl font-bold text-slate-900">{data.institutionName} - {data.majorName}</h1>
+            <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${STATUS_MAP[data.status]?.color || "bg-gray-100 text-slate-800"}`}>{STATUS_MAP[data.status]?.label || data.status}</span>
           </div>
         </div>
-        <button onClick={() => setShowEditModal(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"><Edit className="w-4 h-4" />编辑</button>
+        <button onClick={() => setShowEditModal(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"><Edit className="w-5 h-5" />编辑</button>
       </div>
 
       {/* Info Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-xs text-gray-400 mb-1">学生</p>
-          <p className="text-sm font-semibold text-gray-900">{data.student.name}</p>
-          <p className="text-xs text-gray-400 mt-1">{data.student.phone}</p>
+        <div className="bg-white rounded-2xl border border-slate-200 p-4">
+          <p className="text-xs text-slate-400 mb-1">学生</p>
+          <p className="text-sm font-semibold text-slate-900">{data.student.name}</p>
+          <p className="text-xs text-slate-400 mt-1">{data.student.phone}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-xs text-gray-400 mb-1">合同</p>
-          <p className="text-sm font-semibold text-gray-900">{data.contract ? data.contract.contractNo : "-"}</p>
+        <div className="bg-white rounded-2xl border border-slate-200 p-4">
+          <p className="text-xs text-slate-400 mb-1">合同</p>
+          <p className="text-sm font-semibold text-slate-900">{data.contract ? data.contract.contractNo : "-"}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-xs text-gray-400 mb-1">学位 / 入学季</p>
-          <p className="text-sm font-semibold text-gray-900">{data.degree}</p>
-          <p className="text-xs text-gray-400 mt-1">{data.intakeYear}.{String(data.intakeMonth).padStart(2, "0")}</p>
+        <div className="bg-white rounded-2xl border border-slate-200 p-4">
+          <p className="text-xs text-slate-400 mb-1">学位 / 入学季</p>
+          <p className="text-sm font-semibold text-slate-900">{data.degree}</p>
+          <p className="text-xs text-slate-400 mt-1">{data.intakeYear}.{String(data.intakeMonth).padStart(2, "0")}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-xs text-gray-400 mb-1">状态</p>
-          <p className="text-sm font-semibold text-gray-900">{STATUS_MAP[data.status]?.label || data.status}</p>
+        <div className="bg-white rounded-2xl border border-slate-200 p-4">
+          <p className="text-xs text-slate-400 mb-1">状态</p>
+          <p className="text-sm font-semibold text-slate-900">{STATUS_MAP[data.status]?.label || data.status}</p>
         </div>
       </div>
 
       {/* Offer Section */}
-      <div className="bg-white rounded-xl border border-gray-200 mb-6">
+      <div className="bg-white rounded-2xl border border-slate-200 mb-6">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2"><Award className="w-4 h-4 text-green-500" />Offer记录 ({data.offers.length})</h2>
+          <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2"><Award className="w-5 h-5 text-green-500" />Offer记录 ({data.offers.length})</h2>
           <button onClick={() => router.push(`/offers?applicationId=${id}`)} className="text-xs text-blue-600 hover:underline">查看全部</button>
         </div>
         {data.offers.length === 0 ? (
@@ -137,11 +137,11 @@ export default function ApplicationDetailPage() {
             <thead><tr className="border-b border-gray-100"><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">院校</th><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">专业</th><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">类型</th><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">日期</th><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">状态</th></tr></thead>
             <tbody className="divide-y divide-gray-50">
               {data.offers.map(o => (
-                <tr key={o.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/offers/${o.id}`)}>
-                  <td className="px-6 py-3 text-sm font-medium text-gray-900">{o.institutionName}</td>
-                  <td className="px-6 py-3 text-sm text-gray-700">{o.majorName}</td>
-                  <td className="px-6 py-3 text-sm text-gray-500">{o.offerType === "CONDITIONAL" ? "有条件" : o.offerType === "UNCONDITIONAL" ? "无条件" : o.offerType}</td>
-                  <td className="px-6 py-3 text-sm text-gray-500">{new Date(o.offerDate).toLocaleDateString("zh-CN")}</td>
+                <tr key={o.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => router.push(`/offers/${o.id}`)}>
+                  <td className="px-6 py-3 text-sm font-medium text-slate-900">{o.institutionName}</td>
+                  <td className="px-6 py-3 text-sm text-slate-700">{o.majorName}</td>
+                  <td className="px-6 py-3 text-sm text-slate-500">{o.offerType === "CONDITIONAL" ? "有条件" : o.offerType === "UNCONDITIONAL" ? "无条件" : o.offerType}</td>
+                  <td className="px-6 py-3 text-sm text-slate-500">{new Date(o.offerDate).toLocaleDateString("zh-CN")}</td>
                   <td className="px-6 py-3"><span className={`text-xs px-2 py-0.5 rounded-full ${OFFER_STATUS_MAP[o.status]?.color || "bg-gray-100"}`}>{OFFER_STATUS_MAP[o.status]?.label || o.status}</span></td>
                 </tr>
               ))}
@@ -151,9 +151,9 @@ export default function ApplicationDetailPage() {
       </div>
 
       {/* Visa Section */}
-      <div className="bg-white rounded-xl border border-gray-200 mb-6">
+      <div className="bg-white rounded-2xl border border-slate-200 mb-6">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2"><Plane className="w-4 h-4 text-blue-500" />签证记录 ({data.visas.length})</h2>
+          <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2"><Plane className="w-5 h-5 text-blue-500" />签证记录 ({data.visas.length})</h2>
           <button onClick={() => router.push(`/visas?applicationId=${id}`)} className="text-xs text-blue-600 hover:underline">查看全部</button>
         </div>
         {data.visas.length === 0 ? (
@@ -163,11 +163,11 @@ export default function ApplicationDetailPage() {
             <thead><tr className="border-b border-gray-100"><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">签证类型</th><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">签证号</th><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">递交日期</th><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">结果日期</th><th className="px-6 py-2 text-left text-xs font-medium text-gray-500">状态</th></tr></thead>
             <tbody className="divide-y divide-gray-50">
               {data.visas.map(v => (
-                <tr key={v.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/visas/${v.id}`)}>
-                  <td className="px-6 py-3 text-sm font-medium text-gray-900">{v.visaType}</td>
-                  <td className="px-6 py-3 text-sm text-gray-700">{v.visaNumber || "-"}</td>
-                  <td className="px-6 py-3 text-sm text-gray-500">{v.submittedAt ? new Date(v.submittedAt).toLocaleDateString("zh-CN") : "-"}</td>
-                  <td className="px-6 py-3 text-sm text-gray-500">{v.resultAt ? new Date(v.resultAt).toLocaleDateString("zh-CN") : "-"}</td>
+                <tr key={v.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => router.push(`/visas/${v.id}`)}>
+                  <td className="px-6 py-3 text-sm font-medium text-slate-900">{v.visaType}</td>
+                  <td className="px-6 py-3 text-sm text-slate-700">{v.visaNumber || "-"}</td>
+                  <td className="px-6 py-3 text-sm text-slate-500">{v.submittedAt ? new Date(v.submittedAt).toLocaleDateString("zh-CN") : "-"}</td>
+                  <td className="px-6 py-3 text-sm text-slate-500">{v.resultAt ? new Date(v.resultAt).toLocaleDateString("zh-CN") : "-"}</td>
                   <td className="px-6 py-3"><span className={`text-xs px-2 py-0.5 rounded-full ${VISA_STATUS_MAP[v.status]?.color || "bg-gray-100"}`}>{VISA_STATUS_MAP[v.status]?.label || v.status}</span></td>
                 </tr>
               ))}
@@ -177,9 +177,9 @@ export default function ApplicationDetailPage() {
       </div>
 
       {/* Materials Section */}
-      <div className="bg-white rounded-xl border border-gray-200 mb-6">
+      <div className="bg-white rounded-2xl border border-slate-200 mb-6">
         <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2"><FileText className="w-4 h-4 text-orange-500" />申请材料 ({data.materials.length})</h2>
+          <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2"><FileText className="w-5 h-5 text-orange-500" />申请材料 ({data.materials.length})</h2>
         </div>
         {data.materials.length === 0 ? (
           <div className="px-6 py-8 text-center text-sm text-gray-400">暂无材料记录</div>
@@ -189,10 +189,10 @@ export default function ApplicationDetailPage() {
             <tbody className="divide-y divide-gray-50">
               {data.materials.map(m => (
                 <tr key={m.id}>
-                  <td className="px-6 py-3 text-sm font-medium text-gray-900">{m.name}</td>
-                  <td className="px-6 py-3 text-sm text-gray-500">{m.type}</td>
-                  <td className="px-6 py-3 text-sm text-gray-500">{m.dueDate ? new Date(m.dueDate).toLocaleDateString("zh-CN") : "-"}</td>
-                  <td className="px-6 py-3"><span className={`text-xs px-2 py-0.5 rounded-full ${m.status === "verified" ? "bg-green-100 text-green-800" : m.status === "pending" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-600"}`}>{m.status === "verified" ? "已审核" : m.status === "pending" ? "待审核" : m.status}</span></td>
+                  <td className="px-6 py-3 text-sm font-medium text-slate-900">{m.name}</td>
+                  <td className="px-6 py-3 text-sm text-slate-500">{m.type}</td>
+                  <td className="px-6 py-3 text-sm text-slate-500">{m.dueDate ? new Date(m.dueDate).toLocaleDateString("zh-CN") : "-"}</td>
+                  <td className="px-6 py-3"><span className={`text-xs px-2 py-0.5 rounded-full ${m.status === "verified" ? "bg-green-100 text-green-800" : m.status === "pending" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-slate-600"}`}>{m.status === "verified" ? "已审核" : m.status === "pending" ? "待审核" : m.status}</span></td>
                 </tr>
               ))}
             </tbody>
@@ -203,27 +203,27 @@ export default function ApplicationDetailPage() {
       {/* Edit Modal */}
       {showEditModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
             <h2 className="text-lg font-semibold mb-4">编辑申请</h2>
             {error && <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg">{error}</div>}
             <div className="space-y-4">
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">院校</label><input type="text" value={form.institutionName} onChange={e => setForm(f => ({ ...f, institutionName: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">专业</label><input type="text" value={form.majorName} onChange={e => setForm(f => ({ ...f, majorName: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">院校</label><input type="text" value={form.institutionName} onChange={e => setForm(f => ({ ...f, institutionName: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">专业</label><input type="text" value={form.majorName} onChange={e => setForm(f => ({ ...f, majorName: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">学位</label><select value={form.degree} onChange={e => setForm(f => ({ ...f, degree: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{[ "本科", "硕士", "博士", "预科", "语言", "其他" ].map(d => <option key={d} value={d}>{d}</option>)}</select></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">状态</label><select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">学位</label><select value={form.degree} onChange={e => setForm(f => ({ ...f, degree: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">{[ "本科", "硕士", "博士", "预科", "语言", "其他" ].map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">状态</label><select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">{Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">入学年份</label><input type="number" value={form.intakeYear} onChange={e => setForm(f => ({ ...f, intakeYear: parseInt(e.target.value) }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">入学月份</label><select value={form.intakeMonth} onChange={e => setForm(f => ({ ...f, intakeMonth: parseInt(e.target.value) }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{Array.from({ length: 12 }, (_, i) => i + 1).map(m => <option key={m} value={m}>{m}月</option>)}</select></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">入学年份</label><input type="number" value={form.intakeYear} onChange={e => setForm(f => ({ ...f, intakeYear: parseInt(e.target.value) }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">入学月份</label><select value={form.intakeMonth} onChange={e => setForm(f => ({ ...f, intakeMonth: parseInt(e.target.value) }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">{Array.from({ length: 12 }, (_, i) => i + 1).map(m => <option key={m} value={m}>{m}月</option>)}</select></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">提交日期</label><input type="date" value={form.submittedAt} onChange={e => setForm(f => ({ ...f, submittedAt: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">结果日期</label><input type="date" value={form.resultAt} onChange={e => setForm(f => ({ ...f, resultAt: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">提交日期</label><input type="date" value={form.submittedAt} onChange={e => setForm(f => ({ ...f, submittedAt: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">结果日期</label><input type="date" value={form.resultAt} onChange={e => setForm(f => ({ ...f, resultAt: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">备注</label><textarea value={form.remark} onChange={e => setForm(f => ({ ...f, remark: e.target.value }))} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">备注</label><textarea value={form.remark} onChange={e => setForm(f => ({ ...f, remark: e.target.value }))} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
             </div>
-            <div className="flex justify-end gap-3 mt-6"><button onClick={() => setShowEditModal(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleUpdate} disabled={submitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button></div>
+            <div className="flex justify-end gap-3 mt-6"><button onClick={() => setShowEditModal(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleUpdate} disabled={submitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button></div>
           </div>
         </div>
       )}

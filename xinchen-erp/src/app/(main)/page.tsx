@@ -74,7 +74,7 @@ function BarChart({ data, color = "blue", height = 120 }: { data: { label: strin
             className={`w-full rounded-t ${colorMap[color] || "bg-blue-500"} transition-all hover:opacity-80`}
             style={{ height: `${(d.value / maxVal) * 100}%`, minHeight: d.value > 0 ? "4px" : "0" }}
           />
-          <span className="text-xs text-gray-400 mt-1 truncate w-full text-center">{d.label}</span>
+          <span className="text-xs text-slate-400 mt-1 truncate w-full text-center">{d.label}</span>
         </div>
       ))}
     </div>
@@ -90,10 +90,10 @@ function ProgressBar({ label, value, total, color }: { label: string; value: num
   };
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm text-gray-600 w-20 flex-shrink-0 truncate">{label}</span>
+      <span className="text-sm text-slate-600 w-20 flex-shrink-0 truncate">{label}</span>
       <div className="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
         <div className={`h-full ${colorMap[color] || "bg-blue-500"} rounded-full transition-all`} style={{ width: `${pct}%` }} />
-        <span className="absolute inset-0 flex items-center justify-end pr-2 text-xs text-gray-700 font-medium">{value} ({pct}%)</span>
+        <span className="absolute inset-0 flex items-center justify-end pr-2 text-xs text-slate-700 font-medium">{value} ({pct}%)</span>
       </div>
     </div>
   );
@@ -112,9 +112,9 @@ function StatCard({ label, value, icon: Icon, color, sub }: { label: string; val
     <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-indigo-200 hover:shadow-[0_4px_20px_rgba(79,70,229,0.05)] transition">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-500">{label}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-          {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+          <p className="text-sm text-slate-500">{label}</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
+          {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
         </div>
         <div className={`p-3 rounded-lg ${colorMap[color]}`}>
           <Icon className="w-6 h-6" />
@@ -155,7 +155,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">工作台</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-6">工作台</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 animate-pulse">
@@ -176,7 +176,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">工作台</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-6">工作台</h1>
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
         <button onClick={fetchData} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">重试</button>
       </div>
@@ -248,9 +248,9 @@ export default function DashboardPage() {
     <div suppressHydrationWarning>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">工作台</h1>
+          <h1 className="text-2xl font-bold text-slate-900">工作台</h1>
           {data.scope === "all" ? (
-            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 border border-gray-200" title="可查看全公司全部数据">
+            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-slate-600 border border-slate-200" title="可查看全公司全部数据">
               全公司看板
             </span>
           ) : (
@@ -262,8 +262,8 @@ export default function DashboardPage() {
             </span>
           )}
         </div>
-        <button onClick={fetchData} className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-          <RefreshCw className="w-4 h-4" />刷新
+        <button onClick={fetchData} className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+          <RefreshCw className="w-5 h-5" />刷新
         </button>
       </div>
 
@@ -276,16 +276,16 @@ export default function DashboardPage() {
 
       {/* 数据总览 */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">数据总览</h2>
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">数据总览</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {overviewStats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <div key={stat.label} className="flex items-center gap-2 p-3 rounded-lg bg-gray-50">
+              <div key={stat.label} className="flex items-center gap-2 p-3 rounded-lg bg-slate-50">
                 <Icon className="w-5 h-5 text-gray-400 flex-shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs text-gray-500 truncate">{stat.label}</p>
-                  <p className="text-lg font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-lg font-bold text-slate-900">{stat.value}</p>
                 </div>
               </div>
             );
@@ -297,18 +297,18 @@ export default function DashboardPage() {
       {hasFinance ? (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">本月财务</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">本月财务</h2>
           <div className="space-y-3">
             <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-              <span className="text-sm text-gray-500">本月收款</span>
+              <span className="text-sm text-slate-500">本月收款</span>
               <span className="text-xl font-bold text-purple-600">{formatCurrency(fin.monthPaymentAmount)}</span>
             </div>
             <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-              <span className="text-sm text-gray-500">本月成本</span>
+              <span className="text-sm text-slate-500">本月成本</span>
               <span className="text-xl font-bold text-orange-600">{formatCurrency(fin.monthCostAmount)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-500">本月利润</span>
+              <span className="text-sm text-slate-500">本月利润</span>
               <span className={`text-xl font-bold ${profitColor}`}>
                 <span className="inline-flex items-center">
                   {(fin.monthProfit || 0) >= 0 ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
@@ -319,18 +319,18 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">本年财务</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">本年财务</h2>
           <div className="space-y-3">
             <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-              <span className="text-sm text-gray-500">本年收款</span>
+              <span className="text-sm text-slate-500">本年收款</span>
               <span className="text-xl font-bold text-purple-600">{formatCurrency(fin.yearPaymentAmount)}</span>
             </div>
             <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-              <span className="text-sm text-gray-500">本年成本</span>
+              <span className="text-sm text-slate-500">本年成本</span>
               <span className="text-xl font-bold text-orange-600">{formatCurrency(fin.yearCostAmount)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-500">本年利润</span>
+              <span className="text-sm text-slate-500">本年利润</span>
               <span className={`text-xl font-bold ${yearProfitColor}`}>
                 <span className="inline-flex items-center">
                   {(fin.yearProfit || 0) >= 0 ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
@@ -351,7 +351,7 @@ export default function DashboardPage() {
       {hasLeads && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">线索来源分布</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">线索来源分布</h3>
           <div className="space-y-3">
             {leadsBySource.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               leadsBySource.map((d, i) => (
@@ -361,7 +361,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">线索状态分布</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">线索状态分布</h3>
           <div className="space-y-3">
             {leadsByStatus.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               leadsByStatus.map((d, i) => (
@@ -371,7 +371,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">{(data.permissions?.leads && !(data.scope === "all")) ? "线索状态分布" : "员工线索 TOP10"}</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">{(data.permissions?.leads && !(data.scope === "all")) ? "线索状态分布" : "员工线索 TOP10"}</h3>
           <div className="space-y-3">
             {leadsByAssignee.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               leadsByAssignee.map((d, i) => (
@@ -387,13 +387,13 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {hasFinance && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">本年月度收款趋势</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">本年月度收款趋势</h3>
           <BarChart data={paymentsByMonth} color="purple" height={150} />
         </div>
         )}
         {hasContracts && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">本年合同签约趋势</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">本年合同签约趋势</h3>
           <BarChart data={contractsByMonth.map((c) => ({ label: c.month, value: c.count }))} color="green" height={150} />
         </div>
         )}
@@ -404,7 +404,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {hasFinance && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">收款类型分布（本年）</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">收款类型分布（本年）</h3>
           <div className="space-y-3">
             {paymentsByType.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               paymentsByType.map((d, i) => {
@@ -417,7 +417,7 @@ export default function DashboardPage() {
         )}
         {hasContracts && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">合同业务线分布（本年）</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">合同业务线分布（本年）</h3>
           <div className="space-y-3">
             {contractsByBusinessLine.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               contractsByBusinessLine.map((d, i) => {
@@ -435,7 +435,7 @@ export default function DashboardPage() {
       {hasStudents && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">学生目标国家分布</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">学生目标国家分布</h3>
           <div className="space-y-3">
             {studentsByCountry.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               studentsByCountry.map((d, i) => (
@@ -445,7 +445,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">学生目标学位分布</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">学生目标学位分布</h3>
           <div className="space-y-3">
             {studentsByDegree.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               studentsByDegree.map((d, i) => (
@@ -462,7 +462,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {hasApplications && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">申请院校 TOP10</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">申请院校 TOP10</h3>
           <div className="space-y-3">
             {applicationsByInstitution.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               applicationsByInstitution.map((d, i) => (
@@ -474,7 +474,7 @@ export default function DashboardPage() {
         )}
         {hasFinance && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">佣金状态分布</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">佣金状态分布</h3>
           <div className="space-y-3">
             {commissionsByStatus.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
               commissionsByStatus.map((d, i) => {
@@ -493,17 +493,17 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {hasLeads && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">最近线索</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">最近线索</h3>
           {recentLeads.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
             <div className="space-y-3">
               {recentLeads.map((lead) => (
                 <div key={lead.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                   <div>
-                    <span className="font-medium text-gray-900 text-sm">{lead.name}</span>
-                    <span className="text-xs text-gray-400 ml-2">{lead.phone}</span>
+                    <span className="font-medium text-slate-900 text-sm">{lead.name}</span>
+                    <span className="text-xs text-slate-400 ml-2">{lead.phone}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">{lead.assignee}</span>
+                    <span className="text-xs text-slate-400">{lead.assignee}</span>
                     <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded">{lead.status}</span>
                   </div>
                 </div>
@@ -514,14 +514,14 @@ export default function DashboardPage() {
         )}
         {hasFinance && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-md font-semibold text-gray-900 mb-4">最近收款</h3>
+          <h3 className="text-md font-semibold text-slate-900 mb-4">最近收款</h3>
           {recentPayments.length === 0 ? <p className="text-sm text-gray-400">暂无数据</p> :
             <div className="space-y-3">
               {recentPayments.map((payment) => (
                 <div key={payment.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                   <div>
-                    <span className="font-medium text-gray-900 text-sm">{payment.studentName || "未知"}</span>
-                    <span className="text-xs text-gray-400 ml-2">{payment.paymentType}</span>
+                    <span className="font-medium text-slate-900 text-sm">{payment.studentName || "未知"}</span>
+                    <span className="text-xs text-slate-400 ml-2">{payment.paymentType}</span>
                   </div>
                   <span className="font-bold text-purple-600 text-sm">{formatCurrency(payment.amount)}</span>
                 </div>

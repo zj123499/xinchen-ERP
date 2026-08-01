@@ -40,12 +40,12 @@ const STATUS_FALLBACK = [
   { dictKey: "EXPIRED", dictValue: "已过期" },
 ];
 const STATUS_COLOR: Record<string, string> = {
-  DRAFT: "bg-gray-100 text-gray-800",
+  DRAFT: "bg-gray-100 text-slate-800",
   PENDING: "bg-yellow-100 text-yellow-800",
   APPROVED: "bg-blue-100 text-blue-800",
   SIGNED: "bg-green-100 text-green-800",
   TERMINATED: "bg-red-100 text-red-800",
-  EXPIRED: "bg-gray-100 text-gray-600",
+  EXPIRED: "bg-gray-100 text-slate-600",
 };
 
 const CURRENCY_MAP: Record<string, string> = {
@@ -270,8 +270,8 @@ export default function ContractsPage() {
       {/* 页面标题 */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">合同管理</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-slate-900">合同管理</h1>
+          <p className="text-sm text-slate-500 mt-1">
             管理所有学生合同，支持创建、审批、签署和终止
           </p>
         </div>
@@ -279,29 +279,29 @@ export default function ContractsPage() {
           onClick={openNewForm}
           className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-sm"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-5 h-5" />
           新增合同
         </button>
       </div>
 
       {/* 搜索和筛选 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 mb-6">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex-1 min-w-[200px] relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               placeholder="搜索合同编号、学生姓名..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
           >
             <option value="">全部状态</option>
             {statuses.map((t) => (
@@ -310,16 +310,16 @@ export default function ContractsPage() {
           </select>
           <button
             onClick={handleSearch}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition"
+            className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-slate-700 rounded-lg text-sm hover:bg-gray-200 transition"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-5 h-5" />
             刷新
           </button>
         </div>
       </div>
 
       {/* 数据表格 */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400">
             <RefreshCw className="w-5 h-5 animate-spin mr-2" />
@@ -341,7 +341,7 @@ export default function ContractsPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50 text-left">
+                  <tr className="bg-slate-50 text-left">
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">合同编号</th>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">学生</th>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">合同金额</th>
@@ -356,41 +356,41 @@ export default function ContractsPage() {
                   {data.list.map((contract) => (
                     <tr
                       key={contract.id}
-                      className="hover:bg-gray-50 transition cursor-pointer"
+                      className="hover:bg-slate-50 transition cursor-pointer"
                       onClick={() => router.push(`/contracts/${contract.id}`)}
                     >
                       <td className="px-4 py-3">
-                        <div className="font-medium text-gray-900 text-sm font-mono">
+                        <div className="font-medium text-slate-900 text-sm font-mono">
                           {contract.contractNo}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5 text-sm text-gray-700">
+                        <div className="flex items-center gap-1.5 text-sm text-slate-700">
                           <User className="w-3.5 h-3.5 text-gray-400" />
                           {contract.student.name}
                         </div>
-                        <div className="text-xs text-gray-400 mt-0.5">{contract.student.phone}</div>
+                        <div className="text-xs text-slate-400 mt-0.5">{contract.student.phone}</div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-semibold text-sm text-gray-900">
+                        <div className="font-semibold text-sm text-slate-900">
                           {CURRENCY_MAP[contract.currency] || contract.currency}
                           {parseFloat(contract.totalAmount).toLocaleString()}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-slate-600">
                         {contract.signDate
                           ? new Date(contract.signDate).toLocaleDateString("zh-CN")
                           : "-"}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[contract.status] || "bg-gray-100 text-gray-800"}`}>
+                        <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[contract.status] || "bg-gray-100 text-slate-800"}`}>
                           {getDictLabel(statuses, contract.status)}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="text-sm text-gray-600">{contract._count.orders}</span>
+                        <span className="text-sm text-slate-600">{contract._count.orders}</span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
+                      <td className="px-4 py-3 text-sm text-slate-500">
                         {new Date(contract.updatedAt).toLocaleDateString("zh-CN")}
                       </td>
                       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -399,28 +399,28 @@ export default function ContractsPage() {
                           className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition"
                           title="上传合同文件"
                         >
-                          <Upload className="w-4 h-4" />
+                          <Upload className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => { setFileListTarget(contract); fetchFileList(contract.id); }}
                           className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition"
                           title="查看合同文件"
                         >
-                          <FileText className="w-4 h-4" />
+                          <FileText className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => openEditForm(contract)}
                           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition"
                           title="编辑"
                         >
-                          <MoreHorizontal className="w-4 h-4" />
+                          <MoreHorizontal className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => setDeleteTarget(contract)}
                           className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition"
                           title="删除"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </td>
                     </tr>
@@ -430,8 +430,8 @@ export default function ContractsPage() {
             </div>
 
             {/* 分页 */}
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
-              <span className="text-sm text-gray-500">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-slate-50">
+              <span className="text-sm text-slate-500">
                 共 {data.total} 条，第 {data.page}/{data.totalPages} 页
               </span>
               <div className="flex items-center gap-1">
@@ -440,7 +440,7 @@ export default function ContractsPage() {
                   disabled={page <= 1}
                   className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
                 {Array.from({ length: Math.min(data.totalPages, 5) }, (_, i) => {
                   const start = Math.max(1, Math.min(page - 2, data.totalPages - 4));
@@ -453,7 +453,7 @@ export default function ContractsPage() {
                       className={`w-8 h-8 text-sm rounded transition ${
                         p === page
                           ? "bg-blue-600 text-white"
-                          : "text-gray-600 hover:bg-gray-200"
+                          : "text-slate-600 hover:bg-gray-200"
                       }`}
                     >
                       {p}
@@ -465,7 +465,7 @@ export default function ContractsPage() {
                   disabled={page >= data.totalPages}
                   className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -476,14 +476,14 @@ export default function ContractsPage() {
       {/* 新增/编辑弹窗 */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">
                 {editingContract ? "编辑合同" : "新增合同"}
               </h2>
               <button
                 onClick={() => setShowForm(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded transition"
+                className="p-1 text-gray-400 hover:text-slate-600 rounded transition"
               >
                 ✕
               </button>
@@ -498,20 +498,20 @@ export default function ContractsPage() {
 
               {/* 学生选择/绑定 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   关联学生 <span className="text-red-500">*</span>
                 </label>
                 {editingContract ? (
                   // 编辑模式：合同已绑定学生，不可更换
-                  <div className="flex items-center gap-2 p-3 bg-gray-100 border border-gray-200 rounded-lg">
-                    <User className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700">{selectedStudent?.name}</span>
-                    <span className="ml-auto text-xs text-gray-500 flex items-center gap-1"><Lock className="w-3 h-3" />已绑定，不可更换</span>
+                  <div className="flex items-center gap-2 p-3 bg-gray-100 border border-slate-200 rounded-lg">
+                    <User className="w-5 h-5 text-gray-500" />
+                    <span className="text-sm font-medium text-slate-700">{selectedStudent?.name}</span>
+                    <span className="ml-auto text-xs text-gray-500 flex items-center gap-1"><Lock className="w-3.5 h-3.5" />已绑定，不可更换</span>
                   </div>
                 ) : selectedStudent ? (
                   // 新建模式：可以更换
                   <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <User className="w-4 h-4 text-blue-600" />
+                    <User className="w-5 h-5 text-blue-600" />
                     <span className="text-sm font-medium text-blue-900">{selectedStudent.name}</span>
                     <button
                       type="button"
@@ -529,18 +529,18 @@ export default function ContractsPage() {
                       value={studentSearch}
                       onChange={(e) => setStudentSearch(e.target.value)}
                       onFocus={() => { if (studentResults.length === 0) { loadRecentStudents(); }; }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                       placeholder="点击选择或搜索学生..."
                     />
                     {studentResults.length > 0 && (
-                      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      <div className="absolute z-10 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                         {studentResults.map((s) => (
                           <div
                             key={s.id}
                             onClick={() => selectStudent(s)}
                             className="px-4 py-2.5 hover:bg-blue-50 cursor-pointer text-sm"
                           >
-                            <div className="font-medium text-gray-900">{s.name}</div>
+                            <div className="font-medium text-slate-900">{s.name}</div>
                             <div className="text-xs text-gray-500">{s.phone}</div>
                           </div>
                         ))}
@@ -552,7 +552,7 @@ export default function ContractsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     合同编号 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -560,24 +560,24 @@ export default function ContractsPage() {
                     required
                     value={formData.contractNo}
                     onChange={(e) => setFormData((d) => ({ ...d, contractNo: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-mono"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-mono"
                     placeholder="如：HT-2026-001"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">签署日期</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">签署日期</label>
                   <input
                     type="date"
                     value={formData.signDate}
                     onChange={(e) => setFormData((d) => ({ ...d, signDate: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
                     合同金额 <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -586,16 +586,16 @@ export default function ContractsPage() {
                     step="0.01"
                     value={formData.totalAmount}
                     onChange={(e) => setFormData((d) => ({ ...d, totalAmount: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                     placeholder="金额"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">币种</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">币种</label>
                   <select
                     value={formData.currency}
                     onChange={(e) => setFormData((d) => ({ ...d, currency: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                   >
                     {Object.entries(CURRENCY_MAP).map(([k, v]) => (
                       <option key={k} value={k}>{k} ({v})</option>
@@ -603,11 +603,11 @@ export default function ContractsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">状态</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData((d) => ({ ...d, status: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                   >
                     {statuses.map((t) => (
                       <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>
@@ -617,12 +617,12 @@ export default function ContractsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">备注</label>
                 <textarea
                   value={formData.remark}
                   onChange={(e) => setFormData((d) => ({ ...d, remark: e.target.value }))}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
                   placeholder="备注信息..."
                 />
               </div>
@@ -631,7 +631,7 @@ export default function ContractsPage() {
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                  className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
                 >
                   取消
                 </button>
@@ -650,17 +650,17 @@ export default function ContractsPage() {
       {/* 删除确认弹窗 */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6">
             <h3 className="text-lg font-semibold mb-2">确认删除</h3>
-            <p className="text-sm text-gray-600 mb-1">合同编号：{deleteTarget.contractNo}</p>
-            <p className="text-sm text-gray-500 mb-4">删除后不可恢复，请确认。</p>
+            <p className="text-sm text-slate-600 mb-1">合同编号：{deleteTarget.contractNo}</p>
+            <p className="text-sm text-slate-500 mb-4">删除后不可恢复，请确认。</p>
             <div className="flex gap-3">
               <button onClick={handleDelete} disabled={deleting}
                 className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 disabled:opacity-50">
                 {deleting ? "删除中..." : "确认删除"}
               </button>
               <button onClick={() => setDeleteTarget(null)}
-                className="py-2 px-6 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</button>
+                className="py-2 px-6 border rounded-lg text-sm text-slate-600 hover:bg-slate-50">取消</button>
             </div>
           </div>
         </div>
@@ -669,24 +669,24 @@ export default function ContractsPage() {
       {/* 上传合同文件弹窗 */}
       {uploadTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <h2 className="text-lg font-semibold">上传合同 - {uploadTarget.contractNo}</h2>
-              <button onClick={() => setUploadTarget(null)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+              <button onClick={() => setUploadTarget(null)} className="text-gray-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6">
-              <p className="text-sm text-gray-500 mb-4">支持 PDF、图片、Word、Excel，最大 20MB</p>
+              <p className="text-sm text-slate-500 mb-4">支持 PDF、图片、Word、Excel，最大 20MB</p>
               <input type="file" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx"
                 onChange={e => setUploadFile(e.target.files?.[0] || null)}
-                className="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
-              {uploadFile && <p className="text-sm text-gray-600 mt-2">已选择: {uploadFile.name}</p>}
+                className="w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" />
+              {uploadFile && <p className="text-sm text-slate-600 mt-2">已选择: {uploadFile.name}</p>}
               {uploadMsg && <p className={`text-sm mt-3 ${uploadMsg.startsWith("✅") ? "text-green-600" : "text-red-500"}`}>{uploadMsg}</p>}
               <div className="flex gap-3 mt-4">
                 <button onClick={handleUpload} disabled={!uploadFile || uploading}
                   className="flex-1 flex items-center justify-center gap-2 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50">
-                  <Upload className="w-4 h-4" />{uploading ? "上传中..." : "上传"}
+                  <Upload className="w-5 h-5" />{uploading ? "上传中..." : "上传"}
                 </button>
-                <button onClick={() => setUploadTarget(null)} className="py-2 px-6 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</button>
+                <button onClick={() => setUploadTarget(null)} className="py-2 px-6 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-50">取消</button>
               </div>
             </div>
           </div>
@@ -696,10 +696,10 @@ export default function ContractsPage() {
       {/* 查看合同文件列表弹窗 */}
       {fileListTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <h2 className="text-lg font-semibold">合同文件 - {fileListTarget.contractNo}</h2>
-              <button onClick={() => setFileListTarget(null)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+              <button onClick={() => setFileListTarget(null)} className="text-gray-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6">
               {fileListLoading ? (
@@ -713,9 +713,9 @@ export default function ContractsPage() {
               ) : (
                 <div className="space-y-3">
                   {fileList.map((f: any) => (
-                    <div key={f.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={f.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{f.originalName}</p>
+                        <p className="text-sm font-medium text-slate-900 truncate">{f.originalName}</p>
                         <p className="text-xs text-gray-500 mt-0.5">
                           {f.sizeText} · {f.uploaderName} · {new Date(f.createdAt).toLocaleDateString()}
                         </p>
@@ -725,7 +725,7 @@ export default function ContractsPage() {
                         await fetch(`/api/contracts/${fileListTarget.id}/files?fileId=${f.id}`, { method: "DELETE" });
                         fetchFileList(fileListTarget.id);
                       }} className="ml-2 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded" title="删除">
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
                   ))}

@@ -92,31 +92,31 @@ export default function AttributionsPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">归因结果</h1>
-          <p className="text-sm text-gray-500 mt-1">基于多触点归因模型，量化各渠道对签约的贡献</p>
+          <h1 className="text-2xl font-bold text-slate-900">归因结果</h1>
+          <p className="text-sm text-slate-500 mt-1">基于多触点归因模型，量化各渠道对签约的贡献</p>
         </div>
         <div className="flex items-center gap-3">
           <select value={model}
             onChange={(e) => { setModel(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             {Object.entries(MODEL_MAP).map(([k, v]) => (
               <option key={k} value={k}>{v.label}</option>
             ))}
           </select>
           <button onClick={runAttribution} disabled={running}
             className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition shadow-sm">
-            <PlayCircle className="w-4 h-4" /> {running ? "计算中..." : "重跑归因"}
+            <PlayCircle className="w-5 h-5" /> {running ? "计算中..." : "重跑归因"}
           </button>
         </div>
       </div>
 
       {runMsg && (
         <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4" /> {runMsg}
+          <TrendingUp className="w-5 h-5" /> {runMsg}
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20 text-gray-400">
             <RefreshCw className="w-5 h-5 animate-spin mr-2" /> 加载中...
@@ -131,7 +131,7 @@ export default function AttributionsPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50 text-left">
+                  <tr className="bg-slate-50 text-left">
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">学生</th>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">归因渠道</th>
                     <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">权重</th>
@@ -141,19 +141,19 @@ export default function AttributionsPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {data.list.map((a) => (
-                    <tr key={a.id} className="hover:bg-gray-50 transition">
-                      <td className="px-4 py-3 text-sm text-gray-700">{a.student?.name || "未知"}</td>
+                    <tr key={a.id} className="hover:bg-slate-50 transition">
+                      <td className="px-4 py-3 text-sm text-slate-700">{a.student?.name || "未知"}</td>
                       <td className="px-4 py-3">
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                        <span className="text-xs bg-gray-100 text-slate-600 px-2 py-0.5 rounded">
                           {CHANNEL_LABELS[a.touchpoint?.channel || "OTHER"] || "其他"}
                         </span>
-                        <span className="text-xs text-gray-400 ml-2">{a.touchpoint?.source}</span>
+                        <span className="text-xs text-slate-400 ml-2">{a.touchpoint?.source}</span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{(a.weight * 100).toFixed(1)}%</td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                      <td className="px-4 py-3 text-sm text-slate-700">{(a.weight * 100).toFixed(1)}%</td>
+                      <td className="px-4 py-3 text-sm font-medium text-slate-900">
                         ¥{(Number(a.attributedAmount) || 0).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
+                      <td className="px-4 py-3 text-sm text-slate-500">
                         {a.contract ? `${a.contract.contractNo}` : "-"}
                       </td>
                     </tr>
@@ -161,16 +161,16 @@ export default function AttributionsPage() {
                 </tbody>
               </table>
             </div>
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
-              <span className="text-sm text-gray-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
+            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-slate-50">
+              <span className="text-sm text-slate-500">共 {data.total} 条，第 {data.page}/{data.totalPages} 页</span>
               <div className="flex items-center gap-1">
                 <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}
                   className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition">
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={page >= data.totalPages}
                   className="p-1.5 rounded text-gray-500 hover:bg-gray-200 disabled:opacity-30 transition">
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             </div>

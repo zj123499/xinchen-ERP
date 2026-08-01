@@ -28,7 +28,7 @@ function Bar({ items, value, color = "bg-blue-500" }: { items: { label: string; 
     <div className="space-y-2">
       {items.map((it, idx) => { const v = value ? value(it) : it.value; return (
         <div key={idx} className="flex items-center gap-2 text-xs">
-          <span className="w-20 truncate text-gray-600 text-right">{it.label}</span>
+          <span className="w-20 truncate text-slate-600 text-right">{it.label}</span>
           <div className="flex-1 bg-gray-100 rounded-full h-4 relative overflow-hidden">
             <div className={`${color} h-4 rounded-full`} style={{ width: `${(v / max) * 100}%` }} />
           </div>
@@ -50,7 +50,7 @@ function Donut({ items, color = "bg-blue-500" }: { items: { label: string; value
         <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-500">占比</div>
       </div>
       <div className="space-y-1 text-xs">
-        {items.map((it, idx) => <div key={idx} className="flex items-center gap-1.5"><span className={`w-3 h-3 rounded-sm ${palette[idx % palette.length]}`} />{it.label}<span className="text-gray-400">({((it.value / total) * 100).toFixed(0)}%)</span></div>)}
+        {items.map((it, idx) => <div key={idx} className="flex items-center gap-1.5"><span className={`w-3.5 h-3.5 rounded-sm ${palette[idx % palette.length]}`} />{it.label}<span className="text-gray-400">({((it.value / total) * 100).toFixed(0)}%)</span></div>)}
       </div>
     </div>
   );
@@ -58,8 +58,8 @@ function Donut({ items, color = "bg-blue-500" }: { items: { label: string; value
 
 function Card({ children, title, icon: Icon }: { children: React.ReactNode; title: string; icon?: any }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-      <div className="flex items-center gap-2 mb-4"><Icon className="w-4 h-4 text-gray-400" /><h3 className="text-sm font-semibold text-gray-700">{title}</h3></div>
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+      <div className="flex items-center gap-2 mb-4"><Icon className="w-5 h-5 text-gray-400" /><h3 className="text-sm font-semibold text-slate-700">{title}</h3></div>
       {children}
     </div>
   );
@@ -92,9 +92,9 @@ export default function BIPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">经营驾驶舱</h1>
+          <h1 className="text-2xl font-bold text-slate-900">经营驾驶舱</h1>
           {d.scope === "all" ? (
-            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 border border-gray-200" title="可查看全公司全部数据">
+            <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-slate-600 border border-slate-200" title="可查看全公司全部数据">
               全公司看板
             </span>
           ) : (
@@ -106,14 +106,14 @@ export default function BIPage() {
             </span>
           )}
         </div>
-        <p className="text-sm text-gray-500 mt-1">全维度经营数据实时概览</p>
-        <button onClick={fetchData} className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"><RefreshCw className="w-4 h-4" /> 刷新</button>
+        <p className="text-sm text-slate-500 mt-1">全维度经营数据实时概览</p>
+        <button onClick={fetchData} className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50"><RefreshCw className="w-5 h-5" /> 刷新</button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-        {kpis.map((k) => <div key={k.label} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${k.color}`}><k.icon className="w-4 h-4" /></div>
-          <div className="text-xl font-bold text-gray-900">{k.value}</div>
+        {kpis.map((k) => <div key={k.label} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${k.color}`}><k.icon className="w-5 h-5" /></div>
+          <div className="text-xl font-bold text-slate-900">{k.value}</div>
           <div className="text-xs text-gray-500 mt-0.5">{k.label}</div>
         </div>)}
       </div>
@@ -136,20 +136,20 @@ export default function BIPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">最新线索</h3>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">最新线索</h3>
           <div className="space-y-2">
             {(d.recentLeads || []).map((l) => <div key={l.id} className="flex items-center justify-between text-sm border-b border-gray-50 pb-2">
-              <div><span className="font-medium text-gray-800">{l.name}</span><span className="text-gray-400 text-xs ml-2">{l.phone}</span></div>
+              <div><span className="font-medium text-slate-800">{l.name}</span><span className="text-gray-400 text-xs ml-2">{l.phone}</span></div>
               <div className="text-xs text-gray-500">{l.assignee || "-"} · {new Date(l.createdAt).toLocaleDateString("zh-CN")}</div>
             </div>)}
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">近期收款</h3>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <h3 className="text-sm font-semibold text-slate-700 mb-3">近期收款</h3>
           <div className="space-y-2">
             {(d.recentPayments || []).map((p) => <div key={p.id} className="flex items-center justify-between text-sm border-b border-gray-50 pb-2">
-              <div><span className="font-medium text-gray-800">{p.studentName || "-"}</span><span className="text-gray-400 text-xs ml-2">{p.paymentNo}</span></div>
+              <div><span className="font-medium text-slate-800">{p.studentName || "-"}</span><span className="text-gray-400 text-xs ml-2">{p.paymentNo}</span></div>
               <div className="text-xs text-green-600 font-medium">¥{Number(p.amount).toLocaleString()} · {new Date(p.paidAt).toLocaleDateString("zh-CN")}</div>
             </div>)}
           </div>

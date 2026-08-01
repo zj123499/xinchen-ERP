@@ -17,7 +17,7 @@ interface ApplicationItem {
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  PREPARING: { label: "准备中", color: "bg-gray-100 text-gray-800" },
+  PREPARING: { label: "准备中", color: "bg-gray-100 text-slate-800" },
   SUBMITTED: { label: "已提交", color: "bg-blue-100 text-blue-800" },
   REVIEWING: { label: "审核中", color: "bg-yellow-100 text-yellow-800" },
   OFFER: { label: "已获Offer", color: "bg-green-100 text-green-800" },
@@ -223,24 +223,24 @@ export default function ApplicationsPage() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">申请与Offer管理</h1>
+        <h1 className="text-2xl font-bold text-slate-900">申请与Offer管理</h1>
         <div className="flex gap-2">
-          <button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"><Plus className="w-4 h-4" />新增申请</button>
+          <button onClick={openCreate} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"><Plus className="w-5 h-5" />新增申请</button>
         </div>
       </div>
       <div className="flex items-center gap-4 mb-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input type="text" placeholder="搜索院校/专业/学生..." value={keyword} onChange={e => { setKeyword(e.target.value); setPage(1); }} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input type="text" placeholder="搜索院校/专业/学生..." value={keyword} onChange={e => { setKeyword(e.target.value); setPage(1); }} className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
         </div>
-        <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }} className="border border-slate-300 rounded-lg px-3 py-2 text-sm">
           <option value="">全部状态</option>
           {Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <table className="w-full">
-          <thead><tr className="bg-gray-50 border-b border-gray-200">
+          <thead><tr className="bg-slate-50 border-b border-slate-200">
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">学生</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">院校</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">专业</th>
@@ -255,13 +255,13 @@ export default function ApplicationsPage() {
             {loading ? <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-400">加载中...</td></tr>
             : list.length === 0 ? <tr><td colSpan={8} className="px-4 py-12 text-center text-gray-400">暂无数据</td></tr>
             : list.map(item => (<>
-              <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.student.name}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">{item.institutionName}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">{item.majorName}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">{item.degree} / {item.intakeYear}.{String(item.intakeMonth).padStart(2, "0")}</td>
+              <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                <td className="px-4 py-3 text-sm font-medium text-slate-900">{item.student.name}</td>
+                <td className="px-4 py-3 text-sm text-slate-700">{item.institutionName}</td>
+                <td className="px-4 py-3 text-sm text-slate-700">{item.majorName}</td>
+                <td className="px-4 py-3 text-sm text-slate-500">{item.degree} / {item.intakeYear}.{String(item.intakeMonth).padStart(2, "0")}</td>
 
-                <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[item.status]?.color || "bg-gray-100 text-gray-800"}`}>{STATUS_MAP[item.status]?.label || item.status}</span></td>
+                <td className="px-4 py-3"><span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_MAP[item.status]?.color || "bg-gray-100 text-slate-800"}`}>{STATUS_MAP[item.status]?.label || item.status}</span></td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2 text-xs">
                     {item._count.offers > 0 ? (
@@ -278,24 +278,24 @@ export default function ApplicationsPage() {
                       const next = expandedOffers.filter((o: any) => o.deadline).sort((a: any, b: any) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())[0];
                       if (next?.deadline) {
                         const days = Math.ceil((new Date(next.deadline).getTime() - Date.now()) / 86400000);
-                        return <span className={days <= 7 ? "text-red-600 font-medium" : "text-gray-700"}>{new Date(next.deadline).toLocaleDateString("zh-CN")}{days <= 7 && <span className="text-xs ml-1">({days}天)</span>}</span>;
+                        return <span className={days <= 7 ? "text-red-600 font-medium" : "text-slate-700"}>{new Date(next.deadline).toLocaleDateString("zh-CN")}{days <= 7 && <span className="text-xs ml-1">({days}天)</span>}</span>;
                       }
                     }
                     return <span className="text-gray-400">-</span>;
                   })()}
                 </td>
                 <td className="px-4 py-3 text-right"><div className="flex items-center justify-end gap-1">
-                  <button onClick={(e) => { e.stopPropagation(); (setEditingOffer(null), setOfferForm({ applicationId: String(item.id), institutionName: item.institutionName, majorName: item.majorName, offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp({ id: item.id, institutionName: item.institutionName, student: item.student, majorName: item.majorName }), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true)); }} title="新增 Offer" className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded"><Plus className="w-4 h-4" /></button>
-                  <button title="编辑" onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-4 h-4" /></button>
-                  <button title="删除" onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); (setEditingOffer(null), setOfferForm({ applicationId: String(item.id), institutionName: item.institutionName, majorName: item.majorName, offerType: "conditional", deadline: "", submittedAt: "", status: "RECEIVED" }), setOfferSelectedApp({ id: item.id, institutionName: item.institutionName, student: item.student, majorName: item.majorName }), setOfferAppSearch(""), setOfferAppResults([]), setOfferAppFilter({ institution: "" }), setShowOfferForm(true)); }} title="新增 Offer" className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded"><Plus className="w-5 h-5" /></button>
+                  <button title="编辑" onClick={() => openEdit(item.id)} className="p-1.5 text-gray-400 hover:text-blue-600 rounded"><Edit className="w-5 h-5" /></button>
+                  <button title="删除" onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-600 rounded"><Trash2 className="w-5 h-5" /></button>
                 </div></td>
               </tr>
               {expandedId === item.id && (
-                <tr key={`offer-${item.id}`} className="bg-gray-50">
+                <tr key={`offer-${item.id}`} className="bg-slate-50">
                   <td colSpan={8} className="px-4 py-2">
-                    <div className="text-xs font-medium text-gray-700 mb-2">Offer 列表（{expandedOffers.length}）</div>
+                    <div className="text-xs font-medium text-slate-700 mb-2">Offer 列表（{expandedOffers.length}）</div>
                     {expandedOffers.length === 0 ? (
-                      <p className="text-xs text-gray-400">暂无Offer，点右侧「+ Offer」新增</p>
+                      <p className="text-xs text-slate-400">暂无Offer，点右侧「+ Offer」新增</p>
                     ) : (
                       <table className="w-full text-xs">
                         <thead className="text-gray-500">
@@ -315,7 +315,7 @@ export default function ApplicationsPage() {
                               <td className="px-3 py-2">{o.offerType === "conditional" ? "有条件" : o.offerType === "unconditional" ? "无条件" : o.offerType}</td>
                               <td className="px-3 py-2">{o.deadline ? new Date(o.deadline).toLocaleDateString("zh-CN") : "-"}</td>
                               <td className="px-3 py-2 text-gray-500">{o.submittedAt ? new Date(o.submittedAt).toLocaleDateString("zh-CN") : "-"}</td>
-                              <td className="px-3 py-2"><span className="px-2 py-0.5 rounded bg-gray-100 text-gray-700">{{RECEIVED: "已收到", ACCEPTED: "已接受", DECLINED: "已拒绝"}[o.status] || o.status}</span></td>
+                              <td className="px-3 py-2"><span className="px-2 py-0.5 rounded bg-gray-100 text-slate-700">{{RECEIVED: "已收到", ACCEPTED: "已接受", DECLINED: "已拒绝"}[o.status] || o.status}</span></td>
                               <td className="px-3 py-2 text-right">
                                 <button onClick={() => openOfferEdit(o.id)} className="text-blue-600 hover:underline mr-2">编辑</button>
                                 <label className="text-green-600 hover:underline mr-2 cursor-pointer" onClick={async (e) => { e.preventDefault(); const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.pdf,.jpg,.png,.doc,.docx'; inp.onchange = async () => { if (inp.files?.[0]) { const fd = new FormData(); fd.append('file', inp.files[0]); fd.append('offerId', String(o.id)); const r = await fetch('/api/offers/upload', { method: 'POST', body: fd }); if (r.ok) { const data = await r.json(); alert(`已上传: ${data.originalName}`); } else { alert('上传失败'); } } }; inp.click(); }}>上传</label>
@@ -333,34 +333,34 @@ export default function ApplicationsPage() {
           </tbody>
         </table>
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
-            <span className="text-sm text-gray-500">共 {total} 条</span>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50">
+            <span className="text-sm text-slate-500">共 {total} 条</span>
             <div className="flex items-center gap-2">
-              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30"><ChevronLeft className="w-4 h-4" /></button>
-              <span className="text-sm text-gray-700">{page} / {totalPages}</span>
-              <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30"><ChevronRight className="w-4 h-4" /></button>
+              <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30"><ChevronLeft className="w-5 h-5" /></button>
+              <span className="text-sm text-slate-700">{page} / {totalPages}</span>
+              <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded hover:bg-gray-200 disabled:opacity-30"><ChevronRight className="w-5 h-5" /></button>
             </div>
           </div>
         )}
       </div>
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
             <h2 className="text-lg font-semibold mb-4">{editingId ? "编辑申请" : "新增申请"}</h2>
             {error && <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg">{error}</div>}
             <div className="space-y-4">
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">学生 <span className="text-red-500">*</span></label>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">学生 <span className="text-red-500">*</span></label>
                 {selectedStudent ? (
                   <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg"><span className="text-sm font-medium text-blue-700">{selectedStudent.name}</span><button onClick={() => { setSelectedStudent(null); setForm(f => ({ ...f, studentId: "" })); setStudentSearch(""); }} className="text-xs text-red-500 hover:text-red-700">移除</button></div>
                 ) : (
-                  <div className="relative"><input type="text" placeholder="点击选择或搜索学生..." value={studentSearch} onChange={e => searchStudents(e.target.value)} onFocus={() => { if (studentResults.length === 0) { loadRecentStudents(); }; }} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
-                    {studentResults.length > 0 && (<div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">{studentResults.map(s => (<div key={s.id} onClick={() => selectStudent(s)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm">{s.name} <span className="text-gray-400 ml-2">{s.phone}</span></div>))}</div>)}
+                  <div className="relative"><input type="text" placeholder="点击选择或搜索学生..." value={studentSearch} onChange={e => searchStudents(e.target.value)} onFocus={() => { if (studentResults.length === 0) { loadRecentStudents(); }; }} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                    {studentResults.length > 0 && (<div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">{studentResults.map(s => (<div key={s.id} onClick={() => selectStudent(s)} className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm">{s.name} <span className="text-gray-400 ml-2">{s.phone}</span></div>))}</div>)}
                   </div>
                 )}
               </div>
               {intentions.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">申请意向（点击快速填充）</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">申请意向（点击快速填充）</label>
                   <div className="flex flex-wrap gap-1.5">
                     {intentions.map((it: any, idx: number) => (
                       <button key={it.id} onClick={() => { setSelectedIntentionId(it.id); setForm(f => ({
@@ -369,7 +369,7 @@ export default function ApplicationsPage() {
                         majorName: it.major || f.majorName,
                         degree: it.degree || f.degree,
                       })); }}
-                        className={`text-xs px-2 py-1 rounded border transition ${selectedIntentionId === it.id ? "border-blue-500 bg-blue-100 text-blue-800 ring-1 ring-blue-300" : "border-gray-200 bg-gray-50 text-gray-600 hover:border-blue-300"}`}
+                        className={`text-xs px-2 py-1 rounded border transition ${selectedIntentionId === it.id ? "border-blue-500 bg-blue-100 text-blue-800 ring-1 ring-blue-300" : "border-slate-200 bg-slate-50 text-slate-600 hover:border-blue-300"}`}
                         title={`${it.country} · ${it.institution || "—"} · ${it.major || "—"}`}>
                         {it.country}{it.institution ? ` · ${it.institution}` : ""}
                       </button>
@@ -377,28 +377,28 @@ export default function ApplicationsPage() {
                   </div>
                 </div>
               )}
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">院校 <span className="text-red-500">*</span></label><input type="text" value={form.institutionName} onChange={e => setForm(f => ({ ...f, institutionName: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="如：马来亚大学" /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">专业 <span className="text-red-500">*</span></label><input type="text" value={form.majorName} onChange={e => setForm(f => ({ ...f, majorName: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="如：计算机科学" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">院校 <span className="text-red-500">*</span></label><input type="text" value={form.institutionName} onChange={e => setForm(f => ({ ...f, institutionName: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="如：马来亚大学" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">专业 <span className="text-red-500">*</span></label><input type="text" value={form.majorName} onChange={e => setForm(f => ({ ...f, majorName: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="如：计算机科学" /></div>
               <div className="grid grid-cols-3 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">学位</label><select value={form.degree} onChange={e => setForm(f => ({ ...f, degree: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{[ "本科", "硕士", "博士", "预科", "语言", "其他" ].map(d => <option key={d} value={d}>{d}</option>)}</select></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">入学年份</label><input type="number" value={form.intakeYear} onChange={e => setForm(f => ({ ...f, intakeYear: parseInt(e.target.value) }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">入学月份</label><select value={form.intakeMonth} onChange={e => setForm(f => ({ ...f, intakeMonth: parseInt(e.target.value) }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{Array.from({ length: 12 }, (_, i) => i + 1).map(m => <option key={m} value={m}>{m}月</option>)}</select></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">学位</label><select value={form.degree} onChange={e => setForm(f => ({ ...f, degree: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">{[ "本科", "硕士", "博士", "预科", "语言", "其他" ].map(d => <option key={d} value={d}>{d}</option>)}</select></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">入学年份</label><input type="number" value={form.intakeYear} onChange={e => setForm(f => ({ ...f, intakeYear: parseInt(e.target.value) }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">入学月份</label><select value={form.intakeMonth} onChange={e => setForm(f => ({ ...f, intakeMonth: parseInt(e.target.value) }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">{Array.from({ length: 12 }, (_, i) => i + 1).map(m => <option key={m} value={m}>{m}月</option>)}</select></div>
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">状态</label><select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">{Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">备注</label><textarea value={form.remark} onChange={e => setForm(f => ({ ...f, remark: e.target.value }))} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="可选备注信息" /></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">状态</label><select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm">{Object.entries(STATUS_MAP).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">备注</label><textarea value={form.remark} onChange={e => setForm(f => ({ ...f, remark: e.target.value }))} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" placeholder="可选备注信息" /></div>
             </div>
-            <div className="flex justify-end gap-3 mt-6"><button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleSubmit} disabled={submitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button></div>
+            <div className="flex justify-end gap-3 mt-6"><button onClick={() => setShowModal(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={handleSubmit} disabled={submitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button></div>
           </div>
         </div>
       )}
       {/* Offer 新增/编辑表单 */}
       {showOfferForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto p-6">
             <h2 className="text-lg font-semibold mb-4">{editingOffer ? "编辑 Offer" : "新增 Offer"}</h2>
             <form onSubmit={handleOfferSubmit} className="space-y-4">
               {offerError && <div className="p-3 bg-red-50 text-red-700 text-sm rounded">{offerError}</div>}
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">关联申请 *</label>
+              <div><label className="block text-sm font-medium text-slate-700 mb-1">关联申请 *</label>
                 {offerSelectedApp ? (
                   <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
                     <span className="text-sm">{offerSelectedApp.student?.name || "未知"} · {offerSelectedApp.institutionName}</span>
@@ -421,15 +421,15 @@ export default function ApplicationsPage() {
                 )}
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">类型</label><select value={offerForm.offerType} onChange={e => setOfferForm(f => ({ ...f, offerType: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm"><option value="conditional">有条件录取</option><option value="unconditional">无条件录取</option></select></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">状态</label><select value={offerForm.status} onChange={e => setOfferForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm"><option value="RECEIVED">已收到</option><option value="ACCEPTED">已接受</option><option value="DECLINED">已拒绝</option></select></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">类型</label><select value={offerForm.offerType} onChange={e => setOfferForm(f => ({ ...f, offerType: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm"><option value="conditional">有条件录取</option><option value="unconditional">无条件录取</option></select></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">状态</label><select value={offerForm.status} onChange={e => setOfferForm(f => ({ ...f, status: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm"><option value="RECEIVED">已收到</option><option value="ACCEPTED">已接受</option><option value="DECLINED">已拒绝</option></select></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">提交日期</label><input type="date" value={offerForm.submittedAt} onChange={e => setOfferForm(f => ({ ...f, submittedAt: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">截止日期</label><input type="date" value={offerForm.deadline} onChange={e => setOfferForm(f => ({ ...f, deadline: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">提交日期</label><input type="date" value={offerForm.submittedAt} onChange={e => setOfferForm(f => ({ ...f, submittedAt: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
+                <div><label className="block text-sm font-medium text-slate-700 mb-1">截止日期</label><input type="date" value={offerForm.deadline} onChange={e => setOfferForm(f => ({ ...f, deadline: e.target.value }))} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowOfferForm(false)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg">取消</button>
+                <button type="button" onClick={() => setShowOfferForm(false)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg">取消</button>
                 <button type="submit" disabled={offerSubmitting} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg disabled:opacity-50">{offerSubmitting ? "保存中..." : "保存"}</button>
               </div>
             </form>
@@ -438,7 +438,7 @@ export default function ApplicationsPage() {
       )}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm"><h3 className="text-lg font-semibold mb-2">确认删除</h3><p className="text-sm text-gray-500 mb-4">确定要删除该申请吗？如有关联Offer将无法删除。</p><div className="flex justify-end gap-3"><button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={() => handleDelete(deleteConfirm)} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">删除</button></div></div>
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm"><h3 className="text-lg font-semibold mb-2">确认删除</h3><p className="text-sm text-slate-500 mb-4">确定要删除该申请吗？如有关联Offer将无法删除。</p><div className="flex justify-end gap-3"><button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200">取消</button><button onClick={() => handleDelete(deleteConfirm)} className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">删除</button></div></div>
         </div>
       )}
     </div>

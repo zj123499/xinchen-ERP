@@ -30,7 +30,7 @@ const STYLES: Record<FormKey, { headerBg: string; headerBorder: string; headerTe
   pending:     { headerBg: "bg-gradient-to-r from-blue-500 to-blue-600", headerBorder: "border-blue-300", headerText: "text-white", badgeBg: "bg-blue-100", badgeText: "text-blue-700", emptyBg: "bg-blue-50", rowHover: "hover:bg-blue-50/50" },
   interested:  { headerBg: "bg-gradient-to-r from-indigo-500 to-indigo-600", headerBorder: "border-indigo-300", headerText: "text-white", badgeBg: "bg-indigo-100", badgeText: "text-indigo-700", emptyBg: "bg-indigo-50", rowHover: "hover:bg-indigo-50/50" },
   signed:      { headerBg: "bg-gradient-to-r from-green-500 to-emerald-600", headerBorder: "border-green-300", headerText: "text-white", badgeBg: "bg-green-100", badgeText: "text-green-700", emptyBg: "bg-green-50", rowHover: "hover:bg-green-50/50" },
-  uninterested: { headerBg: "bg-gradient-to-r from-gray-400 to-gray-500", headerBorder: "border-gray-300", headerText: "text-white", badgeBg: "bg-gray-100", badgeText: "text-gray-600", emptyBg: "bg-gray-50", rowHover: "hover:bg-gray-50/50" },
+  uninterested: { headerBg: "bg-gradient-to-r from-gray-400 to-gray-500", headerBorder: "border-slate-300", headerText: "text-white", badgeBg: "bg-gray-100", badgeText: "text-slate-600", emptyBg: "bg-slate-50", rowHover: "hover:bg-slate-50/50" },
 };
 
 export default function FollowupsInner({ form }: { form: FormKey }) {
@@ -155,7 +155,7 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
       <div className={`${st.headerBg} rounded-2xl px-6 py-6 mb-6 shadow-md`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl">{fg.icon}</div>
+            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl">{fg.icon}</div>
             <div className={st.headerText}>
               <h1 className="text-xl font-bold">{fg.title}</h1>
               <p className="text-sm opacity-80 mt-0.5">{fg.subtitle}</p>
@@ -165,15 +165,15 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
               </div>
             </div>
           </div>
-          <button onClick={() => { setKeyword(""); setPage(1); }} className="p-2 rounded-lg bg-white/20 hover:bg-white/30 text-white transition"><RefreshCw className="w-4 h-4" /></button>
+          <button onClick={() => { setKeyword(""); setPage(1); }} className="p-2 rounded-lg bg-white/20 hover:bg-white/30 text-white transition"><RefreshCw className="w-5 h-5" /></button>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-100 bg-gray-50/50">
-          <Search className="w-4 h-4 text-gray-400" />
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-100 bg-slate-50/50">
+          <Search className="w-5 h-5 text-gray-400" />
           <input type="text" placeholder="搜索姓名/手机号..." value={keyword} onChange={e => setKeyword(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { setPage(1); } }} className="flex-1 text-sm bg-transparent outline-none" />
-          {keyword && <button onClick={() => { setKeyword(""); setPage(1); }} className="text-xs text-gray-400 hover:text-gray-600">清除</button>}
+          {keyword && <button onClick={() => { setKeyword(""); setPage(1); }} className="text-xs text-slate-400 hover:text-slate-600">清除</button>}
         </div>
 
         {loading ? <div className="p-16 text-center text-gray-400">加载中...</div> :
@@ -201,9 +201,9 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
           <tbody className="divide-y divide-gray-50">
             {leads.map(lead => (
               <tr key={lead.id} className={`${st.rowHover} transition-colors`}>
-                <td className="px-5 py-3.5"><div className="font-semibold text-gray-900">{lead.name}</div>{lead.businessType && <div className="text-xs text-gray-400 mt-0.5">{biz(lead.businessType)}</div>}</td>
-                <td className="px-5 py-3.5 text-sm text-gray-600"><Phone className="w-3 h-3 inline text-gray-400 mr-1" />{lead.phone || "-"}</td>
-                <td className="px-5 py-3.5 text-sm text-gray-600">
+                <td className="px-5 py-3.5"><div className="font-semibold text-slate-900">{lead.name}</div>{lead.businessType && <div className="text-xs text-slate-400 mt-0.5">{biz(lead.businessType)}</div>}</td>
+                <td className="px-5 py-3.5 text-sm text-slate-600"><Phone className="w-3.5 h-3.5 inline text-gray-400 mr-1" />{lead.phone || "-"}</td>
+                <td className="px-5 py-3.5 text-sm text-slate-600">
                   {lead.lastFollowUpAt
                     ? new Date(lead.lastFollowUpAt).toLocaleDateString()
                     : <span className="text-gray-400">未跟进</span>}
@@ -221,7 +221,7 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
                       const intents = intentionsMap[lead.id];
                       if (!intents || intents.length === 0) return (<button onClick={() => loadIntentions(lead)} className="text-xs px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition font-medium">+ 添加志愿</button>);
                       return (<div className="space-y-1 max-w-[220px]">{intents.map((it, idx) => (
-                        <div key={it.id || idx} className="text-xs leading-tight"><span className="font-medium text-gray-800">{it.country}</span>{it.institution && <span className="text-gray-500"> · {it.institution}</span>}{it.major && <span className="text-gray-400"> · {it.major}</span>}<span className="text-[10px] text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded ml-1">{it.degree}</span></div>
+                        <div key={it.id || idx} className="text-xs leading-tight"><span className="font-medium text-slate-800">{it.country}</span>{it.institution && <span className="text-gray-500"> · {it.institution}</span>}{it.major && <span className="text-gray-400"> · {it.major}</span>}<span className="text-[10px] text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded ml-1">{it.degree}</span></div>
                       ))}<button onClick={() => loadIntentions(lead)} className="text-[10px] text-blue-500 hover:underline">编辑</button></div>);
                     })()}
                   </td>
@@ -229,7 +229,7 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
                 {activeForm === "signed" && (
                   <td className="px-5 py-3.5">{lead.documentAssignedTo ? (<span className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">✓ {lead.documentAssignedTo.realName}</span>) : (<button onClick={() => { setDocTarget(lead); setDocWriterId(""); }} className="text-xs px-2.5 py-1.5 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 transition font-medium">📨 分配文书</button>)}</td>
                 )}
-                <td className="px-5 py-3.5 text-sm text-gray-600">{lead.assignedTo.realName}</td>
+                <td className="px-5 py-3.5 text-sm text-slate-600">{lead.assignedTo.realName}</td>
                 <td className="px-5 py-3.5">
                   {activeForm === "pending" && (
                     <select onChange={e => { if (e.target.value) changeStatus(lead, e.target.value); }} value=""
@@ -257,7 +257,7 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
                   )}
                   {activeForm === "uninterested" && (
                     <select onChange={e => { if (e.target.value) changeStatus(lead, e.target.value); }} value=""
-                      className="text-xs px-2.5 py-1.5 rounded-lg border-2 border-gray-200 bg-gray-50 text-gray-600 font-medium outline-none cursor-pointer hover:border-gray-400 transition">
+                      className="text-xs px-2.5 py-1.5 rounded-lg border-2 border-slate-200 bg-slate-50 text-slate-600 font-medium outline-none cursor-pointer hover:border-gray-400 transition">
                       <option value="">无意向客户</option>
                       <option value="NEW">找回想意向</option>
                     </select>
@@ -267,27 +267,27 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
             ))}
           </tbody>
         </table>)}
-        {totalPages > 1 && <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/50"><span className="text-sm text-gray-500">共 {total} 条</span><div className="flex gap-2"><button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-2 rounded hover:bg-white disabled:opacity-30 transition"><ChevronLeft className="w-4 h-4" /></button><span className="text-sm self-center px-2">{page}/{totalPages}</span><button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="p-2 rounded hover:bg-white disabled:opacity-30 transition"><ChevronRight className="w-4 h-4" /></button></div></div>}
+        {totalPages > 1 && <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-slate-50/50"><span className="text-sm text-slate-500">共 {total} 条</span><div className="flex gap-2"><button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-2 rounded hover:bg-white disabled:opacity-30 transition"><ChevronLeft className="w-5 h-5" /></button><span className="text-sm self-center px-2">{page}/{totalPages}</span><button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="p-2 rounded hover:bg-white disabled:opacity-30 transition"><ChevronRight className="w-5 h-5" /></button></div></div>}
       </div>
 
       {/* 弹窗：文书分配 */}
-      {docTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6"><h3 className="text-lg font-semibold mb-2">分配文书 - {docTarget.name}</h3><p className="text-xs text-gray-500 mb-4">签约时已自动创建申请记录并流转到交付管理，此处仅分配文书老师</p><select value={docWriterId} onChange={e => setDocWriterId(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm mb-4 outline-none"><option value="">选择文书老师</option>{docWriters.map(d => <option key={d.id} value={d.id}>{d.realName}</option>)}</select><div className="flex gap-3"><button onClick={assignDocWriter} disabled={!docWriterId} className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50">确定分配并流转</button><button onClick={() => setDocTarget(null)} className="py-2 px-6 border rounded-lg text-sm">取消</button></div></div></div>)}
+      {docTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6"><h3 className="text-lg font-semibold mb-2">分配文书 - {docTarget.name}</h3><p className="text-xs text-gray-500 mb-4">签约时已自动创建申请记录并流转到交付管理，此处仅分配文书老师</p><select value={docWriterId} onChange={e => setDocWriterId(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm mb-4 outline-none"><option value="">选择文书老师</option>{docWriters.map(d => <option key={d.id} value={d.id}>{d.realName}</option>)}</select><div className="flex gap-3"><button onClick={assignDocWriter} disabled={!docWriterId} className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50">确定分配并流转</button><button onClick={() => setDocTarget(null)} className="py-2 px-6 border rounded-lg text-sm">取消</button></div></div></div>)}
 
       {/* 弹窗：添加跟进 */}
-      {fuTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6"><h3 className="text-lg font-semibold mb-4">添加跟进 - {fuTarget.name}</h3><select value={fuType} onChange={(e) => setFuType(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+      {fuTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6"><h3 className="text-lg font-semibold mb-4">添加跟进 - {fuTarget.name}</h3><select value={fuType} onChange={(e) => setFuType(e.target.value)} className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                   {followTypes.map((t) => <option key={t.dictKey} value={t.dictKey}>{t.dictValue}</option>)}
-                </select><textarea value={fuContent} onChange={e => setFuContent(e.target.value)} rows={4} placeholder="跟进内容..." className="w-full px-3 py-2 border rounded-lg text-sm outline-none mb-3" /><div><label className="block text-sm font-medium text-gray-700 mb-1">下次跟进时间</label><input type="datetime-local" value={fuNextDate} onChange={e => setFuNextDate(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm outline-none mb-3" /></div><div className="flex gap-3"><button onClick={submitFollowup} disabled={!fuContent || fuSaving} className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50">{fuSaving ? "保存中..." : "保存"}</button><button onClick={() => setFuTarget(null)} className="py-2 px-6 border rounded-lg text-sm">取消</button></div></div></div>)}
+                </select><textarea value={fuContent} onChange={e => setFuContent(e.target.value)} rows={4} placeholder="跟进内容..." className="w-full px-3 py-2 border rounded-lg text-sm outline-none mb-3" /><div><label className="block text-sm font-medium text-slate-700 mb-1">下次跟进时间</label><input type="datetime-local" value={fuNextDate} onChange={e => setFuNextDate(e.target.value)} className="w-full px-3 py-2 border rounded-lg text-sm outline-none mb-3" /></div><div className="flex gap-3"><button onClick={submitFollowup} disabled={!fuContent || fuSaving} className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50">{fuSaving ? "保存中..." : "保存"}</button><button onClick={() => setFuTarget(null)} className="py-2 px-6 border rounded-lg text-sm">取消</button></div></div></div>)}
 
       {/* 弹窗：跟进记录列表 */}
-      {fuListTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[70vh] overflow-y-auto p-6"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">跟进记录 - {fuListTarget.name}</h3><button onClick={() => setFuListTarget(null)} className="p-1 text-gray-400 hover:text-gray-600 rounded">✕</button></div>{fuListLoading ? <p className="text-sm text-gray-400 text-center py-8">加载中...</p> : fuList.length === 0 ? <p className="text-sm text-gray-400 text-center py-8">暂无记录</p> : <div className="space-y-3">{fuList.map(fu => { const daysAgo = Math.floor((Date.now() - new Date(fu.createdAt).getTime()) / 86400000); const overdue = daysAgo > 3; return (<div key={fu.id} className="p-3 bg-gray-50 rounded-lg"><div className="flex items-center justify-between mb-1"><span className="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded">{fu.type}</span><span className="text-xs text-gray-400">{fu.user.realName}</span></div><p className="text-sm text-gray-700 mb-2">{fu.content}</p><div className="space-y-1"><div className="flex items-center justify-between"><span className="text-xs text-gray-500">跟进时间：{new Date(fu.createdAt).toLocaleString("zh-CN")}</span>{overdue ? <span className="text-xs text-red-500 font-medium">⚠ {daysAgo} 天未跟进</span> : <span className="text-xs text-green-500">{daysAgo === 0 ? "今天" : `${daysAgo} 天前`}</span>}</div>{fu.nextFollowUpAt && <div className="text-xs text-blue-600">📅 下次跟进：{new Date(fu.nextFollowUpAt).toLocaleString("zh-CN")}</div>}</div></div>); })}</div>}</div></div>)}
+      {fuListTarget && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"><div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 max-h-[70vh] overflow-y-auto p-6"><div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold">跟进记录 - {fuListTarget.name}</h3><button onClick={() => setFuListTarget(null)} className="p-1 text-gray-400 hover:text-slate-600 rounded">✕</button></div>{fuListLoading ? <p className="text-sm text-gray-400 text-center py-8">加载中...</p> : fuList.length === 0 ? <p className="text-sm text-gray-400 text-center py-8">暂无记录</p> : <div className="space-y-3">{fuList.map(fu => { const daysAgo = Math.floor((Date.now() - new Date(fu.createdAt).getTime()) / 86400000); const overdue = daysAgo > 3; return (<div key={fu.id} className="p-3 bg-slate-50 rounded-lg"><div className="flex items-center justify-between mb-1"><span className="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded">{fu.type}</span><span className="text-xs text-slate-400">{fu.user.realName}</span></div><p className="text-sm text-slate-700 mb-2">{fu.content}</p><div className="space-y-1"><div className="flex items-center justify-between"><span className="text-xs text-gray-500">跟进时间：{new Date(fu.createdAt).toLocaleString("zh-CN")}</span>{overdue ? <span className="text-xs text-red-500 font-medium">⚠ {daysAgo} 天未跟进</span> : <span className="text-xs text-green-500">{daysAgo === 0 ? "今天" : `${daysAgo} 天前`}</span>}</div>{fu.nextFollowUpAt && <div className="text-xs text-blue-600">📅 下次跟进：{new Date(fu.nextFollowUpAt).toLocaleString("zh-CN")}</div>}</div></div>); })}</div>}</div></div>)}
 
       {/* 弹窗：申请意向管理 */}
       {intentionTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0 bg-white">
               <h3 className="text-lg font-semibold">申请意向 - {intentionTarget.name}</h3>
-              <button onClick={() => { setIntentionTarget(null); setIntentions([]); }} className="p-1 text-gray-400 hover:text-gray-600 rounded text-lg">✕</button>
+              <button onClick={() => { setIntentionTarget(null); setIntentions([]); }} className="p-1 text-gray-400 hover:text-slate-600 rounded text-lg">✕</button>
             </div>
             <div className="p-6">
               <p className="text-xs text-gray-500 mb-3">每个意向在签约时将自动创建为申请记录，可添加多条</p>
@@ -307,7 +307,7 @@ export default function FollowupsInner({ form }: { form: FormKey }) {
               ) : (
                 <div className="space-y-1">
                   {intentions.map(it => (
-                    <div key={it.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                    <div key={it.id} className="flex items-center justify-between p-2 bg-slate-50 rounded-lg">
                       <div className="text-xs">
                         <span className="font-medium">{it.country}</span>
                         {it.institution && <span className="text-gray-500 ml-1">· {it.institution}</span>}

@@ -119,7 +119,7 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
   } = config;
 
   const inputClasses =
-    "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:bg-gray-50 disabled:text-gray-500";
+    "w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition disabled:bg-slate-50 disabled:text-gray-500";
   const errorClasses = "w-full px-3 py-2 border border-red-400 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-red-50";
 
   const renderInput = () => {
@@ -228,7 +228,7 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
         const selectedValues: (string | number)[] = Array.isArray(value) ? value : [];
         return (
           <div className="space-y-1.5">
-            <div className={`flex flex-wrap gap-1.5 p-2 border rounded-lg min-h-[38px] ${error ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}>
+            <div className={`flex flex-wrap gap-1.5 p-2 border rounded-lg min-h-[38px] ${error ? 'border-red-400 bg-red-50' : 'border-slate-300'}`}>
               {selectedValues.length === 0 && (
                 <span className="text-sm text-gray-400">{placeholder || '请选择'}</span>
               )}
@@ -251,7 +251,7 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
             </div>
             <div className="grid grid-cols-2 gap-1 max-h-32 overflow-y-auto">
               {options.map((opt) => (
-                <label key={opt.value} className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
+                <label key={opt.value} className="flex items-center gap-1.5 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
                   <input
                     type="checkbox"
                     checked={selectedValues.includes(opt.value)}
@@ -263,7 +263,7 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
                       }
                     }}
                     disabled={disabled}
-                    className="w-3.5 h-3.5 text-blue-600 rounded border-gray-300"
+                    className="w-3.5 h-3.5 text-blue-600 rounded border-slate-300"
                   />
                   {opt.label}
                 </label>
@@ -276,7 +276,7 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
         return (
           <div className="flex items-center gap-4 flex-wrap pt-1">
             {options.map((opt) => (
-              <label key={opt.value} className="flex items-center gap-1.5 text-sm text-gray-700 cursor-pointer">
+              <label key={opt.value} className="flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer">
                 <input
                   type="radio"
                   name={key}
@@ -284,7 +284,7 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
                   checked={value === opt.value}
                   onChange={() => onChange(key, opt.value)}
                   disabled={disabled}
-                  className="w-4 h-4 text-blue-600"
+                  className="w-5 h-5 text-blue-600"
                 />
                 {opt.label}
               </label>
@@ -294,13 +294,13 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
 
       case "checkbox":
         return (
-          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer pt-1">
+          <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer pt-1">
             <input
               type="checkbox"
               checked={!!value}
               onChange={(e) => onChange(key, e.target.checked)}
               disabled={disabled}
-              className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              className="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
             />
             {options[0]?.label || label}
           </label>
@@ -370,7 +370,7 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
               value={(value as string) ?? "#000000"}
               onChange={(e) => onChange(key, e.target.value)}
               disabled={disabled}
-              className="w-10 h-10 rounded border border-gray-300 cursor-pointer"
+              className="w-10 h-10 rounded border border-slate-300 cursor-pointer"
             />
             <input
               type="text"
@@ -399,7 +399,7 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label className="block text-sm font-medium text-slate-700 mb-1">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
         {tooltip && (
@@ -408,13 +408,13 @@ export function FormField({ config, value, onChange, error, disabled, readOnly }
       </label>
       {renderInput()}
       {helpText && !error && (
-        <p className="text-xs text-gray-400 mt-1">{helpText}</p>
+        <p className="text-xs text-slate-400 mt-1">{helpText}</p>
       )}
       {error && (
         <p className="text-xs text-red-500 mt-1">{error}</p>
       )}
       {(maxLength && type === "textarea") && (
-        <div className="text-xs text-gray-400 mt-1 text-right">
+        <div className="text-xs text-slate-400 mt-1 text-right">
           {(value as string)?.length ?? 0}/{maxLength}
         </div>
       )}
@@ -448,15 +448,15 @@ export function FormSection({ config, formData, onChange, errors = {}, disabled,
     : "grid-cols-4";
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
       {config.title && (
         <div className="mb-5">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
             {config.icon}
             {config.title}
           </h3>
           {config.description && (
-            <p className="text-sm text-gray-500 mt-1">{config.description}</p>
+            <p className="text-sm text-slate-500 mt-1">{config.description}</p>
           )}
         </div>
       )}

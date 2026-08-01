@@ -324,20 +324,20 @@ export default function RolesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">角色权限</h1>
-          <p className="text-sm text-gray-500 mt-1">管理系统角色和人员分配</p>
+          <h1 className="text-2xl font-bold text-slate-900">角色权限</h1>
+          <p className="text-sm text-slate-500 mt-1">管理系统角色和人员分配</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />刷新
+          <button onClick={fetchData} className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50">
+            <RefreshCw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />刷新
           </button>
           <button onClick={openNewForm} className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            <Plus className="w-4 h-4" />新建角色
+            <Plus className="w-5 h-5" />新建角色
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="p-16 text-center text-gray-400">加载中...</div>
         ) : data.length === 0 ? (
@@ -347,7 +347,7 @@ export default function RolesPage() {
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
                 <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">角色名称</th>
                 <th className="text-left text-xs font-medium text-gray-500 uppercase px-4 py-3">编码</th>
@@ -360,24 +360,24 @@ export default function RolesPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {data.map((role) => (
-                <tr key={role.id} className="hover:bg-gray-50">
+                <tr key={role.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-blue-500" />
-                      <span className="font-medium text-gray-900">{role.name}</span>
+                      <Shield className="w-5 h-5 text-blue-500" />
+                      <span className="font-medium text-slate-900">{role.name}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{role.code}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{role.description || "-"}</td>
+                  <td className="px-4 py-3 text-sm text-slate-500">{role.code}</td>
+                  <td className="px-4 py-3 text-sm text-slate-500">{role.description || "-"}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center gap-1 text-sm text-gray-600">
+                    <span className="inline-flex items-center gap-1 text-sm text-slate-600">
                       <Users className="w-3.5 h-3.5" />{role._count?.userRoles || 0}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">
                     {role.isSystem ? (
-                      <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
-                        <Lock className="w-3 h-3" />系统内置
+                      <span className="inline-flex items-center gap-1 text-xs bg-gray-100 text-slate-600 px-2 py-0.5 rounded">
+                        <Lock className="w-3.5 h-3.5" />系统内置
                       </span>
                     ) : (
                       <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">自定义</span>
@@ -407,17 +407,17 @@ export default function RolesPage() {
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button onClick={() => openMembers(role)} className="text-green-600 hover:bg-green-50 p-1.5 rounded" title="管理成员">
-                        <UserPlus className="w-4 h-4" />
+                        <UserPlus className="w-5 h-5" />
                       </button>
                       <button onClick={() => openAccess(role)} className="text-purple-600 hover:bg-purple-50 p-1.5 rounded" title="权限配置（菜单 / 接口）">
-                        <SlidersHorizontal className="w-4 h-4" />
+                        <SlidersHorizontal className="w-5 h-5" />
                       </button>
                       <button onClick={() => openEditForm(role)} className="text-gray-500 hover:bg-gray-100 p-1.5 rounded" title="编辑角色">
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="w-5 h-5" />
                       </button>
                       {!role.isSystem && (
                         <button onClick={() => handleDelete(role.id)} className="text-red-500 hover:bg-red-50 p-1.5 rounded" title="删除角色">
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       )}
                     </div>
@@ -432,21 +432,21 @@ export default function RolesPage() {
       {/* 角色编辑/新建表单 */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
             <h2 className="text-lg font-bold mb-4">{editing ? "编辑角色" : "新建角色"}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               {formError && <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">{formError}</div>}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">角色名称 *</label>
-                <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
+                <label className="block text-sm font-medium text-slate-700 mb-1">角色名称 *</label>
+                <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">角色编码 *</label>
-                <input type="text" value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required disabled={!!editing} placeholder="如：admin, consultant" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">角色编码 *</label>
+                <input type="text" value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required disabled={!!editing} placeholder="如：admin, consultant" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">描述</label>
-                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">描述</label>
+                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
               <div className="flex items-center gap-3 py-2">
                 <input
@@ -454,14 +454,14 @@ export default function RolesPage() {
                   id="isAssignable"
                   checked={formData.isAssignable}
                   onChange={(e) => setFormData({ ...formData, isAssignable: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
                 />
-                <label htmlFor="isAssignable" className="text-sm text-gray-700">
+                <label htmlFor="isAssignable" className="text-sm text-slate-700">
                   可被分配为顾问（勾选后该角色成员出现在线索/学生等页面的顾问下拉列表中）
                 </label>
               </div>
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">取消</button>
+                <button type="button" onClick={() => setShowForm(false)} className="flex-1 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50">取消</button>
                 <button type="submit" disabled={submitting} className="flex-1 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{submitting ? "保存中..." : "保存"}</button>
               </div>
             </form>
@@ -472,13 +472,13 @@ export default function RolesPage() {
       {/* 成员管理弹窗 */}
       {showMembers && memberRole && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-bold text-gray-900">{memberRole.name} - 成员管理</h2>
+                <h2 className="text-lg font-bold text-slate-900">{memberRole.name} - 成员管理</h2>
               </div>
-              <button onClick={() => setShowMembers(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded">✕</button>
+              <button onClick={() => setShowMembers(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded">✕</button>
             </div>
             <div className="p-6">
               {/* 添加用户 */}
@@ -486,7 +486,7 @@ export default function RolesPage() {
                 <select
                   value={addUserId}
                   onChange={(e) => setAddUserId(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 >
                   <option value="">选择要添加的用户...</option>
                   {availableUsers.map((u) => (
@@ -513,7 +513,7 @@ export default function RolesPage() {
               ) : (
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gray-50 text-left">
+                    <tr className="bg-slate-50 text-left">
                       <th className="px-4 py-2 text-xs font-medium text-gray-500">用户</th>
                       <th className="px-4 py-2 text-xs font-medium text-gray-500">联系方式</th>
                       <th className="px-4 py-2 text-xs font-medium text-gray-500">状态</th>
@@ -522,12 +522,12 @@ export default function RolesPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {roleUsers.map((u) => (
-                      <tr key={u.id} className="hover:bg-gray-50">
+                      <tr key={u.id} className="hover:bg-slate-50">
                         <td className="px-4 py-2">
-                          <div className="text-sm font-medium text-gray-900">{u.realName || u.username}</div>
-                          <div className="text-xs text-gray-400">{u.username}</div>
+                          <div className="text-sm font-medium text-slate-900">{u.realName || u.username}</div>
+                          <div className="text-xs text-slate-400">{u.username}</div>
                         </td>
-                        <td className="px-4 py-2 text-sm text-gray-600">{u.phone || "-"}</td>
+                        <td className="px-4 py-2 text-sm text-slate-600">{u.phone || "-"}</td>
                         <td className="px-4 py-2">
                           <span className={`text-xs px-2 py-0.5 rounded ${u.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
                             {u.isActive ? "启用" : "停用"}
@@ -539,7 +539,7 @@ export default function RolesPage() {
                             className="text-red-500 hover:bg-red-50 p-1.5 rounded"
                             title="从角色移除"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="w-5 h-5" />
                           </button>
                         </td>
                       </tr>
@@ -555,13 +555,13 @@ export default function RolesPage() {
       {/* 权限配置弹窗（菜单 + 接口） */}
       {showAccess && accessRole && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[88vh] flex flex-col">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[88vh] flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-5 h-5 text-purple-600" />
-                <h2 className="text-lg font-bold text-gray-900">{accessRole.name} - 权限配置</h2>
+                <h2 className="text-lg font-bold text-slate-900">{accessRole.name} - 权限配置</h2>
               </div>
-              <button onClick={() => setShowAccess(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded">✕</button>
+              <button onClick={() => setShowAccess(false)} className="p-1 text-gray-400 hover:text-slate-600 rounded">✕</button>
             </div>
 
             {accessLoading ? (
@@ -571,7 +571,7 @@ export default function RolesPage() {
                 {/* 菜单权限（导航可见性） */}
                 <section>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-gray-800">菜单权限（左侧导航可见性）</h3>
+                    <h3 className="text-sm font-semibold text-slate-800">菜单权限（左侧导航可见性）</h3>
                     <div className="flex gap-2 text-xs">
                       {!sortMode && <>
                         <button onClick={() => setMenuGroup(allMenus.map((m) => m.id), true)} className="px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100">全选</button>
@@ -585,7 +585,7 @@ export default function RolesPage() {
                       </>}
                     </div>
                   </div>
-                  <div className="border border-gray-200 rounded-lg divide-y divide-gray-100">
+                  <div className="border border-slate-200 rounded-lg divide-y divide-gray-100">
                     {topMenus.map((tm) => {
                       const childIds = childrenOf(tm.id).map((m) => m.id);
                       const isLeaf = childIds.length === 0;
@@ -593,30 +593,30 @@ export default function RolesPage() {
                         ? checkedMenus.has(tm.id)
                         : childIds.every((id) => checkedMenus.has(id));
                       return (
-                        <div key={tm.id} className={`px-4 py-3 ${sortMode ? "bg-gray-50" : ""}`}>
+                        <div key={tm.id} className={`px-4 py-3 ${sortMode ? "bg-slate-50" : ""}`}>
                           <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 font-medium text-gray-800 cursor-pointer">
+                            <label className="flex items-center gap-2 font-medium text-slate-800 cursor-pointer">
                               {sortMode && (
                                 <span className="flex gap-1 mr-1">
-                                  <button onClick={(e) => { e.preventDefault(); moveMenu(tm.id, -1); }} className="w-5 h-5 flex items-center justify-center rounded bg-white border border-gray-300 hover:bg-gray-100 text-xs" title="上移">↑</button>
-                                  <button onClick={(e) => { e.preventDefault(); moveMenu(tm.id, 1); }} className="w-5 h-5 flex items-center justify-center rounded bg-white border border-gray-300 hover:bg-gray-100 text-xs" title="下移">↓</button>
+                                  <button onClick={(e) => { e.preventDefault(); moveMenu(tm.id, -1); }} className="w-5 h-5 flex items-center justify-center rounded bg-white border border-slate-300 hover:bg-gray-100 text-xs" title="上移">↑</button>
+                                  <button onClick={(e) => { e.preventDefault(); moveMenu(tm.id, 1); }} className="w-5 h-5 flex items-center justify-center rounded bg-white border border-slate-300 hover:bg-gray-100 text-xs" title="下移">↓</button>
                                 </span>
                               )}
                               {!sortMode && (
-                                <input type="checkbox" className="w-4 h-4 accent-indigo-600" checked={allChecked} onChange={() => (isLeaf ? toggleMenu(tm.id) : setMenuGroup(childIds, !allChecked))} />
+                                <input type="checkbox" className="w-5 h-5 accent-indigo-600" checked={allChecked} onChange={() => (isLeaf ? toggleMenu(tm.id) : setMenuGroup(childIds, !allChecked))} />
                               )}
                               {tm.name}
-                              {!isLeaf && <span className="text-xs text-gray-400">（{childIds.length} 项）</span>}
+                              {!isLeaf && <span className="text-xs text-slate-400">（{childIds.length} 项）</span>}
                             </label>
                           </div>
                           {childIds.length > 0 && (
                             <div className="mt-2 ml-6 grid grid-cols-2 gap-x-4 gap-y-1">
                               {childrenOf(tm.id).map((cm) => (
-                                <label key={cm.id} className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                                <label key={cm.id} className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                                   {sortMode ? (
                                     <span className="flex gap-1">
-                                      <button onClick={(e) => { e.preventDefault(); moveMenu(cm.id, -1); }} className="w-4 h-4 flex items-center justify-center rounded bg-white border border-gray-300 hover:bg-gray-100 text-xs">↑</button>
-                                      <button onClick={(e) => { e.preventDefault(); moveMenu(cm.id, 1); }} className="w-4 h-4 flex items-center justify-center rounded bg-white border border-gray-300 hover:bg-gray-100 text-xs">↓</button>
+                                      <button onClick={(e) => { e.preventDefault(); moveMenu(cm.id, -1); }} className="w-5 h-5 flex items-center justify-center rounded bg-white border border-slate-300 hover:bg-gray-100 text-xs">↑</button>
+                                      <button onClick={(e) => { e.preventDefault(); moveMenu(cm.id, 1); }} className="w-5 h-5 flex items-center justify-center rounded bg-white border border-slate-300 hover:bg-gray-100 text-xs">↓</button>
                                     </span>
                                   ) : (
                                     <input type="checkbox" className="w-3.5 h-3.5 accent-indigo-600" checked={checkedMenus.has(cm.id)} onChange={() => toggleMenu(cm.id)} />
@@ -635,7 +635,7 @@ export default function RolesPage() {
                 {/* 操作权限（按菜单层级） */}
                 <section>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold text-gray-800">操作权限（按菜单层级管理）</h3>
+                    <h3 className="text-sm font-semibold text-slate-800">操作权限（按菜单层级管理）</h3>
                     <div className="flex gap-2 text-xs">
                       <button onClick={() => setPermGroup(allPerms.map((p: any) => p.id), true)} className="px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100">全选</button>
                       <button onClick={() => setPermGroup(allPerms.map((p: any) => p.id), false)} className="px-2 py-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200">清空</button>
@@ -646,22 +646,22 @@ export default function RolesPage() {
                       // 只显示有权限的一级菜单
                       if (l1.perms.length === 0 && l1.children.every(ch => ch.perms.length === 0)) return null;
                       return (
-                        <div key={l1.menu.code} className="border border-gray-300 rounded-lg overflow-hidden">
+                        <div key={l1.menu.code} className="border border-slate-300 rounded-lg overflow-hidden">
                           {/* 一级菜单标题 */}
-                          <div className="bg-gray-100 px-4 py-2 font-semibold text-sm text-gray-800 flex items-center justify-between">
+                          <div className="bg-gray-100 px-4 py-2 font-semibold text-sm text-slate-800 flex items-center justify-between">
                             <span className="flex items-center gap-2">
                               {l1.menu.children ? <span className="text-gray-400">▼</span> : null}
                               {l1.menu.name}
                             </span>
                             {l1.perms.length > 0 && (
-                              <span className="text-xs text-gray-400">{l1.perms.length} 个权限</span>
+                              <span className="text-xs text-slate-400">{l1.perms.length} 个权限</span>
                             )}
                           </div>
                           {/* 一级菜单自身的权限 */}
                           {l1.perms.length > 0 && (
                             <div className="px-4 py-2 flex flex-wrap gap-2 bg-white">
                               {l1.perms.map((p: any) => (
-                                <label key={p.id} className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded">
+                                <label key={p.id} className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded">
                                   <input
                                     type="checkbox"
                                     className="w-3.5 h-3.5 accent-indigo-600"
@@ -677,11 +677,11 @@ export default function RolesPage() {
                           {l1.children.map(l2 => {
                             if (l2.perms.length === 0) return null;
                             return (
-                              <div key={l2.menu.code} className="border-t border-gray-200 px-4 py-2 pl-8 bg-white">
-                                <div className="text-sm text-gray-700 font-medium mb-1">{l2.menu.name}</div>
+                              <div key={l2.menu.code} className="border-t border-slate-200 px-4 py-2 pl-8 bg-white">
+                                <div className="text-sm text-slate-700 font-medium mb-1">{l2.menu.name}</div>
                                 <div className="flex flex-wrap gap-2">
                                   {l2.perms.map((p: any) => (
-                                    <label key={p.id} className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded">
+                                    <label key={p.id} className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded">
                                       <input
                                         type="checkbox"
                                         className="w-3.5 h-3.5 accent-indigo-600"
@@ -701,14 +701,14 @@ export default function RolesPage() {
                               const l3Perms = allPerms.filter((p: any) => (MENU_PERMISSION_MAP[l3m.code] || []).includes(p.code));
                               if (l3Perms.length === 0) return null;
                               return (
-                                <div key={l3m.code} className="border-t border-gray-100 px-4 py-2 pl-12 bg-gray-50">
-                                  <div className="text-xs text-gray-600 font-medium mb-1">{l3m.name}</div>
+                                <div key={l3m.code} className="border-t border-gray-100 px-4 py-2 pl-12 bg-slate-50">
+                                  <div className="text-xs text-slate-600 font-medium mb-1">{l3m.name}</div>
                                   <div className="flex flex-wrap gap-2">
                                     {l3Perms.map((p: any) => (
                                       <label key={p.id} className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer hover:bg-white px-2 py-1 rounded">
                                         <input
                                           type="checkbox"
-                                          className="w-3 h-3 accent-indigo-600"
+                                          className="w-3.5 h-3.5 accent-indigo-600"
                                           checked={checkedPerms.has(p.id)}
                                           onChange={() => togglePerm(p.id)}
                                         />
@@ -728,8 +728,8 @@ export default function RolesPage() {
               </div>
             )}
 
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-              <button onClick={() => setShowAccess(false)} className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</button>
+            <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+              <button onClick={() => setShowAccess(false)} className="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-50">取消</button>
               <button
                 onClick={saveAccess}
                 disabled={savingAccess || accessLoading}

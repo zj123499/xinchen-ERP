@@ -33,7 +33,7 @@ const MODEL_MAP: Record<string, string> = {
 
 const CHANNEL_COLORS: Record<string, string> = {
   SEARCH: "bg-blue-500", SOCIAL: "bg-pink-500", REFERRAL: "bg-green-500",
-  PARTNER: "bg-purple-500", SITE: "bg-cyan-500", OFFLINE: "bg-orange-500", OTHER: "bg-gray-500",
+  PARTNER: "bg-purple-500", SITE: "bg-cyan-500", OFFLINE: "bg-orange-500", OTHER: "bg-slate-500",
 };
 
 export default function ChannelRoiPage() {
@@ -59,12 +59,12 @@ export default function ChannelRoiPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">渠道 ROI 看板</h1>
-          <p className="text-sm text-gray-500 mt-1">各渠道：花费 → 触达 → 签约 → 签约额 → ROI</p>
+          <h1 className="text-2xl font-bold text-slate-900">渠道 ROI 看板</h1>
+          <p className="text-sm text-slate-500 mt-1">各渠道：花费 → 触达 → 签约 → 签约额 → ROI</p>
         </div>
         <select value={model}
           onChange={(e) => setModel(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
           {Object.entries(MODEL_MAP).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
       </div>
@@ -73,21 +73,21 @@ export default function ChannelRoiPage() {
 
       {/* 概览卡片 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><Users className="w-4 h-4" /> 总触达学生</div>
-          <div className="text-2xl font-bold text-gray-900">{summary?.totalReach ?? 0}</div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><Users className="w-5 h-5" /> 总触达学生</div>
+          <div className="text-2xl font-bold text-slate-900">{summary?.totalReach ?? 0}</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><FileSignature className="w-4 h-4" /> 签约学生</div>
-          <div className="text-2xl font-bold text-gray-900">{summary?.totalSign ?? 0}</div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><FileSignature className="w-5 h-5" /> 签约学生</div>
+          <div className="text-2xl font-bold text-slate-900">{summary?.totalSign ?? 0}</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><DollarSign className="w-4 h-4" /> 归因签约额</div>
-          <div className="text-2xl font-bold text-gray-900">¥{((summary?.totalSignAmount) || 0).toLocaleString()}</div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><DollarSign className="w-5 h-5" /> 归因签约额</div>
+          <div className="text-2xl font-bold text-slate-900">¥{((summary?.totalSignAmount) || 0).toLocaleString()}</div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><BarChart3 className="w-4 h-4" /> 营销总花费</div>
-          <div className="text-2xl font-bold text-gray-900">¥{((summary?.totalCost) || 0).toLocaleString()}</div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+          <div className="flex items-center gap-2 text-gray-500 text-sm mb-2"><BarChart3 className="w-5 h-5" /> 营销总花费</div>
+          <div className="text-2xl font-bold text-slate-900">¥{((summary?.totalCost) || 0).toLocaleString()}</div>
         </div>
       </div>
 
@@ -96,10 +96,10 @@ export default function ChannelRoiPage() {
           <RefreshCw className="w-5 h-5 animate-spin mr-2" /> 加载中...
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 text-left">
+              <tr className="bg-slate-50 text-left">
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">渠道</th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">触点</th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase">触达学生</th>
@@ -111,21 +111,21 @@ export default function ChannelRoiPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {(data?.rows || []).map((r) => (
-                <tr key={r.channel} className="hover:bg-gray-50 transition">
+                <tr key={r.channel} className="hover:bg-slate-50 transition">
                   <td className="px-4 py-3">
-                    <span className="flex items-center gap-2 text-sm font-medium text-gray-900">
-                      <span className={`w-2.5 h-2.5 rounded-full ${CHANNEL_COLORS[r.channel] || "bg-gray-500"}`} />
+                    <span className="flex items-center gap-2 text-sm font-medium text-slate-900">
+                      <span className={`w-2.5 h-2.5 rounded-full ${CHANNEL_COLORS[r.channel] || "bg-slate-500"}`} />
                       {r.channelLabel}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{r.touchCount}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{r.reachStudents}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{r.signStudents}</td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">¥{r.signAmount.toLocaleString()}</td>
+                  <td className="px-4 py-3 text-sm text-slate-700">{r.touchCount}</td>
+                  <td className="px-4 py-3 text-sm text-slate-700">{r.reachStudents}</td>
+                  <td className="px-4 py-3 text-sm text-slate-700">{r.signStudents}</td>
+                  <td className="px-4 py-3 text-sm font-medium text-slate-900">¥{r.signAmount.toLocaleString()}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div className={`h-full ${CHANNEL_COLORS[r.channel] || "bg-gray-500"}`}
+                        <div className={`h-full ${CHANNEL_COLORS[r.channel] || "bg-slate-500"}`}
                           style={{ width: `${Math.round((r.signAmount / maxAmount) * 100)}%` }} />
                       </div>
                       <span className="text-xs text-gray-500">{Math.round((r.signAmount / maxAmount) * 100)}%</span>
@@ -133,10 +133,10 @@ export default function ChannelRoiPage() {
                   </td>
                   <td className="px-4 py-3">
                     {r.roi === null ? (
-                      <span className="text-xs text-gray-400">—</span>
+                      <span className="text-xs text-slate-400">—</span>
                     ) : (
                       <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${r.roi >= 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                        <TrendingUp className="w-3 h-3" /> {r.roi >= 0 ? "+" : ""}{(r.roi * 100).toFixed(0)}%
+                        <TrendingUp className="w-3.5 h-3.5" /> {r.roi >= 0 ? "+" : ""}{(r.roi * 100).toFixed(0)}%
                       </span>
                     )}
                   </td>
