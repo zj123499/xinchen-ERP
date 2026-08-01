@@ -11,6 +11,7 @@ const PUBLIC_PATHS = [
   "/login",
   "/_next",
   "/favicon.ico",
+  "/logo.svg",
 ];
 
 function getBaseUrl(request: NextRequest): string {
