@@ -21,28 +21,23 @@ export default function LoginPage() {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ username, password, redirect: "/" }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       });
       if (!res.ok) {
-        const ct = res.headers.get("content-type") || "";
-        if (ct.includes("json")) {
-          const d = await res.json();
-          setError(d.error || "登录失败");
-        } else {
-          setError("用户名或密码错误");
-        }
+        const d = await res.json().catch(() => ({ error: "登录失败" }));
+        setError(d.error || "用户名或密码错误");
         return;
       }
-      // 表单 POST 返回 302 重定向，浏览器直接跟随
-      const html = await res.text();
-      if (html.includes("mustChangePassword")) {
+      const data = await res.json();
+      if (data.user?.mustChangePassword) {
         setOldPassword(password);
         setNeedChangePwd(true);
         return;
       }
-      // 如果走到这里，说明已经是 JSON 模式
-      // 表单模式不会走到这里，浏览器已自动重定向
+      // JSON 模式：js 写 cookie + 跳转
+      document.cookie = "token=" + data.token + "; path=/";
+      window.location.href = "/";
     } catch {
       setError("网络错误，请重试");
     } finally { setLoading(false); }
