@@ -211,6 +211,8 @@ async function main() {
     { code: "applications:create", name: "创建申请", groupName: "交付" },
     { code: "applications:update", name: "编辑申请", groupName: "交付" },
     { code: "applications:view", name: "查看申请", groupName: "交付" },
+    { code: "visas:view", name: "查看签证", groupName: "交付" },
+    { code: "visas:update", name: "编辑签证", groupName: "交付" },
     // 回访
     { code: "visits:create", name: "创建回访", groupName: "回访" },
     { code: "visits:view", name: "查看回访", groupName: "回访" },
@@ -280,6 +282,8 @@ async function main() {
     // 合作方
     { code: "partners:view", name: "查看合作方", groupName: "合作方" },
     { code: "partners:manage", name: "管理合作方", groupName: "合作方" },
+    { code: "partner_schools:view", name: "查看合作院校", groupName: "合作方" },
+    { code: "partner_schools:manage", name: "管理合作院校", groupName: "合作方" },
     // 回访计划
     { code: "visit_plans:view", name: "查看回访计划", groupName: "回访" },
     { code: "visit_plans:create", name: "创建回访计划", groupName: "回访" },

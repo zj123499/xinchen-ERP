@@ -184,10 +184,10 @@ export const MENU_PERMISSION_MAP: Record<string, string[]> = {
   dashboard: ["dashboard:leads", "dashboard:contracts", "dashboard:finance", "dashboard:students", "dashboard:applications", "dashboard:visits"],
   // 线索录入（完整CRUD）
   leads:              ["leads:view", "leads:create", "leads:update", "leads:delete", "leads:export", "leads:assign"],
-  // 客户管理子菜单（只读筛选视图，独立于线索录入的编辑权限）
+  // 客户管理子菜单（只读筛选视图）
   followup_pending:   ["leads:view"],
   followup_interested:["leads:view"],
-  followup_signed:    ["leads:view", "contracts:view"],
+  followup_signed:    ["leads:view"],
   followup_uninterested: ["leads:view"],
   // 线索管理
   leadflow:           ["leadflow:view"],
@@ -204,9 +204,9 @@ export const MENU_PERMISSION_MAP: Record<string, string[]> = {
   // 文书部
   students:           ["students:view", "students:create", "students:update", "students:delete"],
   applications:       ["applications:view", "applications:create", "applications:update"],
-  visas:              ["applications:view", "applications:update"],
+  visas:              ["visas:view", "visas:update"],
   // 合作方
-  partner_schools:    ["partners:view", "partners:manage"],
+  partner_schools:    ["partner_schools:view", "partner_schools:manage"],
   partners:           ["partners:view", "partners:manage"],
   // 财务部
   payments:           ["payments:view", "payments:create", "payments:export"],
