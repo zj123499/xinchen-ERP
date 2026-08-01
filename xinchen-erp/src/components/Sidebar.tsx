@@ -156,9 +156,8 @@ export default function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-[240px] bg-gray-900 flex flex-col z-30">
-      <div className="h-14 flex items-center px-4 border-b border-gray-800">
-        <img src="/logo.svg" alt="Newill" className="h-9 w-auto mr-2" />
-        <span className="text-white font-bold text-base">Newill</span>
+      <div className="h-14 flex items-center px-5 border-b border-gray-800">
+        <span className="text-white font-bold text-base">新辰未来</span>
       </div>
       {department && department !== "管理" && (
         <div className="px-4 py-2 bg-gray-800 border-b border-gray-700">
