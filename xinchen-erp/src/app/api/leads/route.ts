@@ -115,28 +115,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const targetUserId = assignedToId ? parseInt(assignedToId) : userId;
-
-  // 自动建档
-  let studentId: number | undefined;
-  if (createStudent && targetUserId) {
-    const student = await prisma.student.create({
-      data: {
-        tenantId, name, phone: phone || null, wechat: wechat || null,
-        targetCountry: targetCountry || null, targetDegree: targetDegree || null,
-        budget: budget ? parseFloat(budget) : null, remark: remark || null,
-        source: source || null, assignedToId: targetUserId, currentStatus: "LEAD",
-      },
-    });
-    studentId = student.id;
-    await prisma.followUp.create({
-      data: {
-        studentId: student.id, userId: targetUserId, type: "system",
-        content: `线索「${name}」新建，已自动为学生建档并分配至顾问跟进列表。来源：${source}`,
-        leadId: null,
-      },
-    }).catch(() => {});
-  }
+  const targetUserId = assignedToId ? parseInt(assignedToId) : null;
 
   const lead = await prisma.lead.create({
     data: {
@@ -151,7 +130,7 @@ export async function POST(request: NextRequest) {
       targetCountry: targetCountry || null, targetDegree: targetDegree || null,
       budget: budget ? parseFloat(budget) : null,
       remark: remark || null, extData: extData || null,
-      assignedToId: targetUserId, studentId,
+      assignedToId: targetUserId,
     },
     include: {
       assignedTo: { select: { id: true, realName: true, username: true } },
@@ -161,7 +140,7 @@ export async function POST(request: NextRequest) {
   });
 
   // 通知被分配人
-  if (targetUserId !== userId) {
+  if (targetUserId && targetUserId !== userId) {
     await prisma.notification.create({
       data: {
         userId: targetUserId, title: `新线索分配：${name}`,

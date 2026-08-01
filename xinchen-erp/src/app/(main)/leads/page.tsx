@@ -108,7 +108,6 @@ export default function LeadsPage() {
     budget: "",
     remark: "",
     assignedToId: "",
-    createStudent: true,
     status: "NEW",
   });
   const [formError, setFormError] = useState("");
@@ -203,7 +202,7 @@ export default function LeadsPage() {
       sourceDetail: "", businessType: "", partnerId: "", siteId: "",
       mediaAccountId: "", intendedMajor: "",
       targetCountry: "", targetDegree: "", budget: "", remark: "",
-      assignedToId: "", createStudent: true, status: "NEW",
+      assignedToId: "", status: "NEW",
     });
     setFormError("");
     setShowForm(true);
@@ -222,7 +221,6 @@ export default function LeadsPage() {
       budget: lead.budget || "",
       remark: lead.remark || "",
       assignedToId: "",
-      createStudent: false,
     });
     setFormError("");
     setShowForm(true);
@@ -250,7 +248,6 @@ export default function LeadsPage() {
         budget: formData.budget ? parseFloat(formData.budget) : undefined,
         remark: formData.remark || undefined,
         assignedToId: formData.assignedToId ? parseInt(formData.assignedToId) : undefined,
-        createStudent: formData.createStudent,
         status: formData.status || "NEW",
       };
 
@@ -730,17 +727,6 @@ export default function LeadsPage() {
                       </option>
                     ))}
                   </select>
-                </div>
-                <div className="flex items-end">
-                  <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.createStudent}
-                      onChange={(e) => setFormData((d) => ({ ...d, createStudent: e.target.checked }))}
-                      className="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
-                    />
-                    自动在学生中建档并加入顾问跟进列表
-                  </label>
                 </div>
               </div>
 
