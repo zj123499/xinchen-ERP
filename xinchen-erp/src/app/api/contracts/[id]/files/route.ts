@@ -5,6 +5,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getStorage } from "@/lib/storage";
 
 function getContext(request: NextRequest) {
   return {
@@ -56,6 +57,8 @@ export async function DELETE(
   });
   if (!file) return NextResponse.json({ error: "文件不存在" }, { status: 404 });
 
+  const storage = getStorage();
+  await storage.remove(file.storagePath);
   await prisma.file.delete({ where: { id: file.id } });
 
   // 如果删除后没有其他附件，清空 attachmentUrl
