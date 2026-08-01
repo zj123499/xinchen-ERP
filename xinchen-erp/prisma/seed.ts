@@ -197,6 +197,13 @@ async function main() {
     // 系统
     { code: "settings:manage", name: "系统设置", groupName: "系统" },
     { code: "reports:view", name: "查看报表", groupName: "报表" },
+    // 工作台模块权限（管理员控制各角色可见的数据模块）
+    { code: "dashboard:leads", name: "线索概览", groupName: "工作台模块" },
+    { code: "dashboard:contracts", name: "合同概览", groupName: "工作台模块" },
+    { code: "dashboard:finance", name: "财务概览", groupName: "工作台模块" },
+    { code: "dashboard:students", name: "学生概览", groupName: "工作台模块" },
+    { code: "dashboard:applications", name: "申请概览", groupName: "工作台模块" },
+    { code: "dashboard:visits", name: "回访概览", groupName: "工作台模块" },
     // 站群管理
     { code: "sites:view", name: "查看站点", groupName: "站群" },
     { code: "sites:create", name: "创建站点", groupName: "站群" },
