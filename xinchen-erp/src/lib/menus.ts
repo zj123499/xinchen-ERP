@@ -170,6 +170,7 @@ export const DEPARTMENT_MENUS: Record<string, MenuNode[]> = {
     { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
     { name: "新媒体账号", code: "media", path: "/media-accounts", icon: "media" },
     { name: "触点管理", code: "touchpoints", path: "/touchpoints", icon: "touchpoints" },
+    { name: "线索管理", code: "leads", path: "/leads", icon: "leads" },
   ],
   "市场部": [
     { name: "工作台", code: "dashboard", path: "/", icon: "dashboard" },
@@ -190,6 +191,7 @@ export const DEPARTMENT_MENUS: Record<string, MenuNode[]> = {
       { name: "公司模板", code: "company_templates", path: "/company-templates", icon: "template" },
       { name: "服务器", code: "servers", path: "/servers", icon: "server" },
     ]},
+    { name: "线索管理", code: "leads", path: "/leads", icon: "leads" },
     { name: "归因结果", code: "attributions", path: "/attributions", icon: "attributions" },
     { name: "渠道ROI", code: "channel_roi", path: "/channel-roi", icon: "channelRoi" },
   ],
