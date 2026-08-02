@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
       closedCount,
       items,
     });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "获取进度数据失败" }, { status: 500 });
   }
 }

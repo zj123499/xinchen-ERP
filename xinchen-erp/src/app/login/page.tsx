@@ -35,7 +35,7 @@ export default function LoginPage() {
         setNeedChangePwd(true);
         return;
       }
-      document.cookie = "token=" + data.token + "; path=/";
+      // 服务端已通过 Set-Cookie 设置 httpOnly cookie，无需前端 JS 设置
       window.location.href = "/";
     } catch {
       setError("网络错误，请重试");
@@ -55,7 +55,7 @@ export default function LoginPage() {
       });
       if (!res.ok) { const d = await res.json(); setChgError(d.error || "修改失败"); return; }
       const data = await res.json();
-      document.cookie = "token=" + data.token + "; path=/";
+      // 服务端已通过 Set-Cookie 设置 httpOnly cookie，无需前端 JS 设置
       setTimeout(() => { window.location.href = "/"; }, 50);
     } catch { setChgError("网络错误"); }
     finally { setChgLoading(false); }

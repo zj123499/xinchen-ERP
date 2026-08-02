@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(
   request: NextRequest,
@@ -15,11 +10,16 @@ export async function GET(
 ) {
   const denied = await requirePermission(request, "leads:view");
   if (denied) return denied;
-  const { tenantId } = getContext(request);
+  const { tenantId, userId, roles } = getServerContext(request);
   const { id } = await params;
 
+  const isAdmin = roles.includes("admin");
+  const where: Record<string, unknown> = { id: parseInt(id), tenantId };
+  // 非管理员只能查看分配给自己的线索
+  if (!isAdmin) where.assignedToId = userId;
+
   const lead = await prisma.lead.findFirst({
-    where: { id: parseInt(id), tenantId },
+    where,
     include: {
       assignedTo: { select: { id: true, realName: true, username: true } },
       student: { select: { id: true, name: true, phone: true, wechat: true } },
@@ -43,7 +43,7 @@ export async function PUT(
 ) {
   const denied = await requirePermission(request, "leads:update");
   if (denied) return denied;
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
 
@@ -112,7 +112,7 @@ export async function PUT(
                 status: "PREPARING",
               },
             });
-            console.log("[签约] 创建申请:", app.id, it.institution);
+            // 创建申请已处理
           } catch (e: any) {
             console.error("[签约] 创建申请失败:", e?.message);
           }
@@ -127,7 +127,7 @@ export async function PUT(
               status: "PREPARING",
             },
           });
-          console.log("[签约] 创建默认申请:", app.id);
+          // 创建默认申请已处理
         } catch (e: any) {
           console.error("[签约] 创建默认申请失败:", e?.message);
         }
@@ -193,7 +193,7 @@ export async function DELETE(
 ) {
   const denied = await requirePermission(request, "leads:delete");
   if (denied) return denied;
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
 
   const existing = await prisma.lead.findFirst({

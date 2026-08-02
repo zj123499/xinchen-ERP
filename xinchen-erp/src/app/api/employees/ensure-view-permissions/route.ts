@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { isAdmin } from "@/lib/permission";
 
 // 跟进表单权限（拥有 leads:view 的角色即可看到）
@@ -29,16 +30,9 @@ const ROLE_VIEW_MAP: Record<string, string[]> = {
   finance: ["payments:view", "contracts:view", "contracts:delete", "reports:view", "dashboard:finance", "dashboard:contracts"],
 };
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-    roles: (request.headers.get("x-user-roles") || "").split(",").filter(Boolean),
-  };
-}
 
 export async function GET(request: NextRequest) {
-  const { tenantId, roles } = getContext(request);
+  const { tenantId, roles } = getServerContext(request);
   if (!isAdmin(roles)) return NextResponse.json({ error: "only admin" }, { status: 403 });
 
   const allRoles = await prisma.role.findMany({ where: { tenantId }, orderBy: { id: "asc" } });
@@ -71,7 +65,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId, roles } = getContext(request);
+  const { tenantId, roles } = getServerContext(request);
   if (!isAdmin(roles)) return NextResponse.json({ error: "only admin" }, { status: 403 });
 
   const perms = await prisma.permission.findMany({

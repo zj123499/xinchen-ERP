@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 const PARTNER_TYPE_MAP: Record<string, string> = {
   SCHOOL: "院校",
@@ -22,7 +17,7 @@ export async function GET(request: NextRequest) {
     const _denied = await requirePermission(request, "partners:view");
   if (_denied) return _denied;
 
-const { tenantId } = getContext(request);
+const { tenantId } = getServerContext(request);
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
   const type = searchParams.get("type") || "";
@@ -67,7 +62,7 @@ export async function POST(request: NextRequest) {
     const _denied = await requirePermission(request, "partners:manage");
   if (_denied) return _denied;
 
-const { tenantId } = getContext(request);
+const { tenantId } = getServerContext(request);
   const body = await request.json();
   const {
     name, type, country, contactName, contactPhone,

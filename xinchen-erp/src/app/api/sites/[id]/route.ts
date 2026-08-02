@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
+import { encrypt } from "@/lib/crypto";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(
   request: NextRequest,
@@ -16,7 +12,7 @@ export async function GET(
   const _denied = await requirePermission(request, "sites:view");
   if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
 
   const site = await prisma.site.findFirst({
@@ -38,7 +34,7 @@ export async function PUT(
   const _denied = await requirePermission(request, "sites:update");
   if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
   const { name, domain, status, icpCompany, legalRepresentative, domainExpiresAt,
@@ -59,7 +55,7 @@ export async function PUT(
   if (domainExpiresAt !== undefined) updateData.domainExpiresAt = domainExpiresAt ? new Date(domainExpiresAt) : null;
   if (baiduAnalyticsAccount !== undefined) updateData.baiduAnalyticsAccount = baiduAnalyticsAccount || null;
   if (cloudAccount !== undefined) updateData.cloudAccount = cloudAccount || null;
-  if (cloudAccountPassword !== undefined) updateData.cloudAccountPassword = cloudAccountPassword || null;
+  if (cloudAccountPassword !== undefined) updateData.cloudAccountPassword = cloudAccountPassword ? encrypt(cloudAccountPassword) : null;
   if (cloudLoginPhone !== undefined) updateData.cloudLoginPhone = cloudLoginPhone || null;
   if (baiduSearchResourceAccount !== undefined) updateData.baiduSearchResourceAccount = baiduSearchResourceAccount || null;
   if (resolvedServerId !== undefined) updateData.resolvedServerId = resolvedServerId ? parseInt(resolvedServerId) : null;
@@ -80,7 +76,7 @@ export async function DELETE(
   const _denied = await requirePermission(request, "sites:delete");
   if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
 
   const existing = await prisma.site.findFirst({

@@ -2,15 +2,28 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   async headers() {
     return [
       {
-        // 所有 HTML 页面不缓存，确保浏览器每次获取最新版本
+        // 安全响应头（所有页面）
         source: "/:path*",
         headers: [
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
           {
             key: "Cache-Control",
             value: "no-cache, no-store, must-revalidate",
@@ -18,7 +31,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // 静态资源可以长期缓存（带 hash，内容变化时 hash 会变）
+        // 静态资源可以长期缓存
         source: "/_next/static/:path*",
         headers: [
           {

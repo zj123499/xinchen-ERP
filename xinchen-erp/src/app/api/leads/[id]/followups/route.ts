@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { userId, tenantId } = getContext(request);
+  const _denied = await requirePermission(request, "leads:update");
+  if (_denied) return _denied;
+
+  const { userId, tenantId } = getServerContext(request);
   const { id } = await params;
   const leadId = parseInt(id);
 

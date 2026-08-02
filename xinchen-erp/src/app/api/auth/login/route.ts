@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/auth";
 import { signToken } from "@/lib/jwt";
 import { recordLogin } from "@/lib/operation-log";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // 从请求中获取正确的 base URL（避免 0.0.0.0 问题）
 function getBaseUrl(request: NextRequest): string {
@@ -24,6 +25,11 @@ export async function POST(request: NextRequest) {
     let password = "";
     let redirectTo = "/";
     let isFormSubmit = false;
+    // 白名单：只允许相对路径，防止开放重定向攻击
+    const isValidRedirect = (path: string): boolean => {
+      if (path === "/") return true;
+      return path.startsWith("/") && !path.startsWith("//") && !path.includes(":");
+    };
     const baseUrl = getBaseUrl(request);
 
     if (contentType.includes("application/json")) {
@@ -37,11 +43,19 @@ export async function POST(request: NextRequest) {
       username = (formData.get("username") as string) || "";
       password = (formData.get("password") as string) || "";
       redirectTo = (formData.get("redirect") as string) || "/";
+      if (!isValidRedirect(redirectTo)) redirectTo = "/";
     }
 
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
     const ua = request.headers.get("user-agent") || null;
     const FALLBACK_TENANT = 1;
+
+    // 速率限制：同一IP+用户名 每分钟最多5次尝试
+    const rateKey = `login:${ip}:${username}`;
+    const rate = checkRateLimit(rateKey, 5, 60_000);
+    if (rate.limited) {
+      return NextResponse.json({ error: "登录尝试过于频繁，请1分钟后再试" }, { status: 429 });
+    }
 
     const user = await prisma.user.findFirst({
       where: { OR: [{ username }, { phone: username }] },
@@ -71,8 +85,8 @@ export async function POST(request: NextRequest) {
     if (isFormSubmit) {
       const response = NextResponse.redirect(new URL(redirectTo, baseUrl));
       response.cookies.set("token", token, {
-        httpOnly: false,
-        secure: false,
+        httpOnly: true,
+        secure: (request.headers.get("x-forwarded-proto") || "") === "https",
         sameSite: "lax",
         maxAge: 60 * 60 * 8,
         path: "/",
@@ -86,15 +100,15 @@ export async function POST(request: NextRequest) {
       user: { id: user.id, username: user.username, realName: user.realName, email: user.email, avatar: user.avatar, mustChangePassword: user.mustChangePassword, roles },
     });
     response.cookies.set("token", token, {
-      httpOnly: false,
-      secure: false,
+      httpOnly: true,
+      secure: (request.headers.get("x-forwarded-proto") || "") === "https",
       sameSite: "lax",
       maxAge: 60 * 60 * 8,
       path: "/",
     });
     return response;
-  } catch (error) {
-    console.error("Login error:", error);
+  } catch {
+    // 不泄露 error 详情，避免信息泄露
     return NextResponse.json({ error: "登录失败" }, { status: 500 });
   }
 }

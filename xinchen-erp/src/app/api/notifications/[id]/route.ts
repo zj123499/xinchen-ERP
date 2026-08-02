@@ -6,19 +6,15 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-  };
-}
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const { userId } = getContext(request);
+  const { userId } = getServerContext(request);
   const body = await request.json().catch(() => ({}));
 
   const notification = await prisma.notification.updateMany({
@@ -41,7 +37,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const { userId } = getContext(request);
+  const { userId } = getServerContext(request);
 
   const result = await prisma.notification.deleteMany({
     where: { id: parseInt(id), userId },

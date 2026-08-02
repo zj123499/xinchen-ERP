@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { hash } from "bcryptjs";
 import "dotenv/config";
+import { randomBytes } from "crypto";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -423,8 +424,9 @@ async function main() {
 
   console.log("✅ 角色-权限关联");
 
-  // 7. 创建管理员用户
-  const passwordHash = await hash("admin123", 12);
+  // 7. 创建管理员用户（随机初始密码，首次部署后强制修改）
+  const adminInitialPassword = "Xc@" + randomBytes(4).toString("hex");
+  const passwordHash = await hash(adminInitialPassword, 12);
   const adminUser = await prisma.user.upsert({
     where: { username: "admin" },
     update: {},
@@ -435,6 +437,7 @@ async function main() {
       realName: "系统管理员",
       email: "admin@xinchen.com",
       isDefaultPassword: false,
+      mustChangePassword: true,
       isActive: true,
     },
   });
@@ -445,7 +448,7 @@ async function main() {
     create: { userId: adminUser.id, roleId: adminRole.id },
   });
 
-  console.log("✅ 管理员用户: admin / admin123");
+  console.log(`✅ 管理员用户已创建，初始密码: ${adminInitialPassword}`);
 
   // 8. 创建示例用户
   const demoUsers = [
@@ -542,8 +545,7 @@ async function main() {
   console.log("✅ 系统配置: 4 项");
 
   console.log("\n🎉 种子数据播种完成！");
-  console.log("   登录账号: admin / admin123");
-  console.log("   其他账号: sales01 / sales02 / delivery01 / finance01");
+  console.log("   请修改默认管理员密码后使用");
 }
 
 main()

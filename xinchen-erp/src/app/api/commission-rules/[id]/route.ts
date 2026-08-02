@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const id = parseInt((await params).id);
   const rule = await prisma.commissionRule.findFirst({
     where: { id, tenantId },
@@ -30,7 +25,7 @@ export async function PUT(
     const _denied = await requirePermission(request, "settings:manage");
     if (_denied) return _denied;
 
-  const { userId, tenantId } = getContext(request);
+  const { userId, tenantId } = getServerContext(request);
   const id = parseInt((await params).id);
   const body = await request.json().catch(() => ({}) as any);
   const existing = await prisma.commissionRule.findFirst({ where: { id, tenantId } });
@@ -86,7 +81,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const id = parseInt((await params).id);
   const existing = await prisma.commissionRule.findFirst({ where: { id, tenantId } });
   if (!existing) return NextResponse.json({ error: "规则不存在" }, { status: 404 });

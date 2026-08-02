@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { recordOperation } from "@/lib/operation-log";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return { tenantId: parseInt(request.headers.get("x-tenant-id") || "0") };
-}
 
 export async function GET(
   request: NextRequest,
@@ -14,7 +12,7 @@ export async function GET(
   try {
     const denied = await requirePermission(request, "students:view");
     if (denied) return denied;
-    const { tenantId } = getContext(request);
+    const { tenantId } = getServerContext(request);
     const { id } = await params;
 
     const student = await prisma.student.findFirst({
@@ -58,9 +56,8 @@ export async function GET(
 
     if (!student) return NextResponse.json({ error: "学生不存在" }, { status: 404 });
     return NextResponse.json(student);
-  } catch (error: any) {
-    console.error("GET /api/students/[id] error:", error);
-    return NextResponse.json({ error: error.message || "服务器错误" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "服务器错误，请稍后重试" }, { status: 500 });
   }
 }
 
@@ -71,7 +68,7 @@ export async function PUT(
   try {
     const denied = await requirePermission(request, "students:update");
     if (denied) return denied;
-    const { tenantId } = getContext(request);
+    const { tenantId } = getServerContext(request);
     const { id } = await params;
     const body = await request.json();
 
@@ -109,9 +106,8 @@ export async function PUT(
     });
 
     return NextResponse.json(student);
-  } catch (error: any) {
-    console.error("PUT /api/students/[id] error:", error);
-    return NextResponse.json({ error: error.message || "服务器错误" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "更新失败，请稍后重试" }, { status: 500 });
   }
 }
 
@@ -122,7 +118,7 @@ export async function DELETE(
   try {
     const denied = await requirePermission(request, "students:delete");
     if (denied) return denied;
-    const { tenantId } = getContext(request);
+    const { tenantId } = getServerContext(request);
     const { id } = await params;
 
     const existing = await prisma.student.findFirst({ where: { id: parseInt(id), tenantId } });
@@ -152,8 +148,7 @@ export async function DELETE(
       target: `学生:${existing.name}(id=${id})`,
     });
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error("DELETE /api/students/[id] error:", error);
-    return NextResponse.json({ error: error.message || "服务器错误" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "删除失败，请稍后重试" }, { status: 500 });
   }
 }

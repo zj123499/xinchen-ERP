@@ -1,21 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 import { getAccessScope } from "@/lib/menus";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-    roles: (request.headers.get("x-user-roles") || "").split(",").filter(Boolean),
-  };
-}
 
 export async function GET(request: NextRequest) {
     const _denied = await requirePermission(request, "media:view");
   if (_denied) return _denied;
 
-const { tenantId, userId, roles } = getContext(request);
+const { tenantId, userId, roles } = getServerContext(request);
   const access = getAccessScope(roles, userId);
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
@@ -62,7 +56,7 @@ export async function POST(request: NextRequest) {
     const _denied = await requirePermission(request, "media:create");
   if (_denied) return _denied;
 
-const { tenantId, userId } = getContext(request);
+const { tenantId, userId } = getServerContext(request);
   const body = await request.json();
   const { platform, accountName, accountId, followers } = body;
 

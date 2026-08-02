@@ -225,7 +225,9 @@ export async function syncDingtalkOrganization(): Promise<{
         stats.users.updated++;
       } else {
         const bcryptjs = await import("bcryptjs");
-        const passwordHash = await bcryptjs.hash(`dingtalk_${ddUser.userid}`, 12);
+        const crypto = await import("crypto");
+        const randomSuffix = crypto.randomBytes(8).toString("hex");
+        const passwordHash = await bcryptjs.hash(`dingtalk_${randomSuffix}`, 12);
 
         localUser = await prisma.user.create({
           data: {

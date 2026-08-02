@@ -30,6 +30,39 @@ const ENV_BASE_URL = process.env.AI_GATEWAY_BASE_URL || "https://api.openai.com/
 const ENV_API_KEY = process.env.AI_GATEWAY_API_KEY || "";
 const ENV_MODEL = process.env.AI_GATEWAY_MODEL || "gpt-4o-mini";
 
+// SSRF 防护：URL 白名单
+const ALLOWED_AI_HOSTS = [
+  "api.openai.com",
+  "api.deepseek.com",
+  "api.moonshot.cn",
+  "dashscope.aliyuncs.com",
+  "api.baichuan-ai.com",
+  "api.zhipuai.cn",
+  "api.minimax.chat",
+  "api.anthropic.com",
+  "generativelanguage.googleapis.com",
+];
+
+function validateAiUrl(baseUrl: string): void {
+  try {
+    const parsed = new URL(baseUrl);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      throw new Error("不支持的协议");
+    }
+    if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("生产环境不允许 localhost 作为 AI 网关");
+      }
+      return;
+    }
+    if (!ALLOWED_AI_HOSTS.some((h) => parsed.hostname === h || parsed.hostname.endsWith("." + h))) {
+      throw new Error("不在允许的AI服务商列表中");
+    }
+  } catch (e) {
+    throw new Error(`AI Gateway 地址校验失败`);
+  }
+}
+
 // 配置缓存（避免每次请求都查库）；60 秒刷新一次
 let cfgCache: { baseUrl: string; apiKey: string; model: string; ts: number } | null = null;
 const CFG_TTL = 60 * 1000;
@@ -70,6 +103,9 @@ export async function callAi(messages: AiMessage[]): Promise<AiResponse> {
   if (!apiKey) {
     return { content: "", model: "rule-fallback", fallback: true };
   }
+
+  // SSRF 防护：校验 baseUrl 合法性
+  validateAiUrl(baseUrl);
 
   try {
     const res = await fetch(`${baseUrl}/chat/completions`, {

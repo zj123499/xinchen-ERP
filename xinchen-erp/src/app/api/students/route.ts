@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { Prisma } from "@prisma/client";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(request: NextRequest) {
   try {
     const denied = await requirePermission(request, "students:view");
     if (denied) return denied;
-    const { tenantId } = getContext(request);
+    const { tenantId } = getServerContext(request);
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get("page") || "1");
     const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
@@ -45,9 +41,8 @@ export async function GET(request: NextRequest) {
     ]);
 
     return NextResponse.json({ total, page, pageSize, totalPages: Math.ceil(total / pageSize), list });
-  } catch (error: any) {
-    console.error("GET /api/students error:", error);
-    return NextResponse.json({ error: error.message || "服务器错误" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "服务器错误，请稍后重试" }, { status: 500 });
   }
 }
 
@@ -55,7 +50,7 @@ export async function POST(request: NextRequest) {
   try {
     const denied = await requirePermission(request, "students:create");
     if (denied) return denied;
-    const { tenantId } = getContext(request);
+    const { tenantId } = getServerContext(request);
     const body = await request.json();
 
     if (!body.name || !String(body.name).trim()) {
@@ -93,8 +88,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(student, { status: 201 });
-  } catch (error: any) {
-    console.error("POST /api/students error:", error);
-    return NextResponse.json({ error: error.message || "服务器错误" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "创建失败，请稍后重试" }, { status: 500 });
   }
 }

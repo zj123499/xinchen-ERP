@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 function generatePaymentNo() {
   const now = new Date();
@@ -34,7 +29,7 @@ const PAYMENT_METHOD_MAP: Record<string, string> = {
 export async function GET(request: NextRequest) {
   const denied = await requirePermission(request, "payments:view");
   if (denied) return denied;
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
   const paymentType = searchParams.get("paymentType") || "";
@@ -83,7 +78,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const denied = await requirePermission(request, "payments:create");
   if (denied) return denied;
-  const { userId, tenantId } = getContext(request);
+  const { userId, tenantId } = getServerContext(request);
   const body = await request.json();
   const {
     studentId,

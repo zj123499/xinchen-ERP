@@ -6,16 +6,18 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+
+const _denied = await requirePermission(request, "applications:view");
+
+if (_denied) return _denied;
+
+
+  const { tenantId } = getServerContext(request);
   const { searchParams } = new URL(request.url);
   const applicationId = searchParams.get("applicationId");
   const assignedToId = searchParams.get("assignedToId");
@@ -50,7 +52,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+
+const _denied = await requirePermission(request, "applications:update");
+
+if (_denied) return _denied;
+
+
+  const { tenantId } = getServerContext(request);
   const body = await request.json();
   const { applicationId, taskType, assignedToId, content, dueDate } = body;
 

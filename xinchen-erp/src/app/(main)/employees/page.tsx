@@ -186,7 +186,7 @@ export default function EmployeesPage() {
   }
 
   async function handleResetPassword(emp: EmployeeItem) {
-    if (!window.confirm(`确定将 ${emp.name} 的登录密码重置为 Xc@123456 吗？\n重置后该员工下次登录需重新修改密码。`)) return;
+    if (!window.confirm(`确定重置 ${emp.name} 的登录密码吗？\n重置后系统将自动生成新密码，该员工下次登录需重新修改密码。`)) return;
     try {
       const res = await fetch(`/api/employees/${emp.id}`, {
         method: "PUT",
@@ -517,7 +517,7 @@ export default function EmployeesPage() {
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="留空则自动用手机号作为登录账号" />
                 </div>
                 <div className="flex items-end">
-                  <p className="text-xs text-slate-400 leading-relaxed">创建后初始密码为 <span className="font-mono text-slate-600">Xc@123456</span>，员工首次登录需修改</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">创建后系统将自动生成随机密码，员工首次登录需修改</p>
                 </div>
               </div>
 
@@ -532,7 +532,7 @@ export default function EmployeesPage() {
                     <input type={showPwd ? "text" : "password"} value={formData.password}
                       onChange={(e) => setFormData((d) => ({ ...d, password: e.target.value }))}
                       className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                      placeholder="留空则使用默认 Xc@123456" />
+                      placeholder="留空则自动生成随机密码" />
                   </div>
                   <div>
                     <input type={showPwd ? "text" : "password"} value={formData.confirmPassword}
@@ -545,7 +545,7 @@ export default function EmployeesPage() {
                   <p className="text-xs text-slate-400 leading-relaxed">
                     {formData.password
                       ? "将以你填写的自定义密码创建，请牢记并转告员工"
-                      : "留空则使用默认密码 Xc@123456，员工首次登录需修改"}
+                      : "留空则自动生成随机密码，员工首次登录需修改"}
                   </p>
                   <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                     <input type="checkbox" checked={formData.mustChangePassword} onChange={(e) => setFormData((d) => ({ ...d, mustChangePassword: e.target.checked }))} className="w-5 h-5" />

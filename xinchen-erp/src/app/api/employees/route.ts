@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 import { hashPassword } from "@/lib/auth";
 import { resolveAccountUsername } from "@/lib/employee-account";
+import { randomBytes } from "crypto";
 
-const DEFAULT_PASSWORD = "Xc@123456";
-
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
+function generateDefaultPassword(): string {
+  return "Xc@" + randomBytes(6).toString("hex");
 }
+
 
 function generateEmployeeNo() {
   const now = new Date();
@@ -20,7 +18,10 @@ function generateEmployeeNo() {
 }
 
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+  const _denied = await requirePermission(request, "employees:view");
+  if (_denied) return _denied;
+
+  const { tenantId } = getServerContext(request);
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
   const status = searchParams.get("status") || "";
@@ -56,8 +57,6 @@ export async function GET(request: NextRequest) {
             id: true,
             realName: true,
             username: true,
-            isDefaultPassword: true,
-            mustChangePassword: true,
             userRoles: {
               include: {
                 role: { select: { id: true, name: true, code: true } },
@@ -89,7 +88,7 @@ export async function POST(request: NextRequest) {
     const _denied = await requirePermission(request, "settings:manage");
   if (_denied) return _denied;
 
-const { tenantId } = getContext(request);
+const { tenantId } = getServerContext(request);
   const body = await request.json();
   const {
     name, userId, positionId, gender, phone, email,
@@ -125,7 +124,7 @@ const { tenantId } = getContext(request);
   });
 
   // 员工有手机号（或显式账号）且尚未关联登录账号时，自动建立系统账号
-  // 登录账号默认使用手机号（若显式填写登录用户名则以其为准），初始密码默认 Xc@123456，强制改密
+  // 登录账号默认使用手机号（若显式填写登录用户名则以其为准），初始密码随机生成，强制改密
   let effectiveUserId = employee.userId;
   if (!employee.userId) {
     const effectiveUsername = await resolveAccountUsername(username, phone);
@@ -135,7 +134,7 @@ const { tenantId } = getContext(request);
         data: {
           tenantId,
           username: effectiveUsername,
-          passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
+          passwordHash: await hashPassword(password || generateDefaultPassword()),
           realName: name,
           phone: phone || null,
           mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
@@ -164,16 +163,14 @@ const { tenantId } = getContext(request);
   const result = await prisma.employee.findFirst({
     where: { id: employee.id },
     include: {
-      user: {
-        select: {
-          id: true,
-          realName: true,
-          username: true,
-          isDefaultPassword: true,
-          mustChangePassword: true,
-          userRoles: { include: { role: { select: { id: true, name: true, code: true } } } },
+        user: {
+          select: {
+            id: true,
+            realName: true,
+            username: true,
+            userRoles: { include: { role: { select: { id: true, name: true, code: true } } } },
+          },
         },
-      },
       position: { select: { id: true, name: true } },
     },
   });

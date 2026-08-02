@@ -6,21 +6,16 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 import { Prisma } from "@prisma/client";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(request: NextRequest) {
     const _denied = await requirePermission(request, "risk:manage");
   if (_denied) return _denied;
 
-const { tenantId } = getContext(request);
+const { tenantId } = getServerContext(request);
   const url = new URL(request.url);
   const enabled = url.searchParams.get("enabled");
 
@@ -38,7 +33,7 @@ const { tenantId } = getContext(request);
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const body = await request.json();
   const { name, description, conditionExpr, riskLevel, notifyRoles } = body;
 

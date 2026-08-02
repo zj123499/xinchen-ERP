@@ -16,7 +16,7 @@ window.addEventListener('error', function(e) {
   var div = document.createElement('div');
   div.id = '__app_error_display';
   div.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#fef2f2;border-bottom:2px solid #dc2626;padding:12px 20px;font-family:monospace;font-size:13px;color:#991b1b;max-height:300px;overflow:auto;';
-  div.innerHTML = '<b>JS错误:</b> ' + msg + '<br><b>文件:</b> ' + file + ':' + line + '<br><pre style="margin-top:8px;white-space:pre-wrap;">' + stack + '</pre>';
+  div.textContent = 'JS错误: ' + msg + ' | 文件: ' + file + ':' + line + ' | ' + stack;
   document.body.appendChild(div);
 });
 window.addEventListener('unhandledrejection', function(e) {
@@ -25,7 +25,7 @@ window.addEventListener('unhandledrejection', function(e) {
   console.error('[APP REJECTION]', reason, stack);
   var div = document.createElement('div');
   div.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#fef2f2;border-bottom:2px solid #dc2626;padding:12px 20px;font-family:monospace;font-size:13px;color:#991b1b;max-height:300px;overflow:auto;';
-  div.innerHTML = '<b>Promise错误:</b> ' + reason + '<br><pre style="margin-top:8px;white-space:pre-wrap;">' + stack + '</pre>';
+  div.textContent = 'Promise错误: ' + reason + ' | ' + stack;
   document.body.appendChild(div);
 });
 `;

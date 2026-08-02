@@ -6,22 +6,15 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { Prisma } from "@prisma/client";
 import { requirePermission, isAdmin } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  const roles = (request.headers.get("x-user-roles") || "").split(",").filter(Boolean);
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-    roles,
-  };
-}
 
 export async function GET(request: NextRequest) {
   const denied = await requirePermission(request, "leads:view");
   if (denied) return denied;
-  const { tenantId, userId, roles } = getContext(request);
+  const { tenantId, userId, roles } = getServerContext(request);
   const url = new URL(request.url);
 
   const page = parseInt(url.searchParams.get("page") || "1");
@@ -82,7 +75,7 @@ export async function POST(request: NextRequest) {
   try {
   const denied = await requirePermission(request, "leads:create");
   if (denied) return denied;
-  const { tenantId, userId } = getContext(request);
+  const { tenantId, userId } = getServerContext(request);
   const body = await request.json();
   const {
     name, phone, wechat, source, sourceDetail, businessType,
@@ -90,8 +83,6 @@ export async function POST(request: NextRequest) {
     targetCountry, targetDegree, budget, remark, extData,
     assignedToId, createStudent, status,
   } = body;
-  console.log("[LEADS POST] status=", status, typeof status, "body keys=", Object.keys(body));
-
   if (!name || !source) {
     return NextResponse.json({ error: "姓名和线索来源为必填项" }, { status: 400 });
   }
@@ -151,8 +142,7 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json(lead, { status: 201 });
-  } catch (e: any) {
-    console.error("[LEADS POST] error:", e?.message);
-    return NextResponse.json({ error: e?.message || "服务器异常" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "创建失败，请稍后重试" }, { status: 500 });
   }
 }

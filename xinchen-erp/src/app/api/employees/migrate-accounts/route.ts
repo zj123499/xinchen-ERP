@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { resolveAccountUsername } from "@/lib/employee-account";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 /**
  * POST /api/employees/migrate-accounts
@@ -18,7 +13,7 @@ function getContext(request: NextRequest) {
  * - 仅管理员可调用
  */
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
 
   const employees = await prisma.employee.findMany({
     where: {
@@ -119,7 +114,7 @@ export async function POST(request: NextRequest) {
  * 预览：列出哪些员工的 username 需要同步（不执行修改）
  */
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
 
   const employees = await prisma.employee.findMany({
     where: {

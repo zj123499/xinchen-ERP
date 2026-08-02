@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { getStorage } from "@/lib/storage";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return bytes + " B";
@@ -16,7 +11,7 @@ function formatSize(bytes: number): string {
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   if (!tenantId) return NextResponse.json({ error: "未授权" }, { status: 401 });
   const { id } = await params;
   const partnerId = parseInt(id);
@@ -40,7 +35,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   if (!tenantId) return NextResponse.json({ error: "未授权" }, { status: 401 });
   const { id } = await params;
   const { searchParams } = new URL(request.url);

@@ -6,12 +6,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 
-function getContext(request: NextRequest) {
-  return {
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 async function authorize(roleId: number, tenantId: number) {
   const role = await prisma.role.findUnique({ where: { id: roleId } });
@@ -23,7 +19,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const roleId = parseInt(id);
 
@@ -45,7 +41,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const roleId = parseInt(id);
 

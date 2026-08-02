@@ -6,14 +6,10 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 import { getStorage } from "@/lib/storage";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 const ALLOWED_TYPES = [
   "application/pdf", "image/jpeg", "image/png", "image/gif", "image/webp",
@@ -24,7 +20,10 @@ const ALLOWED_TYPES = [
 const MAX_SIZE = 30 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
-  const { tenantId, userId } = getContext(request);
+  const _denied = await requirePermission(request, "students:update");
+  if (_denied) return _denied;
+
+  const { tenantId, userId } = getServerContext(request);
   if (!tenantId || !userId) return NextResponse.json({ error: "未授权" }, { status: 401 });
 
   try {
@@ -66,8 +65,7 @@ export async function POST(request: NextRequest) {
       mimeType: record.mimeType, category, createdAt: record.createdAt,
       storageBackend: storage.getType(), message: "上传成功",
     }, { status: 201 });
-  } catch (e: any) {
-    console.error("学生材料上传失败:", e);
-    return NextResponse.json({ error: "上传失败: " + (e.message || "未知") }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "上传失败，请稍后重试" }, { status: 500 });
   }
 }

@@ -7,21 +7,19 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 import { syncDingtalkOrganization } from "@/lib/dingtalk/sync";
 import { getAppKey, getAppSecret, clearTokenCache } from "@/lib/dingtalk/auth";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "1"),
-    roles: (request.headers.get("x-user-roles") || "").split(","),
-  };
-}
 
 /**
  * GET: 获取配置状态（AppKey 和 AppSecret 都脱敏）
  */
 export async function GET(request: NextRequest) {
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
   const appKey = await getAppKey();
   const appSecret = await getAppSecret();
 
@@ -45,7 +43,7 @@ export async function GET(request: NextRequest) {
  * PUT: 保存 AppKey / AppSecret
  */
 export async function PUT(request: NextRequest) {
-  const { tenantId, roles } = getContext(request);
+  const { tenantId, roles } = getServerContext(request);
   if (!roles.includes("admin")) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
@@ -113,10 +111,10 @@ export async function POST(request: NextRequest) {
       stats: result,
     });
   } catch (error) {
-    console.error("[DingTalk] 同步失败:", error);
+    console.error("[DingTalk] 同步失败");
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : "同步失败",
+      error: "同步失败，请稍后重试",
     }, { status: 500 });
   }
 }

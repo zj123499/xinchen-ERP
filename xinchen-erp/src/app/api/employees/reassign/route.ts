@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 // 查询某离职员工名下待重新分配的业务数据数量
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
+  const { tenantId } = getServerContext(request);
   const { searchParams } = new URL(request.url);
   const fromUserId = parseInt(searchParams.get("fromUserId") || "0");
   if (!fromUserId) return NextResponse.json({ error: "缺少 fromUserId" }, { status: 400 });
@@ -32,7 +31,7 @@ export async function GET(request: NextRequest) {
 
 // 将离职员工（fromUserId）名下的业务数据重新分配给目标员工（toUserId）
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { fromUserId, toUserId } = await request.json();
   const f = parseInt(fromUserId);
   const t = parseInt(toUserId);

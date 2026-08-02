@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 // GET /api/config-versions  配置版本快照列表
 // 支持过滤：configType（COMMISSION_RULE/WORKFLOW/FORM_SCHEMA/SYSTEM_CONFIG）、configKey、activeOnly
@@ -15,7 +10,7 @@ export async function GET(request: NextRequest) {
     const _denied = await requirePermission(request, "settings:manage");
   if (_denied) return _denied;
 
-const { tenantId } = getContext(request);
+const { tenantId } = getServerContext(request);
   const { searchParams } = new URL(request.url);
   const configType = searchParams.get("configType") || "";
   const configKey = searchParams.get("configKey") || "";

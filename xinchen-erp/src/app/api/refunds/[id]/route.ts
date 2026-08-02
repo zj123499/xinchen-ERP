@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 /**
  * 退费扣回：审批通过时，对该学生已释放的提成按退费比例生成负向提成记录。
@@ -39,8 +35,11 @@ async function clawbackCommissions(tenantId: number, studentId: number, refundRa
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { tenantId } = getContext(request);
+export async function GET(request: NextRequest, {
+ const _denied = await requirePermission(request, "settings:manage");
+ if (_denied) return _denied;
+ params }: { params: Promise<{ id: string }> }) {
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const refund = await prisma.refund.findFirst({
     where: { id: parseInt(id), tenantId },
@@ -53,8 +52,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   return NextResponse.json(refund);
 }
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { userId, tenantId } = getContext(request);
+export async function PUT(request: NextRequest, {
+ const _denied = await requirePermission(request, "settings:manage");
+ if (_denied) return _denied;
+ params }: { params: Promise<{ id: string }> }) {
+  const { userId, tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
   const { status, refundedAt, remark } = body;
@@ -94,8 +96,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   return NextResponse.json(refund);
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { tenantId } = getContext(request);
+export async function DELETE(request: NextRequest, {
+ const _denied = await requirePermission(request, "settings:manage");
+ if (_denied) return _denied;
+ params }: { params: Promise<{ id: string }> }) {
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const existing = await prisma.refund.findFirst({ where: { id: parseInt(id), tenantId } });
   if (!existing) return NextResponse.json({ error: "未找到" }, { status: 404 });

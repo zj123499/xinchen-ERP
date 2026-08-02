@@ -53,7 +53,8 @@ class LocalStorage implements StorageBackend {
   async save(params: UploadParams): Promise<UploadResult> {
     const timestamp = Date.now();
     const safeName = params.originalName.replace(/[^a-zA-Z0-9._\-\u4e00-\u9fff]/g, "_");
-    const catDir = params.category || "other";
+    // 清理 category 防止路径遍历：只保留中文、字母、数字、下划线、连字符
+    const catDir = (params.category || "other").replace(/[^a-zA-Z0-9\u4e00-\u9fff_-]/g, "_").replace(/\.{2,}/g, "");
     const bizFolder = params.businessName
       ? `${params.businessId}_${params.businessName.replace(/[\/\\:*?"<>|]/g, "_")}`
       : params.businessId;
@@ -96,7 +97,8 @@ class NextcloudStorage implements StorageBackend {
 
     const timestamp = Date.now();
     const safeName = params.originalName.replace(/[^a-zA-Z0-9._\-\u4e00-\u9fff]/g, "_");
-    const catDir = params.category || "other";
+    // 清理 category 防止路径遍历
+    const catDir = (params.category || "other").replace(/[^a-zA-Z0-9\u4e00-\u9fff_-]/g, "_").replace(/\.{2,}/g, "");
     const bizFolder = params.businessName
       ? `${params.businessId}_${params.businessName.replace(/[\/\\:*?"<>|]/g, "_")}`
       : params.businessId;

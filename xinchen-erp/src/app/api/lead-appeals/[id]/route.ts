@@ -7,14 +7,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function PUT(
   request: NextRequest,
@@ -23,7 +18,7 @@ export async function PUT(
     const _denied = await requirePermission(request, "lead_appeals:update");
     if (_denied) return _denied;
 
-  const { userId, tenantId } = getContext(request);
+  const { userId, tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
   const status = body.status;

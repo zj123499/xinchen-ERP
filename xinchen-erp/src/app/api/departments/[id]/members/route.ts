@@ -6,21 +6,15 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { isAdmin } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-    roles: (request.headers.get("x-user-roles") || "").split(",").filter(Boolean),
-  };
-}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   if (!tenantId) return NextResponse.json({ error: "未授权" }, { status: 401 });
   const { id } = await params;
   const deptId = parseInt(id);
@@ -52,7 +46,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId, roles } = getContext(request);
+  const { tenantId, roles } = getServerContext(request);
   if (!tenantId) return NextResponse.json({ error: "未授权" }, { status: 401 });
   if (!isAdmin(roles)) return NextResponse.json({ error: "仅管理员可操作" }, { status: 403 });
 
@@ -79,7 +73,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId, roles } = getContext(request);
+  const { tenantId, roles } = getServerContext(request);
   if (!tenantId) return NextResponse.json({ error: "未授权" }, { status: 401 });
   if (!isAdmin(roles)) return NextResponse.json({ error: "仅管理员可操作" }, { status: 403 });
 

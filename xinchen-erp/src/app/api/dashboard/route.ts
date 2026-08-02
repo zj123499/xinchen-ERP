@@ -280,10 +280,9 @@ export async function GET(request: NextRequest) {
       recentLeads: recentLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone, status: l.status, assignee: l.assignedTo?.realName, createdAt: l.createdAt })),
       recentPayments: recentPayments.map((p) => ({ id: p.id, paymentNo: p.paymentNo, amount: Number(p.amount), studentName: p.student?.name, paidAt: p.paidAt, paymentType: p.paymentType })),
     });
-  } catch (error) {
-    console.error("工作台统计查询失败:", error);
+  } catch {
     return NextResponse.json(
-      { error: "获取统计数据失败", detail: String(error) },
+      { error: "获取统计数据失败" },
       { status: 500 }
     );
   }

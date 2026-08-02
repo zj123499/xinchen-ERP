@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 import { AttributionModel } from "@prisma/client";
 
-function getContext(request: NextRequest) {
-  return { tenantId: parseInt(request.headers.get("x-tenant-id") || "0") };
-}
 
 const VALID_MODELS: AttributionModel[] = ["FIRST_TOUCH", "LAST_TOUCH", "LINEAR", "TIME_DECAY"];
 
 // POST /api/attribution/run  按模型重跑获客归因
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+
+const _denied = await requirePermission(request, "leads:update");
+
+if (_denied) return _denied;
+
+
+  const { tenantId } = getServerContext(request);
   const body = await request.json().catch(() => ({}) as any);
   let model: AttributionModel = "LAST_TOUCH";
   if (body?.model && VALID_MODELS.includes(body.model)) model = body.model;

@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(
   request: NextRequest,
@@ -16,7 +11,7 @@ export async function GET(
     const _denied = await requirePermission(request, "overseas:view");
     if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
 
   const service = await prisma.overseasService.findFirst({
@@ -38,7 +33,7 @@ export async function PUT(
     const _denied = await requirePermission(request, "overseas:manage");
     if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
   const { studentId, serviceType, status, detail, startDate, endDate } = body;
@@ -72,7 +67,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
 
   const existing = await prisma.overseasService.findFirst({

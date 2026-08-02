@@ -3,7 +3,6 @@ import { verifyToken } from "@/lib/jwt";
 
 const PUBLIC_PATHS = [
   "/api/auth/login",
-  "/api/auth/register",
   "/api/auth/logout",
   "/api/auth/set-cookie",
   "/api/dingtalk/callback",
@@ -90,9 +89,10 @@ export async function proxy(request: NextRequest) {
 
   // 如果通过 _t 参数登录，在页面响应中设置 cookie
   if (urlToken && !cookieToken) {
+    const isSecure = request.headers.get("x-forwarded-proto") === "https";
     response.cookies.set("token", urlToken, {
-      httpOnly: false,
-      secure: false,
+      httpOnly: true,
+      secure: isSecure,
       sameSite: "lax",
       maxAge: 60 * 60 * 8,
       path: "/",

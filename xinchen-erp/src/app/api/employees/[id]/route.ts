@@ -1,29 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 import { hashPassword } from "@/lib/auth";
 import { resolveAccountUsername } from "@/lib/employee-account";
+import { randomBytes } from "crypto";
 
-const DEFAULT_PASSWORD = "Xc@123456";
-
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
+function generateDefaultPassword(): string {
+  return "Xc@" + randomBytes(6).toString("hex");
 }
+
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const _denied = await requirePermission(request, "employees:view");
+  if (_denied) return _denied;
+
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
 
   const employee = await prisma.employee.findFirst({
     where: { id: parseInt(id), tenantId },
     include: {
-      user: { select: { id: true, realName: true, username: true, isDefaultPassword: true, mustChangePassword: true } },
+      user: { select: { id: true, realName: true, username: true } },
       position: { select: { id: true, name: true } },
     },
   });
@@ -39,7 +40,7 @@ export async function PUT(
     const _denied = await requirePermission(request, "settings:manage");
     if (_denied) return _denied;
 
-  const { tenantId, userId: operatorId } = getContext(request);
+  const { tenantId, userId: operatorId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
   const {
@@ -91,7 +92,7 @@ export async function PUT(
     await prisma.user.update({
       where: { id: employee.userId },
       data: {
-        passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
+        passwordHash: await hashPassword(password || generateDefaultPassword()),
         mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : true,
         isDefaultPassword: useDefault,
       },
@@ -110,7 +111,7 @@ export async function PUT(
         data: {
           tenantId,
           username: effectiveUsername,
-          passwordHash: await hashPassword(password || DEFAULT_PASSWORD),
+          passwordHash: await hashPassword(password || generateDefaultPassword()),
           realName: name || existing.name,
           phone: phone || null,
           mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : !password,
@@ -164,16 +165,14 @@ export async function PUT(
   const result = await prisma.employee.findFirst({
     where: { id: parseInt(id), tenantId },
     include: {
-      user: {
-        select: {
-          id: true,
-          realName: true,
-          username: true,
-          isDefaultPassword: true,
-          mustChangePassword: true,
-          userRoles: { include: { role: { select: { id: true, name: true, code: true } } } },
-        },
-      },
+          user: {
+            select: {
+              id: true,
+              realName: true,
+              username: true,
+              userRoles: { include: { role: { select: { id: true, name: true, code: true } } } },
+            },
+          },
       position: { select: { id: true, name: true } },
     },
   });
@@ -188,7 +187,10 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
 
   const existing = await prisma.employee.findFirst({

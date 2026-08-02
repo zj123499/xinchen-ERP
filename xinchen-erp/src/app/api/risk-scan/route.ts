@@ -11,17 +11,19 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 import { Prisma, RiskLevel } from "@prisma/client";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function POST(request: NextRequest) {
-  const { tenantId } = getContext(request);
+
+const _denied = await requirePermission(request, "risk:manage");
+
+if (_denied) return _denied;
+
+
+  const { tenantId } = getServerContext(request);
   const now = new Date();
 
   const created: { rule: string; studentId: number | null; level: string; detail: string }[] = [];

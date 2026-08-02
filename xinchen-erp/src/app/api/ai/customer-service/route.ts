@@ -9,15 +9,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 
 import { callAi } from "@/lib/ai-gateway";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 // 关键词重叠打分，挑最相关 FAQ
 function bestFaq(question: string, faqs: { dictKey: string; dictValue: string }[]) {
@@ -37,7 +33,13 @@ function bestFaq(question: string, faqs: { dictKey: string; dictValue: string }[
 }
 
 export async function POST(request: NextRequest) {
-const { userId, tenantId } = getContext(request);
+
+const _denied = await requirePermission(request, "leads:view");
+
+if (_denied) return _denied;
+
+
+const { userId, tenantId } = getServerContext(request);
   const body = await request.json();
   const { studentId, question, context, messages, save } = body;
 

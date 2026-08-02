@@ -1,26 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
+import { encrypt } from "@/lib/crypto";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const _denied = await requirePermission(request, "company_templates:update");
     if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
   const { name, cloudAccount, cloudAccountPassword, cloudLoginPhone, icpCompany, legalRepresentative, remark, status } = body;
   const t = await prisma.companyTemplate.updateMany({
     where: { id: parseInt(id), tenantId },
     data: {
-      name, cloudAccount, cloudAccountPassword, cloudLoginPhone,
+      name, cloudAccount,
+      cloudAccountPassword: cloudAccountPassword ? encrypt(cloudAccountPassword) : undefined,
+      cloudLoginPhone,
       icpCompany, legalRepresentative, remark,
       status: status !== false,
     },
@@ -33,7 +31,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const _denied = await requirePermission(request, "company_templates:delete");
     if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   await prisma.companyTemplate.updateMany({
     where: { id: parseInt(id), tenantId },

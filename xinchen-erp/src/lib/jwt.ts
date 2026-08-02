@@ -1,7 +1,15 @@
 import { SignJWT, jwtVerify } from "jose";
 
+// 生产环境必须设置 JWT_SECRET，不允许硬编码回退
+const jwtSecret = process.env.JWT_SECRET;
+if (!jwtSecret) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("生产环境必须设置 JWT_SECRET 环境变量");
+  }
+  console.warn("[安全] 未设置 JWT_SECRET，开发环境使用临时密钥");
+}
 const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "xinchen-erp-jwt-secret-dev"
+  jwtSecret || "xinchen-erp-jwt-secret-dev-" + Date.now()
 );
 
 export interface TokenPayload {

@@ -7,20 +7,15 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const _denied = await requirePermission(request, "countries:view");
     if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const country = await prisma.country.findFirst({
     where: { id: parseInt(id), tenantId },
@@ -34,7 +29,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const _denied = await requirePermission(request, "countries:update");
     if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
   const { name, code, region, visaPolicy, remark } = body;
@@ -64,7 +59,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const _denied = await requirePermission(request, "countries:delete");
     if (_denied) return _denied;
 
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const existing = await prisma.country.findFirst({ where: { id: parseInt(id), tenantId } });
   if (!existing) return NextResponse.json({ error: "国家不存在" }, { status: 404 });

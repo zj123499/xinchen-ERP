@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 import { ROLE_DEPARTMENT_MAP } from "@/lib/menus";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-    roles: (request.headers.get("x-user-roles") || "").split(",").filter(Boolean),
-  };
-}
 
 export async function GET(request: NextRequest) {
-  const { tenantId, userId, roles } = getContext(request);
+  const _denied = await requirePermission(request, "employees:view");
+  if (_denied) return _denied;
+
+  const { tenantId, userId, roles } = getServerContext(request);
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = Math.min(parseInt(searchParams.get("pageSize") || "20"), 100);
@@ -35,7 +32,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { tenantId, userId, roles } = getContext(request);
+  const { tenantId, userId, roles } = getServerContext(request);
   const body = await request.json();
 
   // 查找所属部门

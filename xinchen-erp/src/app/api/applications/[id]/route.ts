@@ -7,14 +7,9 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(
   request: NextRequest,
@@ -22,7 +17,7 @@ export async function GET(
 ) {
   const denied = await requirePermission(request, "applications:view");
   if (denied) return denied;
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
 
   const application = await prisma.application.findFirst({
@@ -58,7 +53,7 @@ export async function PUT(
 ) {
   const denied = await requirePermission(request, "applications:update");
   if (denied) return denied;
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
   const { studentId, contractId, institutionName, majorName, degree, intakeYear, intakeMonth, status, submittedAt, resultAt, remark } = body;
@@ -100,7 +95,7 @@ export async function DELETE(
 ) {
   const denied = await requirePermission(request, "applications:update");
   if (denied) return denied;
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const { id } = await params;
 
   const existing = await prisma.application.findFirst({

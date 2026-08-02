@@ -302,6 +302,7 @@ model User {
   operatedChanges  EmployeeChange[]
 
   @@index([tenantId])
+  @@index([isActive])
   @@map("users")
 }
 
@@ -851,6 +852,9 @@ model Lead {
 
   @@index([tenantId, assignedToId])
   @@index([status])
+  @@index([phone])
+  @@index([source])
+  @@index([createdAt])
   @@map("leads")
 }
 
@@ -890,6 +894,8 @@ model FollowUp {
 
   @@index([studentId])
   @@index([leadId])
+  @@index([userId])
+  @@index([createdAt])
   @@map("follow_ups")
 }
 
@@ -921,6 +927,8 @@ model Contract {
 
   @@index([tenantId])
   @@index([studentId])
+  @@index([status])
+  @@index([signDate])
   @@map("contracts")
 }
 
@@ -999,6 +1007,7 @@ model Application {
 
   @@index([tenantId])
   @@index([studentId])
+  @@index([status])
   @@map("applications")
 }
 
@@ -1240,6 +1249,7 @@ model Partner {
   rentalOrders     RentalOrder[]
 
   @@index([tenantId])
+  @@index([type])
   @@map("partners")
 }
 

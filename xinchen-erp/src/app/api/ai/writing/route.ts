@@ -10,15 +10,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 
 import { callAi } from "@/lib/ai-gateway";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 async function fillBgFromStudent(studentId: number, tenantId: number) {
   const s = await prisma.student.findFirst({
@@ -30,7 +26,13 @@ async function fillBgFromStudent(studentId: number, tenantId: number) {
 }
 
 export async function GET(request: NextRequest) {
-const { tenantId } = getContext(request);
+
+const _denied = await requirePermission(request, "applications:update");
+
+if (_denied) return _denied;
+
+
+const { tenantId } = getServerContext(request);
   const studentId = parseInt(request.nextUrl.searchParams.get("studentId") || "0");
   const list = await prisma.aiConversation.findMany({
     where: { tenantId, type: "WRITING", ...(studentId ? { studentId } : {}) },
@@ -41,7 +43,13 @@ const { tenantId } = getContext(request);
 }
 
 export async function POST(request: NextRequest) {
-  const { userId, tenantId } = getContext(request);
+
+const _denied = await requirePermission(request, "applications:update");
+
+if (_denied) return _denied;
+
+
+  const { userId, tenantId } = getServerContext(request);
   const body = await request.json();
   const { studentId, type, studentBackground, targetMajor, targetInstitution, requirements, relatedId, save } = body;
 

@@ -5,19 +5,18 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const _denied = await requirePermission(request, "employees:view");
+  if (_denied) return _denied;
+
+  const { tenantId } = getServerContext(request);
   if (!tenantId) return NextResponse.json({ error: "未授权" }, { status: 401 });
   const { id } = await params;
 

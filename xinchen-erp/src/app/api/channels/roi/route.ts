@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 import { ChannelType, AttributionModel } from "@prisma/client";
 
-function getContext(request: NextRequest) {
-  return { tenantId: parseInt(request.headers.get("x-tenant-id") || "0") };
-}
 
 const CHANNEL_LABELS: Record<string, string> = {
   SEARCH: "搜索引擎",
@@ -18,7 +17,13 @@ const CHANNEL_LABELS: Record<string, string> = {
 
 // GET /api/channels/roi  各渠道 ROI 报表
 export async function GET(request: NextRequest) {
-  const { tenantId } = getContext(request);
+
+const _denied = await requirePermission(request, "settings:manage");
+
+if (_denied) return _denied;
+
+
+  const { tenantId } = getServerContext(request);
   const { searchParams } = new URL(request.url);
   const model = (searchParams.get("model") || "LAST_TOUCH") as AttributionModel;
 

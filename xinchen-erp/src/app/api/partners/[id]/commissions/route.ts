@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
 
-function getContext(request: NextRequest) {
-  return { tenantId: parseInt(request.headers.get("x-tenant-id") || "0") };
-}
 
 // GET /api/partners/[id]/commissions  渠道商佣金明细列表
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { tenantId } = getContext(request);
+  const { tenantId } = getServerContext(request);
   const partnerId = parseInt((await params).id);
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");

@@ -7,16 +7,12 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerContext } from "@/lib/server-context";
+import { requirePermission } from "@/lib/permission";
 
-function getContext(request: NextRequest) {
-  return {
-    userId: parseInt(request.headers.get("x-user-id") || "0"),
-    tenantId: parseInt(request.headers.get("x-tenant-id") || "0"),
-  };
-}
 
 export async function GET(request: NextRequest) {
-  const { userId } = getContext(request);
+  const { userId } = getServerContext(request);
   const url = new URL(request.url);
   const unreadOnly = url.searchParams.get("unreadOnly") === "true";
   const limit = parseInt(url.searchParams.get("limit") || "20");
@@ -38,12 +34,26 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { userId } = getContext(request);
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
+  const { userId, tenantId } = getServerContext(request);
   const body = await request.json();
   const { title, content, type, link, targetUserId } = body;
 
   if (!title) {
     return NextResponse.json({ error: "通知标题为必填项" }, { status: 400 });
+  }
+
+  // 校验 targetUserId 属于同一租户，防止跨租户发送通知
+  if (targetUserId) {
+    const targetUser = await prisma.user.findFirst({
+      where: { id: targetUserId, tenantId },
+      select: { id: true },
+    });
+    if (!targetUser) {
+      return NextResponse.json({ error: "目标用户不存在" }, { status: 400 });
+    }
   }
 
   const notification = await prisma.notification.create({

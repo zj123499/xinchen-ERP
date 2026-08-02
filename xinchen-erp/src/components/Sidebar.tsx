@@ -1,5 +1,6 @@
 "use client";
 
+import React, { memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -72,7 +73,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   customer: <UserCheck className="w-5 h-5" />,
 };
 
-export default function Sidebar() {
+const Sidebar = memo(function Sidebar() {
   const pathname = usePathname();
   // 登录后默认所有菜单为未展开状态
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -178,4 +179,6 @@ export default function Sidebar() {
       </div>
     </aside>
   );
-}
+});
+
+export default Sidebar;
