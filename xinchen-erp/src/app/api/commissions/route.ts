@@ -12,17 +12,8 @@ const COMMISSION_STATUS_MAP: Record<string, string> = {
 };
 
 export async function GET(request: NextRequest) {
-
-const _denied = await requirePermission(request, "settings:manage");
-
-if (_denied) return _denied;
-
-
-
-const _denied = await requirePermission(request, "settings:manage");
-
-if (_denied) return _denied;
-
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
 
   const { tenantId } = getServerContext(request);
   const { searchParams } = new URL(request.url);
@@ -72,17 +63,8 @@ if (_denied) return _denied;
 }
 
 export async function POST(request: NextRequest) {
-
-const _denied = await requirePermission(request, "settings:manage");
-
-if (_denied) return _denied;
-
-
-
-const _denied = await requirePermission(request, "settings:manage");
-
-if (_denied) return _denied;
-
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
 
   const { tenantId } = getServerContext(request);
   const body = await request.json();
