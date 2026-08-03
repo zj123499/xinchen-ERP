@@ -12,11 +12,11 @@ import { getStorage } from "@/lib/storage";
 
 export async function GET(
   request: NextRequest,
-  {
- const _denied = await requirePermission(request, "contracts:view");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const _denied = await requirePermission(request, "contracts:view");
+  if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
   const contractId = parseInt(id);
