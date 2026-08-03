@@ -1,6 +1,10 @@
 /**
- * BI 数据大屏
- * echarts 通过 ScreenClient 独立 chunk 按需加载
+ * BI 数据大屏 — 禁止 SSR 避免 hydration mismatch (#418)
  */
-import ScreenClient from "./ScreenClient";
-export default ScreenClient;
+import dynamic from "next/dynamic";
+
+const ScreenClient = dynamic(() => import("./ScreenClient"), { ssr: false });
+
+export default function BigScreenPage() {
+  return <ScreenClient />;
+}
