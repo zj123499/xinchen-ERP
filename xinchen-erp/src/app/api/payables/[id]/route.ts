@@ -5,7 +5,7 @@ import { requirePermission } from "@/lib/permission";
 
 
 export async function GET(request: NextRequest,
-  { params } { params: Promise<{ id: string }> }) {
+  { params }: { params: Promise<{ id: string }> }) {
   const _denied = await requirePermission(request, "settings:manage");
   if (_denied) return _denied;
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest,
 }
 
 export async function PUT(request: NextRequest,
-  { params } { params: Promise<{ id: string }> }) {
+  { params }: { params: Promise<{ id: string }> }) {
   const _denied = await requirePermission(request, "settings:manage");
   if (_denied) return _denied;
 
@@ -62,7 +62,7 @@ export async function PUT(request: NextRequest,
 }
 
 export async function DELETE(request: NextRequest,
-  { params } { params: Promise<{ id: string }> }) {
+  { params }: { params: Promise<{ id: string }> }) {
   const _denied = await requirePermission(request, "settings:manage");
   if (_denied) return _denied;
 
