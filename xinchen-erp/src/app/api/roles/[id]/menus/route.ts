@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 角色菜单权限 API
  * GET  /api/roles/[id]/menus - 获取全部菜单 + 该角色已分配的菜单

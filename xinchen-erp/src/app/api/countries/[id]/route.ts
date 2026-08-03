@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 国家详情 API
  * GET    /api/countries/:id - 详情

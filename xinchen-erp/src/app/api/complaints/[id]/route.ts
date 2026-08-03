@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 投诉详情 API（客户成功中心）
  * PUT    /api/complaints/:id - 处理/闭环

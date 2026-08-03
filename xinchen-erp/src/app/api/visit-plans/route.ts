@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 回访计划 API
  * GET  /api/visit-plans  - 分页查询回访计划（可按状态/学生/负责人筛选）

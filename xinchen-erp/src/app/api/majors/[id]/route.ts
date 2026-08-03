@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 专业详情 API
  * GET    /api/majors/:id

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 投诉管理 API（客户成功中心）
  * GET  /api/complaints - 列表（按状态/等级筛选）

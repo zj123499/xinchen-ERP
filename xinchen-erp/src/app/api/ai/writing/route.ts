@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * AI 文书助手（AI 智能层）
  * POST /api/ai/writing

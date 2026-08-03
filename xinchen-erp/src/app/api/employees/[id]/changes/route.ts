@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 员工异动记录
  * GET /api/employees/[id]/changes - 列出员工异动历史

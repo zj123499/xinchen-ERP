@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 产品组合详情 API
  * DELETE /api/product-packages/:id - 删除组合

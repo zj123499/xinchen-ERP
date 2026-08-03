@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 学生申请意向管理
  * GET  /api/students/[id]/intentions - 列出

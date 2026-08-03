@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 操作日志 API
  * GET /api/operation-logs - 分页查询操作日志（可按模块/动作/关键词筛选）

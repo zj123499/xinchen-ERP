@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 院校详情 API
  * GET    /api/institutions/:id

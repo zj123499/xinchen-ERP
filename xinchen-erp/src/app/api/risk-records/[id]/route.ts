@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 风险记录处置 API（风险管理中心）
  * PUT    /api/risk-records/:id - 处置（解决/忽略）

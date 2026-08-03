@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 通知 API
  * GET  /api/notifications - 获取通知列表

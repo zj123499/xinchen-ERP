@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * NextCloud 连接状态检查
  * GET /api/system/nextcloud-status — 返回配置和连接状态

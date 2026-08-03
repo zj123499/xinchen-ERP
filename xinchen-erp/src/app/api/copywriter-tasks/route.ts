@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 文书任务 API
  * GET  /api/copywriter-tasks?applicationId=&assignedToId=&status=  - 文书任务清单

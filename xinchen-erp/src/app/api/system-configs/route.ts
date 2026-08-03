@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 系统配置 API
  * GET  /api/system-configs - 获取配置列表

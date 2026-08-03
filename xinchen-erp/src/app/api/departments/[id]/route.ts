@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 部门管理 API - 单条操作
  * PUT   /api/departments/[id] - 更新部门

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 工作台统计 API（BI 看板）
  * GET /api/dashboard - 返回多维度统计数据

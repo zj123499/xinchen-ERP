@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 系统配置 API - 删除
  * DELETE /api/system-configs/[id] - 删除配置

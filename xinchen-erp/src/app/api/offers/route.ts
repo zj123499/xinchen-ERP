@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * Offer管理 API
  * GET  /api/offers - Offer列表（支持分页、搜索、筛选）

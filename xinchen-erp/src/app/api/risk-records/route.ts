@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 风险记录 API（风险管理中心）
  * GET  /api/risk-records - 列表（按等级/状态筛选）

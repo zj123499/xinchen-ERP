@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 业务线列表 API
  * GET /api/business-lines - 业务线列表（用于产品/合同关联选择）

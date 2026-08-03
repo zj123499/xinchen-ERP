@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 角色接口(API)权限 API
  * GET  /api/roles/[id]/permissions - 获取全部接口权限 + 该角色已分配的权限

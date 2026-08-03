@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 数据字典 API
  * GET  /api/dicts - 字典列表（支持按 groupName 筛选）

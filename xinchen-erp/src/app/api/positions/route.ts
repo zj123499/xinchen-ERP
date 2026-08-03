@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 岗位管理 API
  * GET  /api/positions - 岗位列表（支持按 deptId 筛选）

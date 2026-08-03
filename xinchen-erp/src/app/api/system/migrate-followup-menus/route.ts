@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 菜单迁移 API（合并入口）
  * POST /api/system/migrate-followup-menus

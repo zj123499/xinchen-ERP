@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 合同详情 API
  * GET    /api/contracts/[id] - 合同详情（含学生、订单、业务线）

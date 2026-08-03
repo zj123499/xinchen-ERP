@@ -118,9 +118,6 @@ export default function CommissionsPage() {
     fetch("/api/employees?pageSize=100").then(r => r.json()).then(d => {
       setEmployees(d.list?.map((e: EmployeeOption) => ({ id: e.id, name: e.name, employeeNo: e.employeeNo })) || []);
     }).catch(() => {});
-    fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
-      if (d.list?.length) setAllStudents(d.list);
-    }).catch(() => {});
     fetch("/api/commission-rules").then(r => r.json()).then(d => {
       setRules(d.list || []);
     }).catch(() => {});

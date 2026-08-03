@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 登录日志 API
  * GET /api/login-logs - 分页查询登录日志（可按状态/用户名筛选）

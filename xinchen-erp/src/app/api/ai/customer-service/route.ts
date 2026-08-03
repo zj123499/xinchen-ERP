@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * AI 客服助手（AI 智能层）
  * POST /api/ai/customer-service

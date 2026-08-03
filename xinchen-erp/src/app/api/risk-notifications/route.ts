@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 风险通知 API（风险管理中心）
  * GET /api/risk-notifications - 风险通知列表（按已读筛选）

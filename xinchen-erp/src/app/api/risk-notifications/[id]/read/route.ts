@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 风险通知标记已读 API
  * POST /api/risk-notifications/:id/read

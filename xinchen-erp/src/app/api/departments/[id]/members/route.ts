@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 部门成员管理 API（基于 UserDepartment 直接关联）
  * GET    /api/departments/[id]/members — 列出部门成员

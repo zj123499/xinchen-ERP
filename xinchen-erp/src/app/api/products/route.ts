@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 产品/服务包管理 API（产品资源中心）
  * GET  /api/products - 列表（分页/搜索/按国家/业务线筛选）

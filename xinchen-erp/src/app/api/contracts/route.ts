@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 合同管理 API
  * GET  /api/contracts - 合同列表（支持分页、搜索、筛选）

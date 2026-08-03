@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 钉钉组织架构同步 API
  * POST /api/dingtalk/sync - 手动触发组织架构同步

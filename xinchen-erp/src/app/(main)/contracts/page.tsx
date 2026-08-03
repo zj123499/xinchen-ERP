@@ -157,9 +157,6 @@ export default function ContractsPage() {
 
   useEffect(() => {
     fetchContracts();
-    fetch("/api/students?pageSize=200").then(r => r.json()).then(d => {
-      if (d.list?.length) setAllStudents(d.list);
-    }).catch(() => {});
   }, [fetchContracts]);
 
   const loadRecentStudents = () => { fetch("/api/students?pageSize=20").then(r => r.json()).then(d => setStudentResults(d.list || [])).catch(() => {}); };

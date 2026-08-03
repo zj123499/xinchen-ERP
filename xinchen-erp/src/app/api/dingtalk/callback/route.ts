@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 钉钉事件回调 HTTP 接口
  * POST /api/dingtalk/callback - 接收钉钉推送的事件

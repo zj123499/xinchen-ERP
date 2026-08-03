@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 服务回访 API（客户成功中心）
  * GET  /api/service-visits - 列表（按回访人/结果筛选）

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 线索申诉审批 API
  * PUT /api/lead-appeals/[id]  - 审批申诉

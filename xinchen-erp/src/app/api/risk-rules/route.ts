@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 风险规则 API（风险管理中心）
  * GET  /api/risk-rules - 规则列表（支持启用筛选）

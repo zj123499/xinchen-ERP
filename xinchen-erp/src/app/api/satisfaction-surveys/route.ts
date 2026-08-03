@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 满意度调查 API（客户成功中心）
  * GET  /api/satisfaction-surveys - 列表

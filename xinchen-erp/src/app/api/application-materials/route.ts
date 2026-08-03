@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 申请材料 API
  * GET  /api/application-materials?applicationId=  - 某申请的材料清单

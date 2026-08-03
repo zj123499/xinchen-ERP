@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 利润报表 BI API
  * GET  /api/profit-reports        - 分页查询月度经营报表

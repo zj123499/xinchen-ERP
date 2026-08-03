@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 产品详情 API
  * GET    /api/products/:id

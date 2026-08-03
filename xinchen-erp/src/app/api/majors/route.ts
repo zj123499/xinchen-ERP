@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 专业管理 API（产品资源中心）
  * GET  /api/majors - 列表（分页/搜索/按院校筛选）

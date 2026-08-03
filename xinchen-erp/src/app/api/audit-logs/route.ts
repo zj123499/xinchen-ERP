@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 审计日志 API
  * GET /api/audit-logs  - 分页查询操作审计日志（可按操作类型/表名/关键词筛选）

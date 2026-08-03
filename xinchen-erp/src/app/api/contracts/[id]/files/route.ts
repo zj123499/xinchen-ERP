@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 合同文件列表 API
  * GET    /api/contracts/[id]/files - 列出合同附件

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 风险扫描 API（风险管理中心）
  * POST /api/risk-scan - 执行风险规则引擎扫描，自动生成风险记录

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 合作方合同文件上传 API
  * POST /api/partners/upload

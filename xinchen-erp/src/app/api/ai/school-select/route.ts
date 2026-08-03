@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * AI 选校顾问（AI 智能层）
  * POST /api/ai/school-select  body: { studentId?, gpa, ielts, toefl, budget, targetCountry, targetDegree, targetMajor, save? }

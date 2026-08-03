@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 产品组合（套餐/捆绑）API（产品资源中心）
  * GET  /api/product-packages - 列表（按父产品筛选）

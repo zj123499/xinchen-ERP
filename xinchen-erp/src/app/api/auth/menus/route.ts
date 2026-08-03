@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * GET /api/auth/menus
  * 返回当前登录用户可见的菜单 code 集合，供侧边栏按角色过滤。

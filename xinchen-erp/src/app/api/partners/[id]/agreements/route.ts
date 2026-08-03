@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 合作方协议管理
  * GET  /api/partners/[id]/agreements - 列出合作协议

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 线索公海申诉 API
  * GET  /api/lead-appeals?status=  - 申诉列表

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 学生申请进度大屏 API
  * GET /api/bi/applications-progress

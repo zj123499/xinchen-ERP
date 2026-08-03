@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 转介绍管理 API（客户成功中心）
  * GET  /api/referrals - 列表（按状态筛选）

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 签证管理 API
  * GET  /api/visas - 签证列表

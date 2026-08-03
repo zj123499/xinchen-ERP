@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 转介绍详情 API（客户成功中心）
  * PUT    /api/referrals/:id - 转化为签约 / 发放奖励 / 作废

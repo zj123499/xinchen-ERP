@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 角色管理 API - 单条操作
  * PUT   /api/roles/[id] - 更新角色

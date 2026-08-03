@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 风险规则详情 API
  * PUT    /api/risk-rules/:id

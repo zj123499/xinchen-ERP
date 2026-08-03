@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 数据字典 API - 单条操作
  * PUT   /api/dicts/[id] - 更新字典项

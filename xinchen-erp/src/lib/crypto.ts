@@ -24,12 +24,17 @@ function getKey(): Buffer {
   return buf;
 }
 
-const KEY = getKey();
+// 惰性加载，避免 webpack 构建时模块初始化导致环境变量解析失败
+let _key: Buffer | null = null;
+function getKeyLazy(): Buffer {
+  if (!_key) _key = getKey();
+  return _key;
+}
 
 /** 加密明文，返回 hex 编码的密文（格式：iv:authTag:ciphertext，均为hex） */
 export function encrypt(plaintext: string): string {
   const iv = randomBytes(16);
-  const cipher = createCipheriv("aes-256-gcm", KEY, iv);
+  const cipher = createCipheriv("aes-256-gcm", getKeyLazy(), iv);
   const encrypted = Buffer.concat([cipher.update(plaintext, "utf-8"), cipher.final()]);
   const authTag = cipher.getAuthTag();
   return `${iv.toString("hex")}:${authTag.toString("hex")}:${encrypted.toString("hex")}`;
@@ -42,7 +47,7 @@ export function decrypt(ciphertext: string): string {
   const iv = Buffer.from(parts[0], "hex");
   const authTag = Buffer.from(parts[1], "hex");
   const encrypted = Buffer.from(parts[2], "hex");
-  const decipher = createDecipheriv("aes-256-gcm", KEY, iv);
+  const decipher = createDecipheriv("aes-256-gcm", getKeyLazy(), iv);
   decipher.setAuthTag(authTag);
   return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString("utf-8");
 }

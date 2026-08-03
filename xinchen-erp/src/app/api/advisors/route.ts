@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 顾问列表 API
  * GET /api/advisors                    — 返回 isAssignable=true 角色的用户（通用默认）

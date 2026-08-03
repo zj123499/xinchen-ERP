@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 角色管理 API
  * GET  /api/roles - 角色列表

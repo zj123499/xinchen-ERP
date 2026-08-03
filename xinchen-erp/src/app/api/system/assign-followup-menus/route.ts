@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 跟进表单菜单权限批量分配
  * POST /api/system/assign-followup-menus

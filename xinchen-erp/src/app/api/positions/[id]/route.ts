@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 岗位管理 API - 单条操作
  * PUT   /api/positions/[id] - 更新岗位

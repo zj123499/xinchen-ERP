@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 部门管理 API
  * GET  /api/departments - 部门列表（树形）

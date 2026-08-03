@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 通知批量操作 API
  * PUT /api/notifications/read-all - 全部标记已读

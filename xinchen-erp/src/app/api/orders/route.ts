@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 订单管理 API
  * GET  /api/orders - 订单列表（支持分页、搜索、筛选）

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 申请管理 API
  * GET  /api/applications - 申请列表

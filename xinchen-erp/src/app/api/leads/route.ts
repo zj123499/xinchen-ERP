@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 线索管理 API
  * GET  /api/leads      - 线索列表（支持分页、搜索、筛选；权限隔离：每人只看自己的线索）

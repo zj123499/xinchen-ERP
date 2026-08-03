@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * 国家管理 API（产品资源中心）
  * GET  /api/countries - 国家列表（分页/搜索）
