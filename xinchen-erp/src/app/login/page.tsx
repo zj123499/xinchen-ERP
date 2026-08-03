@@ -121,7 +121,7 @@ export default function LoginPage() {
               </button>
             </form>
           ) : (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} autoComplete="off">
               <div className="mb-8">
                 <div className="flex items-center gap-3 mb-6 lg:hidden">
                   <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center">
@@ -143,7 +143,12 @@ export default function LoginPage() {
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">用户名</label>
                   <div className="relative">
-                    <input type="text" value={username} onChange={e => setUsername(e.target.value)}
+                    <input
+                      type="text"
+                      name="erp-username"
+                      autoComplete="off"
+                      value={username}
+                      onChange={e => setUsername(e.target.value)}
                       className="w-full px-4 py-3 pl-11 border-2 border-slate-200 rounded-2xl text-sm outline-none focus:border-indigo-400 transition"
                       placeholder="手机号 / 用户名" />
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">👤</span>
@@ -152,7 +157,12 @@ export default function LoginPage() {
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">密码</label>
                   <div className="relative">
-                    <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                    <input
+                      type="password"
+                      name="erp-password"
+                      autoComplete="new-password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
                       className="w-full px-4 py-3 pl-11 border-2 border-slate-200 rounded-2xl text-sm outline-none focus:border-indigo-400 transition"
                       placeholder="输入密码" />
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">🔒</span>
