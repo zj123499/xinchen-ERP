@@ -13,11 +13,10 @@ import { requirePermission } from "@/lib/permission";
 
 export async function GET(
   request: NextRequest,
-  {
- const _denied = await requirePermission(request, "visas:view");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }
-) {
+  { params }: { params: Promise<{ id: string }> }) {
+    const _denied = await requirePermission(request, "visas:view");
+    if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
 
@@ -49,11 +48,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  {
- const _denied = await requirePermission(request, "visas:update");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }
-) {
+  { params }: { params: Promise<{ id: string }> }) {
+    const _denied = await requirePermission(request, "visas:update");
+    if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
@@ -92,11 +90,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  {
- const _denied = await requirePermission(request, "visas:update");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }
-) {
+  { params }: { params: Promise<{ id: string }> }) {
+    const _denied = await requirePermission(request, "visas:update");
+    if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
 

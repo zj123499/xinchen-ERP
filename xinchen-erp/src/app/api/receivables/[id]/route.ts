@@ -4,10 +4,13 @@ import { getServerContext } from "@/lib/server-context";
 import { requirePermission } from "@/lib/permission";
 
 
-export async function GET(request: NextRequest, {
- const _denied = await requirePermission(request, "settings:manage");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
   const rec = await prisma.receivable.findFirst({
@@ -18,10 +21,13 @@ export async function GET(request: NextRequest, {
   return NextResponse.json(rec);
 }
 
-export async function PUT(request: NextRequest, {
- const _denied = await requirePermission(request, "settings:manage");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
@@ -60,10 +66,13 @@ export async function PUT(request: NextRequest, {
   return NextResponse.json(rec);
 }
 
-export async function DELETE(request: NextRequest, {
- const _denied = await requirePermission(request, "settings:manage");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
   const existing = await prisma.receivable.findFirst({ where: { id: parseInt(id), tenantId } });

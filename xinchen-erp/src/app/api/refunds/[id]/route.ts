@@ -35,10 +35,11 @@ async function clawbackCommissions(tenantId: number, studentId: number, refundRa
   }
 }
 
-export async function GET(request: NextRequest, {
- const _denied = await requirePermission(request, "settings:manage");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest,
+  { params } { params: Promise<{ id: string }> }) {
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
   const refund = await prisma.refund.findFirst({
@@ -52,10 +53,11 @@ export async function GET(request: NextRequest, {
   return NextResponse.json(refund);
 }
 
-export async function PUT(request: NextRequest, {
- const _denied = await requirePermission(request, "settings:manage");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest,
+  { params } { params: Promise<{ id: string }> }) {
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
   const { userId, tenantId } = getServerContext(request);
   const { id } = await params;
   const body = await request.json();
@@ -96,10 +98,11 @@ export async function PUT(request: NextRequest, {
   return NextResponse.json(refund);
 }
 
-export async function DELETE(request: NextRequest, {
- const _denied = await requirePermission(request, "settings:manage");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest,
+  { params } { params: Promise<{ id: string }> }) {
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
   const existing = await prisma.refund.findFirst({ where: { id: parseInt(id), tenantId } });

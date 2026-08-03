@@ -61,10 +61,11 @@ export async function PUT(
   return NextResponse.json(income);
 }
 
-export async function DELETE(request: NextRequest, {
- const _denied = await requirePermission(request, "settings:manage");
- if (_denied) return _denied;
- params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest,
+  { params } { params: Promise<{ id: string }> }) {
+  const _denied = await requirePermission(request, "settings:manage");
+  if (_denied) return _denied;
+
   const { tenantId } = getServerContext(request);
   const { id } = await params;
   const existing = await prisma.income.findFirst({ where: { id: parseInt(id), tenantId } });
