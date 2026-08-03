@@ -1,0 +1,560 @@
+{
+  "global": {
+    "tenantId": 1,
+    "dataDir": "/home/ubuntu/xinchen-erp/data-import",
+    "batchSize": 200,
+    "reportPath": "etl_report.md",
+    "database": {
+      "host": "127.0.0.1",
+      "port": 5432,
+      "dbname": "xinchen_erp",
+      "user": "user_TJ4skN",
+      "password": "password_6Jaz2n"
+    }
+  },
+  "sources": {
+    "partner": {
+      "label": "B端渠道",
+      "files": [
+        "B端渠道_*.xlsx"
+      ],
+      "target": "partners",
+      "priority": 1,
+      "fields": [
+        {
+          "source": "渠道名称",
+          "target": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "source": "对接人",
+          "target": "contact_name",
+          "type": "string"
+        },
+        {
+          "source": "联系电话",
+          "target": "contact_phone",
+          "type": "phone"
+        },
+        {
+          "source": "来源",
+          "target": "remark",
+          "type": "string",
+          "concat": [
+            "来源",
+            "合作方式",
+            "链接项目",
+            "签约状态"
+          ]
+        },
+        {
+          "source": "拥有者(必填)",
+          "target": "created_by",
+          "type": "string",
+          "lookup": {
+            "table": "users",
+            "key": "real_name",
+            "return": "id"
+          }
+        },
+        {
+          "source": "",
+          "target": "type",
+          "type": "string",
+          "default": "agency"
+        },
+        {
+          "source": "",
+          "target": "status",
+          "type": "bool",
+          "default": true
+        },
+        {
+          "source": "创建时间",
+          "target": "created_at",
+          "type": "datetime",
+          "default": "now"
+        },
+        {
+          "source": "修改时间",
+          "target": "updated_at",
+          "type": "datetime",
+          "default": "now"
+        }
+      ]
+    },
+    "lead": {
+      "label": "线索类型",
+      "files": [
+        "线索类型_*.xlsx"
+      ],
+      "target": "leads",
+      "priority": 1,
+      "fields": [
+        {
+          "source": "客户名称",
+          "target": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "source": "客户手机号",
+          "target": "phone",
+          "type": "phone"
+        },
+        {
+          "source": "客户微信号",
+          "target": "wechat",
+          "type": "string"
+        },
+        {
+          "source": "线索类型",
+          "target": "source",
+          "type": "string",
+          "enum": {}
+        },
+        {
+          "source": "自媒体类型",
+          "target": "source_detail",
+          "type": "string"
+        },
+        {
+          "source": "跟进状态",
+          "target": "status",
+          "type": "string",
+          "enum": {
+            "未跟进": "NEW",
+            "已跟进": "CONTACTED",
+            "无效": "INVALID"
+          }
+        },
+        {
+          "source": "备注",
+          "target": "remark",
+          "type": "string"
+        },
+        {
+          "source": "咨询业务",
+          "target": "consult_business",
+          "type": "string"
+        },
+        {
+          "source": "拥有者(必填)",
+          "target": "assigned_to_id",
+          "type": "string",
+          "lookup": {
+            "table": "users",
+            "key": "real_name",
+            "return": "id"
+          }
+        },
+        {
+          "source": "创建时间",
+          "target": "created_at",
+          "type": "datetime"
+        },
+        {
+          "source": "",
+          "target": "source",
+          "type": "string",
+          "default": "IMPORT"
+        },
+        {
+          "source": "",
+          "target": "status",
+          "type": "string",
+          "default": "NEW"
+        },
+        {
+          "source": "",
+          "target": "assigned_to_id",
+          "type": "int",
+          "default": 1
+        },
+        {
+          "source": "",
+          "target": "phone",
+          "type": "string",
+          "default": "unknown"
+        }
+      ]
+    },
+    "student_intent": {
+      "label": "意向学生",
+      "files": [
+        "意向学生_*.xlsx"
+      ],
+      "target": "students",
+      "priority": 2,
+      "fields": [
+        {
+          "source": "客户名称",
+          "target": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "source": "客户手机号",
+          "target": "phone",
+          "type": "phone"
+        },
+        {
+          "source": "拥有者(必填)",
+          "target": "assigned_to_id",
+          "type": "string",
+          "lookup": {
+            "table": "users",
+            "key": "real_name",
+            "return": "id"
+          }
+        },
+        {
+          "source": "创建时间",
+          "target": "created_at",
+          "type": "datetime"
+        },
+        {
+          "source": "",
+          "target": "current_status",
+          "type": "string",
+          "default": "LEAD"
+        },
+        {
+          "source": "",
+          "target": "source",
+          "type": "string",
+          "default": "UNKNOWN"
+        }
+      ]
+    },
+    "contract": {
+      "label": "已签约",
+      "files": [
+        "已签约_*.xlsx"
+      ],
+      "target": "contracts",
+      "priority": 3,
+      "fields": [
+        {
+          "source": "学生姓名",
+          "target": "student_id",
+          "type": "string",
+          "lookup": {
+            "table": "students",
+            "key": "name",
+            "return": "id"
+          }
+        },
+        {
+          "source": "数据标题",
+          "target": "contract_no",
+          "type": "string"
+        },
+        {
+          "source": "签约金额",
+          "target": "total_amount",
+          "type": "float"
+        },
+        {
+          "source": "签约时间",
+          "target": "sign_date",
+          "type": "datetime"
+        },
+        {
+          "source": "创建时间",
+          "target": "created_at",
+          "type": "datetime"
+        },
+        {
+          "source": "",
+          "target": "currency",
+          "type": "string",
+          "default": "CNY"
+        },
+        {
+          "source": "",
+          "target": "status",
+          "type": "string",
+          "default": "SIGNED"
+        },
+        {
+          "source": "",
+          "target": "contract_no",
+          "type": "string",
+          "default": "HT_UNKNOWN"
+        }
+      ]
+    },
+    "payment": {
+      "label": "回款表单",
+      "files": [
+        "回款表单_*.xlsx"
+      ],
+      "target": "payments",
+      "priority": 4,
+      "fields": [
+        {
+          "source": "学生",
+          "target": "student_id",
+          "type": "string",
+          "lookup": {
+            "table": "students",
+            "key": "name",
+            "return": "id"
+          }
+        },
+        {
+          "source": "回款编号",
+          "target": "payment_no",
+          "type": "string"
+        },
+        {
+          "source": "本次收款",
+          "target": "amount",
+          "type": "float"
+        },
+        {
+          "source": "收款时间",
+          "target": "paid_at",
+          "type": "datetime"
+        },
+        {
+          "source": "创建时间(必填)",
+          "target": "created_at",
+          "type": "datetime"
+        },
+        {
+          "source": "",
+          "target": "currency",
+          "type": "string",
+          "default": "CNY"
+        },
+        {
+          "source": "",
+          "target": "payment_type",
+          "type": "string",
+          "default": "CLIENT_FEE"
+        },
+        {
+          "source": "",
+          "target": "method",
+          "type": "string",
+          "default": "BANK_TRANSFER"
+        },
+        {
+          "source": "",
+          "target": "fiscal_year",
+          "type": "int",
+          "default": 2026
+        },
+        {
+          "source": "",
+          "target": "fiscal_month",
+          "type": "int",
+          "default": 8
+        },
+        {
+          "source": "",
+          "target": "payment_no",
+          "type": "string",
+          "default": "AUTO"
+        }
+      ]
+    },
+    "refund": {
+      "label": "退款表单",
+      "files": [
+        "退款表单_*.xlsx"
+      ],
+      "target": "refunds",
+      "priority": 4,
+      "fields": [
+        {
+          "source": "学生",
+          "target": "student_id",
+          "type": "string",
+          "lookup": {
+            "table": "students",
+            "key": "name",
+            "return": "id"
+          }
+        },
+        {
+          "source": "回款编号",
+          "target": "refund_no",
+          "type": "string"
+        },
+        {
+          "source": "本次退款",
+          "target": "amount",
+          "type": "float"
+        },
+        {
+          "source": "退款原因",
+          "target": "reason",
+          "type": "string"
+        },
+        {
+          "source": "退款时间",
+          "target": "refunded_at",
+          "type": "datetime"
+        },
+        {
+          "source": "",
+          "target": "currency",
+          "type": "string",
+          "default": "CNY"
+        },
+        {
+          "source": "",
+          "target": "status",
+          "type": "string",
+          "default": "PENDING"
+        },
+        {
+          "source": "",
+          "target": "refund_no",
+          "type": "string",
+          "default": "AUTO"
+        }
+      ]
+    },
+    "application": {
+      "label": "文案在办",
+      "files": [
+        "文案在办_*.xlsx"
+      ],
+      "target": "applications",
+      "priority": 5,
+      "fields": [
+        {
+          "source": "学生",
+          "target": "student_id",
+          "type": "string",
+          "lookup": {
+            "table": "students",
+            "key": "name",
+            "return": "id"
+          }
+        },
+        {
+          "source": "已申请大学",
+          "target": "institution_name",
+          "type": "string"
+        },
+        {
+          "source": "已申请专业",
+          "target": "major_name",
+          "type": "string"
+        },
+        {
+          "source": "递交状态",
+          "target": "status",
+          "type": "string",
+          "enum": {
+            "未递交": "PREPARING",
+            "已递交": "SUBMITTED",
+            "已录取": "OFFER"
+          }
+        },
+        {
+          "source": "",
+          "target": "degree",
+          "type": "string",
+          "default": "MS"
+        },
+        {
+          "source": "",
+          "target": "intake_year",
+          "type": "int",
+          "default": 2026
+        },
+        {
+          "source": "",
+          "target": "intake_month",
+          "type": "int",
+          "default": 9
+        },
+        {
+          "source": "",
+          "target": "institution_name",
+          "type": "string",
+          "default": "待定"
+        },
+        {
+          "source": "",
+          "target": "major_name",
+          "type": "string",
+          "default": "待定"
+        },
+        {
+          "source": "",
+          "target": "status",
+          "type": "string",
+          "default": "PREPARING"
+        }
+      ]
+    },
+    "commission": {
+      "label": "佣金表单",
+      "files": [
+        "佣金表单_*.xlsx"
+      ],
+      "target": "commissions",
+      "priority": 6,
+      "fields": [
+        {
+          "source": "学生",
+          "target": "student_id",
+          "type": "string",
+          "lookup": {
+            "table": "students",
+            "key": "name",
+            "return": "id"
+          }
+        },
+        {
+          "source": "佣金金额",
+          "target": "amount",
+          "type": "float"
+        },
+        {
+          "source": "收取日期",
+          "target": "released_at",
+          "type": "datetime"
+        },
+        {
+          "source": "",
+          "target": "rule_id",
+          "type": "int",
+          "default": 1
+        },
+        {
+          "source": "",
+          "target": "employee_id",
+          "type": "int",
+          "default": 1
+        },
+        {
+          "source": "",
+          "target": "status",
+          "type": "string",
+          "default": "RELEASED"
+        },
+        {
+          "source": "",
+          "target": "fiscal_year",
+          "type": "int",
+          "default": 2026
+        },
+        {
+          "source": "",
+          "target": "fiscal_month",
+          "type": "int",
+          "default": 8
+        }
+      ]
+    }
+  }
+}
